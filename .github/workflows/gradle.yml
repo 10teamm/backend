@@ -36,6 +36,9 @@ jobs:
         mkdir -p src/main/resources
         echo "${{ secrets.APP_PROPERTIES }}" > src/main/resources/application.properties
 
+    - name: Give execute permission to gradlew
+      run: chmod +x ./gradlew
+
     - name: Build with Gradle Wrapper
       run: ./gradlew clean build
 
