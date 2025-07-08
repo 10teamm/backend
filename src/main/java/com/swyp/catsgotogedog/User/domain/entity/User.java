@@ -34,4 +34,8 @@ public class User {
     private String koreanProficiency;
     private String region;
     private String visaDescription;
+
+    // google Oauth
+    private String provider;
+    private String providerId;
 }
