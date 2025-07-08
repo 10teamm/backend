@@ -16,7 +16,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-20.04 # NCP Server version
+    runs-on: ubuntu-22.04 # NCP Server version
     permissions:
       contents: read
 
@@ -84,7 +84,7 @@ jobs:
 
   dependency-submission:
 
-    runs-on: ubuntu-20.04 # NCP Server version
+    runs-on: ubuntu-22.04 # NCP Server version
     permissions:
       contents: write
 
