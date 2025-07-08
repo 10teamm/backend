@@ -20,6 +20,20 @@ jobs:
     permissions:
       contents: read
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
@@ -32,6 +46,27 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+    - name: Generate application.properties from Secrets
+      run: |
+        mkdir -p src/main/resources
+        echo "${{ secrets.APP_PROPERTIES }}" > src/main/resources/application.properties
+
+    - name: Wait for MySQL
+      run: |
+        set -e
+        timeout=10
+        count=0
+        while [ $count -lt $timeout ] && ! nc -z localhost 3306; do
+          sleep 1
+          count=$((count + 1))
+        done
+        
+        # 타임아웃 체크
+        if [ $count -eq $timeout ]; then
+          echo "Error: MySQL did not start within $timeout seconds"
+          exit 1
+        fi
 
     - name: Build with Gradle Wrapper
       run: ./gradlew clean build
