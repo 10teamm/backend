@@ -22,6 +22,7 @@ public class User {
     private String name;
     private String loginId;
     private String password;
+    private String nickname;
     private Date birth;
     private String phoneNumber;
     private String email;

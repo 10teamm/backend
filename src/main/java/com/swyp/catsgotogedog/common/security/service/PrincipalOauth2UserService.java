@@ -1,8 +1,7 @@
 package com.swyp.catsgotogedog.common.security.service;
 
 
-import com.swyp.catsgotogedog.User.domain.entity.User;
-import com.swyp.catsgotogedog.User.domain.entity.UserRole;
+
 import com.swyp.catsgotogedog.User.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,26 +22,31 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        log.info("getAttributes : {}", oAuth2User.getAttributes());
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        String providerId;
+        String email = null;
+        String name;
 
-        String provider = userRequest.getClientRegistration().getRegistrationId();
-        String providerId = oAuth2User.getAttribute("sub");
-        String loginId = provider + "_" + providerId;
+        log.info("RegistrationId: {}", registrationId);
+        log.info("OAuth2 attributes: {}", oAuth2User.getAttributes());
 
-        Optional<User> optionalUser = userRepository.findByLoginId(loginId);
-        User user;
-        if (optionalUser.isEmpty()) {
-            user = User.builder()
-                    .loginId(loginId)
-                    .name(oAuth2User.getAttribute("name"))
-                    .provider(provider)
-                    .providerId(providerId)
-                    .role(UserRole.USER)
-                    .build();
-            userRepository.save(user);
-        } else {
-            user = optionalUser.get();
+        switch (registrationId) {
+            case "naver":
+                providerId = oAuth2User.getAttribute("id");
+                name = oAuth2User.getAttribute("profile_nickname");
+                //email = oAuth2User.getAttribute("email");
+                break;
+            case "kakao":
+                providerId = oAuth2User.getAttribute("id");
+                name = oAuth2User.getAttribute("nickname");
+                //email = oAuth2User.getAttribute("kakao_account_email");
+                break;
+            case "google":
+                providerId = oAuth2User.getAttribute("sub");
+                name = oAuth2User.getAttribute("name");
+                email = oAuth2User.getAttribute("email");
         }
-        return new PrincipalDetails(user, oAuth2User.getAttributes());
+
+        return super.loadUser(userRequest);
     }
 }
