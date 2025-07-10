@@ -1,0 +1,54 @@
+name: Discord PR 알림
+
+on:
+  pull_request:
+    types: [opened, reopened] # PR이 열리거나, 다시 열리거나, 업데이트될 때
+    branches:
+      - main
+      - develop
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Discord 알림 전송
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          
+          embeds: |
+            [
+              {
+                "title": "📢 새로운 Pull Request 발생!",
+                "description": "**레포지토리:** `${{ github.repository }}`\n**브랜치:** `${{ github.base_ref }}`\n\n**PR 제목:** `${{ github.event.pull_request.title }}`",
+                "url": "${{ github.event.pull_request.html_url }}",
+                "color": 3447003,
+                "author": {
+                  "name": "${{ github.event.pull_request.user.login }}",
+                  "icon_url": "${{ github.event.pull_request.user.avatar_url }}"
+                },
+                "fields": [
+                  {
+                    "name": "작성자",
+                    "value": "${{ github.event.pull_request.user.login }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "브랜치",
+                    "value": "${{ github.head_ref }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "상태",
+                    "value": "새로운 PR이 열리거나 ${{ github.base_ref }} 브랜치에 업데이트 됐어요",
+                    "inline": false
+                  }
+                ],
+                "timestamp": "${{ github.event.pull_request.created_at }}",
+                "footer": {
+                  "text": "GitHub Actions",
+                  "icon_url": "https://avatars.githubusercontent.com/u/44036562?s=200&v=4" # GitHub Actions 로고
+                }
+              }
+            ]
