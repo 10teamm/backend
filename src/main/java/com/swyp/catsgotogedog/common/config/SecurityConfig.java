@@ -7,6 +7,7 @@ import com.swyp.catsgotogedog.common.security.handler.MyAccessDeniedHandler;
 import com.swyp.catsgotogedog.common.security.handler.MyAuthenticationEntryPoint;
 import com.swyp.catsgotogedog.common.security.handler.OAuth2LoginSuccessHandler;
 import com.swyp.catsgotogedog.common.security.service.PrincipalOauth2UserService;
+import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ public class SecurityConfig {
     private final UserService userService;
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final JwtTokenFilter jwtTokenFilter;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -33,24 +35,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/jwt-login/profile").authenticated()
-                        .requestMatchers("/jwt-login/admin/**").hasAuthority(UserRole.ADMIN.name())
-                        .requestMatchers("/oauth2/**", "/login/**").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new MyAuthenticationEntryPoint())
-                        .accessDeniedHandler(new MyAccessDeniedHandler())
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(principalOauth2UserService))
-                        .successHandler(oAuth2LoginSuccessHandler)
-                );
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login**", "/error").permitAll()
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")          // 커스텀 로그인 화면 (없으면 기본 템플릿)
+                        .successHandler(oAuth2LoginSuccessHandler))
+                .addFilterBefore(jwtTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
-        http.addFilterBefore(new JwtTokenFilter(userService, jwtSecret), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

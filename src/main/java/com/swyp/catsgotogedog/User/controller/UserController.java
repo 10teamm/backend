@@ -63,20 +63,20 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary="로그인")
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        User user = userService.login(loginRequest);
-        if(user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("로그인 아이디 또는 비밀번호가 틀렸습니다.");
-        }
-
-        long expireTimeMs = 1000 * 60 * 60; // 60분 유효
-        String jwtToken = JwtTokenUtil.createToken(user.getLoginId(), secretKey, expireTimeMs);
-        LoginResponse response = new LoginResponse("로그인 성공", jwtToken);
-        return ResponseEntity.ok(response);
-    }
+//    @Operation(summary="로그인")
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+//        User user = userService.login(loginRequest);
+//        if(user == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                    .body("로그인 아이디 또는 비밀번호가 틀렸습니다.");
+//        }
+//
+//        long expireTimeMs = 1000 * 60 * 60; // 60분 유효
+//        String jwtToken = JwtTokenUtil.createToken(user.getLoginId(), secretKey, expireTimeMs);
+//        LoginResponse response = new LoginResponse("로그인 성공", jwtToken);
+//        return ResponseEntity.ok(response);
+//    }
 
     @Operation(summary="프로필 업데이트")
     @PutMapping("/update-profile")

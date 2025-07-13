@@ -36,7 +36,8 @@ public class User {
     private String region;
     private String visaDescription;
 
-    // google Oauth
-    private String provider;
-    private String providerId;
+    // Oauth
+    private String provider;     // google / kakao / naver
+    private String providerId;   // 소셜 PK
+
 }
