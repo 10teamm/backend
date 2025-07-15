@@ -1,9 +1,15 @@
 package com.swyp.catsgotogedog.milvus.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.milvus.client.MilvusClient;
+import io.milvus.grpc.GetCollectionStatisticsResponse;
+import io.milvus.param.R;
 import io.milvus.param.collection.CreateDatabaseParam;
+import io.milvus.response.GetCollStatResponseWrapper;
+import io.milvus.grpc.GetCollectionStatisticsResponse;
+import io.milvus.param.collection.GetCollectionStatisticsParam;
 import io.milvus.param.collection.LoadCollectionParam;
 import io.milvus.response.SearchResultsWrapper;
 import jakarta.annotation.PostConstruct;
@@ -16,7 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 public class MilvusService {
 
 	private final MilvusClient milvusClient;
-	private static final String COLLECTION_NAME = "catsgotogedog_collection";
+
+	/**
+	 * TODO : 개발, 운영 milvus 컬렉션을 나누어야 할 필요가 있어보임 우선 하나의 컬렉션을 사용
+	 */
+	@Value("${milvus.collection-name}")
+	private String collectionName;
 
 	/**
 	 * 컬렉션 로딩
@@ -27,9 +38,9 @@ public class MilvusService {
 	public void loadCollection() {
 		try {
 			milvusClient.loadCollection(LoadCollectionParam.newBuilder()
-				.withCollectionName(COLLECTION_NAME)
+				.withCollectionName(collectionName)
 			 	.build());
-			 log.info("Collection 로드 완료 :: {}", COLLECTION_NAME);
+			 log.info("Collection 로드 완료 :: {}", collectionName);
 		} catch (Exception e) {
 			throw new RuntimeException("Milvus user Creation Failed");
 		}
