@@ -11,15 +11,6 @@ public record SocialUserInfo(String id, String email, String name) {
                     (String) attr.get("email"),
                     (String) attr.get("name")
             );
-            case "kakao" -> {
-                Map<String, Object> acc = (Map<String, Object>) attr.get("kakao_account");
-                Map<String, Object> prof = (Map<String, Object>) acc.get("profile");
-                yield new SocialUserInfo(
-                        String.valueOf(attr.get("id")),
-                        (String) acc.get("email"),
-                        (String) prof.get("nickname")
-                );
-            }
             case "naver" -> {
                 Map<String, Object> res = (Map<String, Object>) attr.get("response");
                 yield new SocialUserInfo(

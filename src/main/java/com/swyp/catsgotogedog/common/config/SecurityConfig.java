@@ -1,13 +1,8 @@
 package com.swyp.catsgotogedog.common.config;
 
-import com.swyp.catsgotogedog.User.domain.entity.UserRole;
-import com.swyp.catsgotogedog.User.service.UserService;
 import com.swyp.catsgotogedog.common.security.filter.JwtTokenFilter;
-import com.swyp.catsgotogedog.common.security.handler.MyAccessDeniedHandler;
-import com.swyp.catsgotogedog.common.security.handler.MyAuthenticationEntryPoint;
 import com.swyp.catsgotogedog.common.security.handler.OAuth2LoginSuccessHandler;
 import com.swyp.catsgotogedog.common.security.service.PrincipalOauth2UserService;
-import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,14 +11,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserService userService;
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final JwtTokenFilter jwtTokenFilter;
