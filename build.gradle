@@ -46,6 +46,12 @@ dependencies {
 
 	// Oauth
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// Milvus Java SDK
+	implementation group: 'io.milvus', name: 'milvus-sdk-java', version: '2.5.10'
+	// Flyway
+	implementation group: 'org.flywaydb', name: 'flyway-mysql', version: '11.10.2'
+	implementation 'org.flywaydb:flyway-core'
 }
 
 tasks.named('test') {
