@@ -5,6 +5,8 @@ package com.swyp.catsgotogedog.common.security.service;
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
 import com.swyp.catsgotogedog.common.oauth2.KakaoUserInfo;
+import com.swyp.catsgotogedog.common.oauth2.GoogleUserInfo;
+import com.swyp.catsgotogedog.common.oauth2.NaverUserInfo;
 import com.swyp.catsgotogedog.common.oauth2.SocialUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,16 +26,24 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest req) {
         OAuth2User oAuth2User = super.loadUser(req);
-
-        String provider = req.getClientRegistration().getRegistrationId();   // google/kakao/naver
+        String provider = req.getClientRegistration().getRegistrationId();   // google / kakao / naver
 
         SocialUserInfo info;
 
-        if (provider.equals("kakao")) {
-            KakaoUserInfo kakaoInfo = KakaoUserInfo.of(oAuth2User.getAttributes());
-            info = new SocialUserInfo(kakaoInfo.id(), null, kakaoInfo.name()); // email은 null 처리
-        } else {
-            info = SocialUserInfo.of(provider, oAuth2User.getAttributes());
+        switch (provider) {
+            case "kakao" -> {
+                KakaoUserInfo kakao = KakaoUserInfo.of(oAuth2User.getAttributes());
+                info = new SocialUserInfo(kakao.id(), null, kakao.name(), kakao.profile_image());
+            }
+            case "naver" -> {
+                NaverUserInfo naver = NaverUserInfo.of(oAuth2User.getAttributes());
+                info = new SocialUserInfo(naver.id(), naver.email(), naver.name(), naver.profileImage());
+            }
+            case "google" -> {
+                GoogleUserInfo google = GoogleUserInfo.of(oAuth2User.getAttributes());
+                info = new SocialUserInfo(google.id(), google.email(), google.name(), google.picture());
+            }
+            default -> throw new IllegalArgumentException("지원하지 않는 소셜 로그인입니다: " + provider);
         }
 
         User user = userRepository.findByProviderAndProviderId(provider, info.id())
@@ -43,7 +53,9 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                                 .providerId(info.id())
                                 .email(info.email())
                                 .name(info.name())
-                                .build()));
+                                .profileImage(info.profileImage())
+                                .build()
+                ));
 
         return new PrincipalDetails(user, oAuth2User.getAttributes());
     }

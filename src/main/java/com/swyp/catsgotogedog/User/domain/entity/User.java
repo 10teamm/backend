@@ -20,9 +20,9 @@ public class User {
 
     private String name;
     private String email;
-
-    // Oauth
     private String provider;     // google / kakao / naver
     private String providerId;
+
+    private String profileImage;
 
 }
