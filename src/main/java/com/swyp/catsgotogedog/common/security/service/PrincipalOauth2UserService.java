@@ -15,6 +15,10 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
+import static org.joda.time.DateTime.now;
+
 
 @Service
 @RequiredArgsConstructor
@@ -52,8 +56,10 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                                 .provider(provider)
                                 .providerId(info.id())
                                 .email(info.email())
-                                .name(info.name())
-                                .profileImage(info.profileImage())
+                                .displayName(info.name())
+                                .imageUrl(info.profileImage())
+                                .createdAt(LocalDateTime.now())
+                                .isActive(Boolean.TRUE)
                                 .build()
                 ));
 

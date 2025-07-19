@@ -29,7 +29,7 @@ public class PrincipalDetails implements OAuth2User, Authentication {
     /* OAuth2User */
     @Override public Map<String, Object> getAttributes() { return attributes; }
 
-    @Override public String getName() { return user.getName(); }
+    @Override public String getName() { return user.getDisplayName(); }
 
     /* Authentication */
     @Override public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -57,5 +57,9 @@ public class PrincipalDetails implements OAuth2User, Authentication {
 
     @Override
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {}
+
+    public String getProviderId() {
+        return user.getProviderId();
+    }
 
 }

@@ -30,7 +30,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login**", "/error").permitAll()
+                        .requestMatchers("/", "/login**", "/error",
+                                "/auth/reissue", "/auth/logout").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login")          // 커스텀 로그인 화면 (없으면 기본 템플릿)

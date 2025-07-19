@@ -4,6 +4,8 @@ package com.swyp.catsgotogedog.User.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 
 @Entity
 @Getter
@@ -16,13 +18,19 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="user_id")
-    private Long userId;
+    private int userId;
 
-    private String name;
+    private String displayName;
     private String email;
     private String provider;     // google / kakao / naver
     private String providerId;
 
-    private String profileImage;
+    private String imageFilename;
+    private String imageUrl;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    private Boolean isActive;
 
 }
