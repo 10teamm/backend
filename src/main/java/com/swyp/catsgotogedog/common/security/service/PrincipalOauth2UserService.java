@@ -17,9 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
-import static org.joda.time.DateTime.now;
-
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -37,7 +34,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         switch (provider) {
             case "kakao" -> {
                 KakaoUserInfo kakao = KakaoUserInfo.of(oAuth2User.getAttributes());
-                info = new SocialUserInfo(kakao.id(), null, kakao.name(), kakao.profile_image());
+                info = new SocialUserInfo(kakao.id(), kakao.email(), kakao.name(), kakao.profile_image());
             }
             case "naver" -> {
                 NaverUserInfo naver = NaverUserInfo.of(oAuth2User.getAttributes());
