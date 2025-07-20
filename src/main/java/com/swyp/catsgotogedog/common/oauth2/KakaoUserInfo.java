@@ -12,7 +12,9 @@ public record KakaoUserInfo(String id, String email, String name, String profile
 
         String nickname = (String) profile.get("nickname");
         String profile_image=(String) profile.get("profile_image");
-        String email=(String) profile.get("account_email");
+        String email = (String) kakaoAccount.get("email");
+
+        System.out.println("emial : "+email);
 
         return new KakaoUserInfo(id, email, nickname, profile_image);
     }
