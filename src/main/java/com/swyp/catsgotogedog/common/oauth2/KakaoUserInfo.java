@@ -11,11 +11,11 @@ public record KakaoUserInfo(String id, String email, String name, String profile
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 
         String nickname = (String) profile.get("nickname");
-        String profile_image=(String) profile.get("profile_image");
+        String profileImage = (String) profile.get("profile_image_url");
         String email = (String) kakaoAccount.get("email");
 
         System.out.println("emial : "+email);
 
-        return new KakaoUserInfo(id, email, nickname, profile_image);
+        return new KakaoUserInfo(id, email, nickname, profileImage);
     }
 }
