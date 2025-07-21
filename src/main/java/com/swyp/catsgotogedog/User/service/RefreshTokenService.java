@@ -25,6 +25,7 @@ public class RefreshTokenService {
                 .userId(user.getUserId())
                 .refreshToken(token)
                 .expiresAt(expiryMs)
+                .isRevoked(Boolean.FALSE)
                 .build();
         return repo.save(rt);
     }
