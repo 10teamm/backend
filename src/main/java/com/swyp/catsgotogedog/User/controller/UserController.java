@@ -16,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements UserControllerSwagger{
 
     private final JwtTokenUtil jwt;
     private final RefreshTokenService rtService;
