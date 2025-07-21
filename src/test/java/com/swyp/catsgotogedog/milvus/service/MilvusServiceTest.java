@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.swyp.catsgotogedog.common.milvus.service.MilvusService;
+
 import io.milvus.client.MilvusClient;
 import io.milvus.param.collection.LoadCollectionParam;
 
