@@ -3,6 +3,7 @@ package com.swyp.catsgotogedog.common.config;
 import java.util.List;
 
 import com.swyp.catsgotogedog.common.security.filter.JwtTokenFilter;
+import com.swyp.catsgotogedog.common.security.filter.OAuth2AutoLoginFilter;
 import com.swyp.catsgotogedog.common.security.handler.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -43,9 +45,10 @@ public class SecurityConfig {
                             "/error",
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
-                            "/user/**"
+                            "/api/**"
                         ).permitAll()
                         .anyRequest().authenticated())
+                .addFilterBefore(new OAuth2AutoLoginFilter(), OAuth2AuthorizationRequestRedirectFilter.class)
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login")          // 커스텀 로그인 화면 (없으면 기본 템플릿)
                         .successHandler(oAuth2LoginSuccessHandler))
