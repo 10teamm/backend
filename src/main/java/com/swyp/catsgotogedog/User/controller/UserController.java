@@ -27,7 +27,7 @@ public class UserController implements UserControllerSwagger{
 
     @PostMapping("/reissue")
     public ResponseEntity<CatsgotogedogApiResponse<?>> reIssue(
-            @CookieValue("X-Refresh-Token") String refresh) {
+            @CookieValue(value = "X-Refresh-Token", required = false) String refresh) {
 
         return ResponseEntity.ok(CatsgotogedogApiResponse.success("재발급 성공",
             new AccessTokenResponse(userService.reIssue(refresh))));

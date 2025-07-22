@@ -13,4 +13,15 @@ public record CatsgotogedogApiResponse<T>(int status, String message, T data) {
 		return new CatsgotogedogApiResponse<>(errorCode.getCode(), errorCode.getMessage(), null);
 	}
 
+	public static <T> CatsgotogedogApiResponse<T> fail(ErrorCode errorCode, T data) {
+		return new CatsgotogedogApiResponse<>(errorCode.getCode(), errorCode.getMessage(), data);
+	}
+
+	public static <T> CatsgotogedogApiResponse<T> fail(int errorCode, String message, T data) {
+		return new CatsgotogedogApiResponse<>(errorCode, message, data);
+	}
+
+	public static <T> CatsgotogedogApiResponse<T> fail(int errorCode, String message) {
+		return new CatsgotogedogApiResponse<>(errorCode, message, null);
+	}
 }
