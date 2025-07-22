@@ -1,6 +1,6 @@
 package com.swyp.catsgotogedog.User.controller;
 
-import com.swyp.catsgotogedog.User.domain.AccessTokenResponse;
+import com.swyp.catsgotogedog.User.domain.response.AccessTokenResponse;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
 import com.swyp.catsgotogedog.User.service.RefreshTokenService;
 import com.swyp.catsgotogedog.User.service.UserService;

@@ -9,10 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
-import com.swyp.catsgotogedog.User.domain.AccessTokenResponse;
+import com.swyp.catsgotogedog.User.domain.response.AccessTokenResponse;
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
-import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
-import com.swyp.catsgotogedog.global.exception.ErrorCode;
 
 @Tag(name = "User", description = "사용자 관련 API")
 public interface UserControllerSwagger {
