@@ -39,6 +39,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Value("${jwt.refresh-expire-day}")
     private int refreshDay;
 
+    /**
+     * 최초 로그인 시 RefreshToken만 Cookie로  반환하도록 설정
+     */
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request, HttpServletResponse response, Authentication auth) throws IOException {
@@ -49,18 +52,18 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         User user = userRepo.findByProviderId(providerId)
                 .orElseThrow(() -> new IllegalStateException("회원이 없습니다"));
 
-        String access  = jwt.createAccessToken(String.valueOf(user.getUserId()), user.getEmail());
+        //String access  = jwt.createAccessToken(String.valueOf(user.getUserId()), user.getEmail());
         String refresh = jwt.createRefreshToken(String.valueOf(user.getUserId()), user.getEmail());
 
         rtService.save(user, refresh, jwt.getRefreshTokenExpiry());
 
         addRefreshTokenCookie(response, refresh, isAutoLogin(request));
 
-        String targetUrl = UriComponentsBuilder.fromUriString(frontend_base_url)
-            .queryParam("accessToken", access)
-            .build()
-            .toUriString();
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        // String targetUrl = UriComponentsBuilder.fromUriString(frontend_base_url)
+        //     .queryParam("accessToken", access)
+        //     .build()
+        //     .toUriString();
+        getRedirectStrategy().sendRedirect(request, response, frontend_base_url);
     }
 
     private Boolean isAutoLogin(HttpServletRequest request) {
@@ -76,14 +79,24 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken, Boolean isAutoLogin) {
-        Cookie refreshTokenCookie = new Cookie("X-Refresh-Token", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
+        // Cookie refreshTokenCookie = new Cookie("X-Refresh-Token", refreshToken);
+        // refreshTokenCookie.setHttpOnly(true);
+        // refreshTokenCookie.setSecure(true);
+        // refreshTokenCookie.setPath("/");
+        // if(isAutoLogin) {
+        //     refreshTokenCookie.setMaxAge(refreshDay * 24 * 60 * 60);
+        // }
+
+        StringBuilder cookieHeader = new StringBuilder();
+        cookieHeader.append("X-Refresh-Token=").append(refreshToken)
+            .append("; HttpOnly")
+            .append("; Secure")
+            .append("; Path=/")
+            .append("; SameSite=None");
         if(isAutoLogin) {
-            refreshTokenCookie.setMaxAge(refreshDay * 24 * 60 * 60);
+            cookieHeader.append("; Max-Age=").append(refreshDay * 24 * 60 * 60);
         }
 
-        response.addCookie(refreshTokenCookie);
+        response.addHeader("Set-Cookie", cookieHeader.toString());
     }
 }

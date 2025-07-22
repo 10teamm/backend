@@ -55,7 +55,6 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                                 .email(info.email())
                                 .displayName(info.name())
                                 .imageUrl(info.profileImage())
-                                .createdAt(LocalDateTime.now())
                                 .isActive(Boolean.TRUE)
                                 .build()
                 ));
