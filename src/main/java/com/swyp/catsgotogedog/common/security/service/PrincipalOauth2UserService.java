@@ -14,7 +14,9 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
 @Service
@@ -22,9 +24,12 @@ import java.time.LocalDateTime;
 @Slf4j
 public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
+    private static final int RANDDOM_NUMBER_LENGTH = 6;
+
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest req) {
         OAuth2User oAuth2User = super.loadUser(req);
         String provider = req.getClientRegistration().getRegistrationId();   // google / kakao / naver
@@ -48,17 +53,33 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         }
 
         User user = userRepository.findByProviderAndProviderId(provider, info.id())
-                .orElseGet(() -> userRepository.save(
+                .orElseGet(() -> {
+                    String display_name = info.name();
+                    while(userRepository.findByDisplayName(display_name).isPresent()) {
+                        display_name = info.name() + generateRandomString();
+                    }
+                    return userRepository.save(
                         User.builder()
-                                .provider(provider)
-                                .providerId(info.id())
-                                .email(info.email())
-                                .displayName(info.name())
-                                .imageUrl(info.profileImage())
-                                .isActive(Boolean.TRUE)
-                                .build()
-                ));
+                            .provider(provider)
+                            .providerId(info.id())
+                            .email(info.email())
+                            .displayName(display_name)
+                            .imageUrl(info.profileImage())
+                            .isActive(Boolean.TRUE)
+                            .build()
+                    );
+                });
 
         return new PrincipalDetails(user, oAuth2User.getAttributes());
+    }
+
+    // 랜덤 숫자(0~9) RANDDOM_NUMBER_LENGTH 값의 자리 만큼 반환 메서드
+    private String generateRandomString() {
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(RANDDOM_NUMBER_LENGTH);
+        for (int i = 0; i < RANDDOM_NUMBER_LENGTH; i++) {
+            sb.append(random.nextInt(10));
+        }
+        return sb.toString();
     }
 }

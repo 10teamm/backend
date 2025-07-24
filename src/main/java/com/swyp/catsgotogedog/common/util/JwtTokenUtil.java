@@ -34,23 +34,25 @@ public class JwtTokenUtil {
     }
 
 
-    public String createAccessToken(String sub, String email) {
+    public String createAccessToken(String sub, String email, String displayName) {
         Date now = new Date();
         return Jwts.builder()
                 .setSubject(sub)
                 .claim("email", email)
+                .claim("displayName", displayName)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessMin * 60_000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String createRefreshToken(String sub, String email) {
+    public String createRefreshToken(String sub, String email, String displayName) {
         Date now = new Date();
         long refreshMs = Duration.ofDays(refreshDay).toMillis();
         return Jwts.builder()
                 .setSubject(sub)
                 .claim("email", email)
+                .claim("displayName", displayName)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshMs))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -65,6 +67,11 @@ public class JwtTokenUtil {
     public String getEmail(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()
             .parseClaimsJws(token).getBody().get("email", String.class);
+    }
+
+    public String getDisplayName(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build()
+            .parseClaimsJws(token).getBody().get("displayName", String.class);
     }
 
     public LocalDateTime getRefreshTokenExpiry() {
