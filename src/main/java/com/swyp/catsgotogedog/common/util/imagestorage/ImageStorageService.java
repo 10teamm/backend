@@ -1,6 +1,9 @@
 package com.swyp.catsgotogedog.common.util.imagestorage;
 
+import com.swyp.catsgotogedog.common.util.imagestorage.dto.ImageInfo;
+import com.swyp.catsgotogedog.global.exception.ErrorCode;
 import com.swyp.catsgotogedog.global.exception.ImageUploadException;
+import io.awspring.cloud.s3.S3Resource;
 import io.awspring.cloud.s3.S3Template;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,29 +26,26 @@ public class ImageStorageService {
 
     private final S3Template s3Template;
     private final S3Client s3Client;
-    private final String endpoint;
     private final String bucketName;
 
     private static final int MAX_FILE_COUNT = 10;
 
     public ImageStorageService(S3Template s3Template,
                                S3Client s3Client,
-                               @Value("${spring.cloud.aws.s3.endpoint}") String endpoint,
                                @Value("${spring.cloud.aws.s3.bucket}") String bucketName) {
 
         this.s3Template = s3Template;
         this.s3Client = s3Client;
-        this.endpoint = endpoint;
         this.bucketName = bucketName;
     }
 
     // 다중 이미지 업로드 -> upload 메서드(path 포함)로 오버로딩
-    public List<String> upload(List<MultipartFile> files) {
+    public List<ImageInfo> upload(List<MultipartFile> files) {
         return upload(files, "");
     }
 
     // 다중 이미지 업로드 -> 각 파일을 doUpload 메서드로 처리. 각 반환 값을 리스트로 수집 후 반환
-    public List<String> upload(List<MultipartFile> files, String path) {
+    public List<ImageInfo> upload(List<MultipartFile> files, String path) {
         validateFiles(files);
         return files.stream()
                 .map(file -> doUpload(file, path))
@@ -53,12 +53,12 @@ public class ImageStorageService {
     }
 
     // 단일 이미지 업로드 -> upload 메서드(path 포함)로 오버로딩
-    public List<String> upload(MultipartFile file) {
+    public List<ImageInfo> upload(MultipartFile file) {
         return upload(file, "");
     }
 
     // 단일 이미지 업로드 -> doUpload 호출 후 리스트로 래핑하여 반환
-    public List<String> upload(MultipartFile file, String path) {
+    public List<ImageInfo> upload(MultipartFile file, String path) {
         validateFile(file);
         return Collections.singletonList(doUpload(file, path));
     }
@@ -75,36 +75,23 @@ public class ImageStorageService {
         keys.forEach(this::doDelete);
     }
 
-    // 키를 기반으로 URL 생성 -> 단일 이미지
-    public List<String> generateUrls(String key) {
-        validateKey(key);
-        return Collections.singletonList(doGenerateUrl(key));
-    }
-
-    // 다중 이미지 URL 생성
-    public List<String> generateUrls(List<String> keys) {
-        validateKeyList(keys);
-        return keys.stream()
-                .map(this::doGenerateUrl)
-                .collect(Collectors.toList());
-    }
-
-    private String doUpload(MultipartFile file, String path) {
+    private ImageInfo doUpload(MultipartFile file, String path) {
         String key = genKey(file, path);
 
         try (InputStream stream = file.getInputStream()) {
-            s3Template.upload(bucketName, key, stream);
-            setAclPublicRead(key);
+            S3Resource resource = s3Template.upload(bucketName, key, stream);
+            setAclPublicRead(resource.getFilename());
+            return new ImageInfo(resource.getFilename(), resource.getURL().toString());
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to upload", e);
         } catch (Exception e) {
             // ACL 설정 실패 시 업로드된 객체 삭제
             s3Template.deleteObject(bucketName, key);
-            throw new ImageUploadException("Failed to set ACL for " + key, e);
+            throw new ImageUploadException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
-        return key;
     }
 
+    // S3 객체의 ACL을 PUBLIC_READ로 설정
     private void setAclPublicRead(String key) {
         PutObjectAclRequest aclRequest = PutObjectAclRequest.builder()
                 .bucket(bucketName)
@@ -114,12 +101,9 @@ public class ImageStorageService {
         s3Client.putObjectAcl(aclRequest);
     }
 
+    // S3에서 객체 삭제
     private void doDelete(String key) {
         s3Template.deleteObject(bucketName, key);
-    }
-
-    private String doGenerateUrl(String key) {
-        return String.format("%s/%s/%s", endpoint, bucketName, key);
     }
 
     // MIME 타입 검사 등 Tika를 사용한 바이너리 검사 기능 별도로 개발 필요
@@ -156,6 +140,7 @@ public class ImageStorageService {
         }
     }
 
+    // 파일 이름과 UUID를 조합하여 고유한 키 생성
     private static String genKey(MultipartFile file, String path) {
         String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "";
         return path + UUID.randomUUID() + originalFilename;

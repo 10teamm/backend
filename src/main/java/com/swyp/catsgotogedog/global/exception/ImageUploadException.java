@@ -1,9 +1,12 @@
 package com.swyp.catsgotogedog.global.exception;
 
-public class ImageUploadException extends RuntimeException {
+import lombok.Getter;
 
-    public ImageUploadException(String message, Throwable cause) {
-        super(message, cause);
+@Getter
+public class ImageUploadException extends CatsgotogedogException {
+
+    public ImageUploadException(ErrorCode errorCode) {
+        super(errorCode);
     }
 
 }
