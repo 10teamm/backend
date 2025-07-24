@@ -1,4 +1,4 @@
-package com.swyp.catsgotogedog.common.util.imagestorage;
+package com.swyp.catsgotogedog.global.exception;
 
 public class ImageUploadException extends RuntimeException {
 
