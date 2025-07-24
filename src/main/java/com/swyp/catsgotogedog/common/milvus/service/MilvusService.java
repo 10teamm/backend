@@ -1,4 +1,4 @@
-package com.swyp.catsgotogedog.milvus.service;
+package com.swyp.catsgotogedog.common.milvus.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

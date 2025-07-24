@@ -80,7 +80,7 @@ jobs:
 
             # 새 애플리케이션 실행 - 일단 임시로 와일드 카드 사용
             TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-            nohup java -jar -Dspring.profiles.active=dev *-SNAPSHOT.jar > dev_${TIMESTAMP}.log 2>&1 & echo $! > pid.file
+            nohup java -jar -Dspring.profiles.active=dev *-SNAPSHOT.jar & echo $! > pid.file
             echo "Development server deploy done."
 
   # product
@@ -120,6 +120,5 @@ jobs:
             fi
 
             # 새 애플리케이션 실행 - 일단 임시로 와일드 카드 사용
-            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-            nohup java -jar -Dspring.profiles.active=prod *-SNAPSHOT.jar > prod_${TIMESTAMP}.log 2>&1 & echo $! > pid.file
+            nohup java -jar -Dspring.profiles.active=prod *-SNAPSHOT.jar & echo $! > pid.file
             echo "Production server deploy done."
