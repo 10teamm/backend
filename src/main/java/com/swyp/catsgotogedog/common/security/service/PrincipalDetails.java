@@ -62,4 +62,8 @@ public class PrincipalDetails implements OAuth2User, Authentication {
         return user.getProviderId();
     }
 
+    public String getDisplayName() {
+        return user.getDisplayName();
+    }
+
 }

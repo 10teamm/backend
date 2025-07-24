@@ -44,8 +44,8 @@ public class SecurityConfig {
                             "/login**",
                             "/error",
                             "/swagger-ui/**",
-                            "/v3/api-docs/**",
-                            "/api/**"
+                            "/v3/api-docs/**"
+                            // todo : 인증이 필요 없는 API에 대해 추가 작성 필요
                         ).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new OAuth2AutoLoginFilter(), OAuth2AuthorizationRequestRedirectFilter.class)

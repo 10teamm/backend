@@ -10,6 +10,8 @@ import com.swyp.catsgotogedog.User.repository.UserRepository;
 import com.swyp.catsgotogedog.User.service.RefreshTokenService;
 import com.swyp.catsgotogedog.common.security.service.PrincipalDetails;
 import com.swyp.catsgotogedog.common.util.JwtTokenUtil;
+import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
+import com.swyp.catsgotogedog.global.exception.ErrorCode;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,10 +52,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String providerId = pd.getProviderId();
 
         User user = userRepo.findByProviderId(providerId)
-                .orElseThrow(() -> new IllegalStateException("회원이 없습니다"));
+                .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
 
         //String access  = jwt.createAccessToken(String.valueOf(user.getUserId()), user.getEmail());
-        String refresh = jwt.createRefreshToken(String.valueOf(user.getUserId()), user.getEmail());
+        String refresh = jwt.createRefreshToken(String.valueOf(user.getUserId()), user.getEmail(), user.getDisplayName());
 
         rtService.save(user, refresh, jwt.getRefreshTokenExpiry());
 
@@ -63,7 +65,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         //     .queryParam("accessToken", access)
         //     .build()
         //     .toUriString();
-        getRedirectStrategy().sendRedirect(request, response, frontend_base_url);
+        getRedirectStrategy().sendRedirect(request, response, frontend_base_url+"/authrediect");
     }
 
     private Boolean isAutoLogin(HttpServletRequest request) {
