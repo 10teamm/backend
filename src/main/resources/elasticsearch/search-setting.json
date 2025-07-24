@@ -1,0 +1,7 @@
+{
+  "properties": {
+    "content_id": {
+      "type": "int"
+    }
+  }
+}

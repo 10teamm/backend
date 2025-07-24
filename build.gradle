@@ -49,6 +49,9 @@ dependencies {
 	// Flyway
 	implementation group: 'org.flywaydb', name: 'flyway-mysql', version: '11.10.2'
 	implementation 'org.flywaydb:flyway-core'
+
+	// elastic search
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 }
 
 tasks.named('test') {

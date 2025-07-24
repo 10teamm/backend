@@ -1,5 +1,6 @@
 package com.swyp.catsgotogedog.content.controller;
 
+import com.swyp.catsgotogedog.content.service.ContentService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,5 +10,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/content")
 public class ContentController implements ContentControllerSwagger{
+    private final ContentService contentService;
 
 }
