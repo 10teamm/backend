@@ -28,6 +28,12 @@ public class SecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
     private final CatsgotogedogAuthenticationEntryPoint catsgotogedogAuthenticationEntryPoint;
 
+    @Value("${allowed.origins.url}")
+    private String allowedOriginsUrl;
+
+    @Value("${allowed.http.methods}")
+    private String allowedHttpMethods;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -58,9 +64,10 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(List.of("https://localhost:5173", "https://frontend-dev-bukp.onrender.com"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
+        List<String> origins = List.of(allowedOriginsUrl.split(","));
+        List<String> methods = List.of(allowedHttpMethods.split(","));
+        configuration.setAllowedOrigins(origins);
+        configuration.setAllowedMethods(methods);
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
