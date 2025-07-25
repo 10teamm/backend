@@ -38,12 +38,21 @@ public class ImageStorageService {
         this.bucketName = bucketName;
     }
 
-    // 다중 이미지 업로드 -> upload 메서드(path 포함)로 오버로딩
+    /**
+     * 다중 이미지 업로드
+     * @param files MultipartFile list
+     * @return List&lt;ImageInfo&gt;
+     */
     public List<ImageInfo> upload(List<MultipartFile> files) {
         return upload(files, "");
     }
 
-    // 다중 이미지 업로드 -> 각 파일을 doUpload 메서드로 처리. 각 반환 값을 리스트로 수집 후 반환
+    /**
+     * 다중 이미지 업로드
+     * @param files MultipartFile list
+     * @param path 업로드 경로
+     * @return List&lt;ImageInfo&gt;
+     */
     public List<ImageInfo> upload(List<MultipartFile> files, String path) {
         validateFiles(files);
         return files.stream()
@@ -51,24 +60,39 @@ public class ImageStorageService {
                 .collect(Collectors.toList());
     }
 
-    // 단일 이미지 업로드 -> upload 메서드(path 포함)로 오버로딩
+    /**
+     * 단일 이미지 업로드
+     * @param file MultipartFile
+     * @return List&lt;ImageInfo&gt;
+     */
     public List<ImageInfo> upload(MultipartFile file) {
         return upload(file, "");
     }
 
-    // 단일 이미지 업로드 -> doUpload 호출 후 리스트로 래핑하여 반환
+    /**
+     * 단일 이미지 업로드
+     * @param file MultipartFile
+     * @param path 업로드 경로
+     * @return List&lt;ImageInfo&gt;
+     */
     public List<ImageInfo> upload(MultipartFile file, String path) {
         validateFile(file);
         return Collections.singletonList(doUpload(file, path));
     }
 
-    // 단일 이미지 삭제 -> 리스트화 하여 처리
+    /**
+     * 이미지 삭제
+     * @param key image key
+     */
     public void delete(String key) {
         validateKey(key);
         doDelete(key);
     }
 
-    // 다중 이미지 삭제 각 이미지 키를 검증 후 삭제
+    /**
+     * 다중 이미지 삭제
+     * @param keys list of image keys
+     */
     public void delete(List<String> keys) {
         validateKeyList(keys);
         keys.forEach(this::doDelete);
