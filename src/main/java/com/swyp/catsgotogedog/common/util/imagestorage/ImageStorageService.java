@@ -2,16 +2,13 @@ package com.swyp.catsgotogedog.common.util.imagestorage;
 
 import com.swyp.catsgotogedog.common.util.imagestorage.dto.ImageInfo;
 import com.swyp.catsgotogedog.global.exception.*;
+import io.awspring.cloud.s3.ObjectMetadata;
 import io.awspring.cloud.s3.S3Resource;
 import io.awspring.cloud.s3.S3Template;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
-import software.amazon.awssdk.services.s3.model.PutObjectAclRequest;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -23,17 +20,17 @@ import java.util.stream.Collectors;
 public class ImageStorageService {
 
     private final S3Template s3Template;
-    private final S3Client s3Client;
+    private final ObjectMetadataProvider objectMetadataProvider;
     private final String bucketName;
 
     private final int MAX_FILE_COUNT = 10;
 
     public ImageStorageService(S3Template s3Template,
-                               S3Client s3Client,
+                               ObjectMetadataProvider objectMetadataProvider,
                                @Value("${spring.cloud.aws.s3.bucket}") String bucketName) {
 
         this.s3Template = s3Template;
-        this.s3Client = s3Client;
+        this.objectMetadataProvider = objectMetadataProvider;
         this.bucketName = bucketName;
     }
 
@@ -99,28 +96,14 @@ public class ImageStorageService {
 
     private ImageInfo doUpload(MultipartFile file, String path) {
         String key = genKey(file, path);
+        ObjectMetadata metadata = objectMetadataProvider.createPublicReadMetadata(file);
 
         try (InputStream stream = file.getInputStream()) {
-            S3Resource resource = s3Template.upload(bucketName, key, stream);
-            setAclPublicRead(resource.getFilename());
+            S3Resource resource = s3Template.upload(bucketName, key, stream, metadata);
             return new ImageInfo(resource.getFilename(), resource.getURL().toString());
-        } catch (IOException e) {
-            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
-        } catch (Exception e) {
-            // ACL 설정 실패 시 업로드된 객체 삭제
-            s3Template.deleteObject(bucketName, key);
+        } catch (Exception e) { // IOException(InputStream), S3Exception 등
             throw new ImageUploadException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
-    }
-
-    // S3 객체의 ACL을 PUBLIC_READ로 설정
-    private void setAclPublicRead(String key) {
-        PutObjectAclRequest aclRequest = PutObjectAclRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .acl(ObjectCannedACL.PUBLIC_READ)
-                .build();
-        s3Client.putObjectAcl(aclRequest);
     }
 
     // S3에서 객체 삭제
