@@ -45,7 +45,8 @@ public class UserController implements UserControllerSwagger{
             .httpOnly(true)
             .secure(true)
             .path("/")
-            .maxAge(-1)
+            .maxAge(0)
+            .sameSite("None")
             .build();
 
         return ResponseEntity.ok()
