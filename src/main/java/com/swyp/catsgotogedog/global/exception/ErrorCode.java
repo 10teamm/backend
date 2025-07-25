@@ -34,6 +34,9 @@ public enum ErrorCode {
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부 오류가 발생했습니다."),
 
         // Image Storage Error
+        IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "이미지 파일이 누락 되었습니다."),
+        IMAGE_KEY_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "이미지 키가 누락 되었습니다."),
+        TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST.value(), "이미지 파일은 최대 10개까지 업로드 가능합니다."),
         IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 업로드에 실패했습니다.");
 
         private final int code;

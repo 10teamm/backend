@@ -1,8 +1,7 @@
 package com.swyp.catsgotogedog.common.util.imagestorage;
 
 import com.swyp.catsgotogedog.common.util.imagestorage.dto.ImageInfo;
-import com.swyp.catsgotogedog.global.exception.ErrorCode;
-import com.swyp.catsgotogedog.global.exception.ImageUploadException;
+import com.swyp.catsgotogedog.global.exception.*;
 import io.awspring.cloud.s3.S3Resource;
 import io.awspring.cloud.s3.S3Template;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,7 +82,7 @@ public class ImageStorageService {
             setAclPublicRead(resource.getFilename());
             return new ImageInfo(resource.getFilename(), resource.getURL().toString());
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to upload", e);
+            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
         } catch (Exception e) {
             // ACL 설정 실패 시 업로드된 객체 삭제
             s3Template.deleteObject(bucketName, key);
@@ -109,10 +108,10 @@ public class ImageStorageService {
     // MIME 타입 검사 등 Tika를 사용한 바이너리 검사 기능 별도로 개발 필요
     private void validateFiles(List<MultipartFile> files) {
         if (files == null || files.isEmpty()) {
-            throw new IllegalArgumentException("업로드할 파일이 없습니다.");
+            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
         }
         if (files.size() > MAX_FILE_COUNT) {
-            throw new IllegalArgumentException("파일은 최대 " + MAX_FILE_COUNT + "개까지만 업로드할 수 있습니다.");
+            throw new TooManyImagesException(ErrorCode.TOO_MANY_IMAGES);
         }
         files.forEach(this::validateFile);
     }
@@ -120,23 +119,23 @@ public class ImageStorageService {
     // MIME 타입 검사 등 Tika를 사용한 바이너리 검사 기능 별도로 개발 필요
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("파일이 비어있습니다.");
+            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
         }
     }
 
     private static void validateKeyList(List<String> keys) {
         if (keys == null || keys.isEmpty()) {
-            throw new IllegalArgumentException("키 리스트는 null 또는 비어있을 수 없습니다.");
+            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
         }
         // 전체 키 리스트의 유효성을 먼저 검사
         if (keys.stream().anyMatch(key -> key == null || key.isBlank())) {
-            throw new IllegalArgumentException("키 리스트에 null 또는 빈 문자열이 포함될 수 없습니다.");
+            throw new ImageKeyNotFoundException(ErrorCode.IMAGE_KEY_NOT_FOUND);
         }
     }
 
     private static void validateKey(String key) {
         if (key == null || key.isBlank()) {
-            throw new IllegalArgumentException("키는 null 또는 빈 문자열이 될 수 없습니다.");
+            throw new ImageKeyNotFoundException(ErrorCode.IMAGE_KEY_NOT_FOUND);
         }
     }
 
