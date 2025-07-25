@@ -24,13 +24,13 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(CatsgotogedogException.class)
 	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleCatsgotogedogException(CatsgotogedogException ex) {
-		log.error("CatsgotogedogException : {}", ex.getMessage());
+		log.error("CatsgotogedogException : {}", ex.getMessage(), ex);
 		return createErrorResponse(ex.getErrorCode());
 	}
 
 	@ExceptionHandler(Exception.class)
 	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleException(Exception ex) {
-		log.error("Exception : {}", ex.getMessage());
+		log.error("Exception : {}", ex.getMessage(), ex);
 		int errorCode = ErrorCode.INTERNAL_SERVER_ERROR.getCode();
 		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR);
 		return ResponseEntity
@@ -95,6 +95,15 @@ public class GlobalExceptionHandler {
 		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.METHOD_NOT_ALLOWED, e.getMethod());
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
+			.body(response);
+	}
+
+	@ExceptionHandler(UnAuthorizedAccessException.class)
+	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleUnAuthorizedAccessException(UnAuthorizedAccessException  e) {
+		log.error("UnAuthorizedAccessException: {}", e.getMessage(), e);
+		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.UNAUTHORIZED_ACCESS);
+		return ResponseEntity
+			.status(HttpStatus.UNAUTHORIZED)
 			.body(response);
 	}
 

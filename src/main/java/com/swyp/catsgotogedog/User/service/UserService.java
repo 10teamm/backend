@@ -29,11 +29,12 @@ public class UserService {
 
 		int userId = Integer.parseInt(jwt.getSubject(refreshToken));
 		String email = jwt.getEmail(refreshToken);
+		String displayName = jwt.getDisplayName(refreshToken);
 
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new UnAuthorizedAccessException(ErrorCode.UNAUTHORIZED_ACCESS));
 
-		return jwt.createAccessToken(String.valueOf(userId), email);
+		return jwt.createAccessToken(String.valueOf(userId), email, displayName);
 	}
 
 	public void logout(String refreshToken) {

@@ -8,7 +8,10 @@ import com.swyp.catsgotogedog.common.util.JwtTokenUtil;
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
+@Slf4j
 public class UserController implements UserControllerSwagger{
 
     private final JwtTokenUtil jwt;
@@ -28,7 +32,6 @@ public class UserController implements UserControllerSwagger{
     @PostMapping("/reissue")
     public ResponseEntity<CatsgotogedogApiResponse<?>> reIssue(
             @CookieValue(value = "X-Refresh-Token", required = false) String refresh) {
-
         return ResponseEntity.ok(CatsgotogedogApiResponse.success("재발급 성공",
             new AccessTokenResponse(userService.reIssue(refresh))));
     }
@@ -38,7 +41,16 @@ public class UserController implements UserControllerSwagger{
             @CookieValue("X-Refresh-Token") String refresh) {
 
         userService.logout(refresh);
+        ResponseCookie cookie = ResponseCookie.from(("X-Refresh-Token"), refresh)
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .maxAge(0)
+            .sameSite("None")
+            .build();
 
-        return ResponseEntity.ok(CatsgotogedogApiResponse.success("로그아웃 성공", null));
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(CatsgotogedogApiResponse.success("로그아웃 성공", null));
     }
 }
