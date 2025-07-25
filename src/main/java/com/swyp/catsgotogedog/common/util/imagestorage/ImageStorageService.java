@@ -27,7 +27,7 @@ public class ImageStorageService {
     private final S3Client s3Client;
     private final String bucketName;
 
-    private static final int MAX_FILE_COUNT = 10;
+    private final int MAX_FILE_COUNT = 10;
 
     public ImageStorageService(S3Template s3Template,
                                S3Client s3Client,
@@ -123,7 +123,7 @@ public class ImageStorageService {
         }
     }
 
-    private static void validateKeyList(List<String> keys) {
+    private void validateKeyList(List<String> keys) {
         if (keys == null || keys.isEmpty()) {
             throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
         }
@@ -133,14 +133,14 @@ public class ImageStorageService {
         }
     }
 
-    private static void validateKey(String key) {
+    private void validateKey(String key) {
         if (key == null || key.isBlank()) {
             throw new ImageKeyNotFoundException(ErrorCode.IMAGE_KEY_NOT_FOUND);
         }
     }
 
     // 파일 이름과 UUID를 조합하여 고유한 키 생성
-    private static String genKey(MultipartFile file, String path) {
+    private String genKey(MultipartFile file, String path) {
         String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "";
         return path + UUID.randomUUID() + originalFilename;
     }
