@@ -3,7 +3,8 @@ package com.swyp.catsgotogedog.common.security.handler;
 import static com.swyp.catsgotogedog.common.security.filter.OAuth2AutoLoginFilter.*;
 
 import java.io.IOException;
-import java.time.Duration;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
@@ -13,11 +14,11 @@ import com.swyp.catsgotogedog.common.util.JwtTokenUtil;
 import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
 import com.swyp.catsgotogedog.global.exception.ErrorCode;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler
 	implements AuthenticationSuccessHandler {
 
@@ -61,11 +63,43 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         addRefreshTokenCookie(response, refresh, isAutoLogin(request));
 
-        // String targetUrl = UriComponentsBuilder.fromUriString(frontend_base_url)
-        //     .queryParam("accessToken", access)
-        //     .build()
-        //     .toUriString();
-        getRedirectStrategy().sendRedirect(request, response, frontend_base_url+"/authrediect");
+        String targetUrl;
+        String requestURLString = request.getRequestURL().toString();
+
+        try {
+            URL requestURL = new URL(requestURLString);
+            String host = requestURL.getHost();
+            int port = requestURL.getPort();
+            String scheme = requestURL.getProtocol();
+
+            // 개발, 배포 서버 요청 scheme에 맞춰 유연한 callback 응답
+            if (host != null && (host.equals("localhost") || host.equals("127.0.0.1"))) {
+                UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
+                    .scheme(scheme)
+                    .host(host);
+                if (port != -1) {
+                    builder.port(port);
+                }
+                targetUrl = builder.path("/authrediect").build().toUriString();
+                log.info("개발 서버 요청 감지 URL :: {}", targetUrl);
+            } else {
+                targetUrl = UriComponentsBuilder.fromUriString(frontend_base_url)
+                    .path("/authrediect")
+                    .build()
+                    .toUriString();
+                log.info("배포 서버 요청 감지 URL :: {}", targetUrl);
+            }
+        } catch (MalformedURLException e) {
+            log.error("Invalid Request URL: {}", requestURLString, e);
+            targetUrl = UriComponentsBuilder.fromUriString(frontend_base_url)
+                .path("/authrediect")
+                .build()
+                .toUriString();
+            log.info("잘못된 요청 URL :: {}", targetUrl);
+        }
+
+
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
     private Boolean isAutoLogin(HttpServletRequest request) {
