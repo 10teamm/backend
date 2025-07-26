@@ -64,42 +64,62 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         addRefreshTokenCookie(response, refresh, isAutoLogin(request));
 
         String targetUrl;
-        String requestURLString = request.getRequestURL().toString();
+        String refererHeader = request.getHeader("Referer");
+        log.info("refererHeader :: {} ", refererHeader);
+        URL parsedUrl = null;
 
+        // Referer 헤더를 통해 Redirect
+        if (refererHeader != null && !refererHeader.isEmpty()) {
+            try {
+                parsedUrl = new URL(refererHeader);
+                if (parsedUrl.getHost() != null && !parsedUrl.getHost().isEmpty()) {
+                    UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
+                        .scheme(parsedUrl.getProtocol())
+                        .host(parsedUrl.getHost());
+                    if (parsedUrl.getPort() != -1) {
+                        builder.port(parsedUrl.getPort());
+                    }
+                    targetUrl = builder.path("/authredirect").build().toUriString();
+                    log.info("Referer 헤더를 통한 Redirect :: {}", targetUrl);
+                    getRedirectStrategy().sendRedirect(request, response, targetUrl);
+                    return;
+                }
+            } catch (MalformedURLException e) {
+                log.warn("잘못된 형식의 URL :: {}", refererHeader, e);
+            }
+        }
+
+        String requestURLString = request.getRequestURL().toString();
         try {
             URL requestURL = new URL(requestURLString);
             String host = requestURL.getHost();
-            int port = requestURL.getPort();
             String scheme = requestURL.getProtocol();
+            int port = requestURL.getPort();
 
-            // 개발, 배포 서버 요청 scheme에 맞춰 유연한 callback 응답
             if (host != null && (host.equals("localhost") || host.equals("127.0.0.1"))) {
-                UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
-                    .scheme(scheme)
-                    .host(host);
-                if (port != -1) {
-                    builder.port(port);
+                if (frontend_base_url != null && !frontend_base_url.isEmpty()) {
+                    // Use the specifically configured localhost frontend URL
+                    targetUrl = UriComponentsBuilder.fromUriString(frontend_base_url)
+                        .path("/authredirect")
+                        .build()
+                        .toUriString();
+                    log.info("Referer Header가 존재하지 않아 frontend_base_url로 redirect :: {}", targetUrl);
+                    getRedirectStrategy().sendRedirect(request, response, targetUrl);
+                } else {
+                    UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
+                        .scheme(scheme)
+                        .host(host);
+                    if (port != -1) {
+                        builder.port(port);
+                    }
+                    targetUrl = builder.path("/authredirect").build().toUriString();
+                    log.info("frontend_base_url이 존재하지 않아 request url로 강제 redirect :: {}", targetUrl);
+                    getRedirectStrategy().sendRedirect(request, response, targetUrl);
                 }
-                targetUrl = builder.path("/authrediect").build().toUriString();
-                log.info("개발 서버 요청 감지 URL :: {}", targetUrl);
-            } else {
-                targetUrl = UriComponentsBuilder.fromUriString(frontend_base_url)
-                    .path("/authrediect")
-                    .build()
-                    .toUriString();
-                log.info("배포 서버 요청 감지 URL :: {}", targetUrl);
             }
         } catch (MalformedURLException e) {
-            log.error("Invalid Request URL: {}", requestURLString, e);
-            targetUrl = UriComponentsBuilder.fromUriString(frontend_base_url)
-                .path("/authrediect")
-                .build()
-                .toUriString();
-            log.info("잘못된 요청 URL :: {}", targetUrl);
+            log.warn("잘못된 형식의 비 Referer URL :: {}", requestURLString, e);
         }
-
-
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
     private Boolean isAutoLogin(HttpServletRequest request) {
