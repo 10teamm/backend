@@ -32,8 +32,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MaxUploadSizeExceededException.class)
 	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
 		log.error("CatsgotogedogException: {}", e.getMessage(), e);
-		int errorCode = ErrorCode.FILE_SIZE_EXCEEDED.getCode();
-		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.FILE_SIZE_EXCEEDED);
+		int errorCode = ErrorCode.IMAGE_SIZE_EXCEEDED.getCode();
+		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.IMAGE_SIZE_EXCEEDED);
 		return ResponseEntity
 				.status(errorCode)
 				.body(response);
