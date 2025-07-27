@@ -1,6 +1,6 @@
-package com.swyp.catsgotogedog.common.util.imagestorage;
+package com.swyp.catsgotogedog.common.util.image.storage;
 
-import com.swyp.catsgotogedog.common.util.imagestorage.dto.ImageInfo;
+import com.swyp.catsgotogedog.common.util.image.storage.dto.ImageInfo;
 import com.swyp.catsgotogedog.global.exception.*;
 import io.awspring.cloud.s3.ObjectMetadata;
 import io.awspring.cloud.s3.S3Resource;
