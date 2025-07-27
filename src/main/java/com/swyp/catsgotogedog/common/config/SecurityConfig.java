@@ -27,6 +27,7 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final JwtTokenFilter jwtTokenFilter;
     private final CatsgotogedogAuthenticationEntryPoint catsgotogedogAuthenticationEntryPoint;
+    private final OAuth2AutoLoginFilter oAuth2AutoLoginFilter;
 
     @Value("${allowed.origins.url}")
     private String allowedOriginsUrl;
@@ -54,7 +55,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .exceptionHandling(eh -> eh.authenticationEntryPoint(catsgotogedogAuthenticationEntryPoint))
-                .addFilterBefore(new OAuth2AutoLoginFilter(), OAuth2AuthorizationRequestRedirectFilter.class)
+                .addFilterBefore(oAuth2AutoLoginFilter, OAuth2AuthorizationRequestRedirectFilter.class)
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2LoginSuccessHandler))
                 .addFilterBefore(jwtTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
