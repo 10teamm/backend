@@ -13,6 +13,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 
@@ -26,6 +27,16 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleCatsgotogedogException(CatsgotogedogException ex) {
 		log.error("CatsgotogedogException : {}", ex.getMessage(), ex);
 		return createErrorResponse(ex.getErrorCode());
+	}
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+		log.error("CatsgotogedogException: {}", e.getMessage(), e);
+		int errorCode = ErrorCode.FILE_SIZE_EXCEEDED.getCode();
+		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.FILE_SIZE_EXCEEDED);
+		return ResponseEntity
+				.status(errorCode)
+				.body(response);
 	}
 
 	@ExceptionHandler(Exception.class)
