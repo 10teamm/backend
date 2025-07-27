@@ -59,6 +59,11 @@ public class DefaultImageValidator implements ImageValidator {
             throw new InvalidImageException(ErrorCode.INVALID_IMAGE_NAME);
         }
 
+        String baseFilename = getBaseFilename(originalFilename);
+        if (baseFilename == null || baseFilename.isBlank()) {
+            throw new InvalidImageException(ErrorCode.INVALID_IMAGE_NAME);
+        }
+
         String extension = getFileExtension(originalFilename).toLowerCase();
         if (!allowedExtensions.contains(extension)) {
             throw new InvalidImageException(ErrorCode.INVALID_IMAGE_EXTENSION);
@@ -69,7 +74,6 @@ public class DefaultImageValidator implements ImageValidator {
         try {
             // Apache Tika를 사용하여 실제 파일 내용의 MIME 타입 검증
             String detectedMimeType = tika.detect(file.getInputStream());
-
             if (!allowedMimeTypes.contains(detectedMimeType)) {
                 throw new InvalidImageException(ErrorCode.INVALID_IMAGE_FORMAT);
             }
@@ -79,18 +83,6 @@ public class DefaultImageValidator implements ImageValidator {
 
         } catch (IOException e) {
             throw new InvalidImageException(ErrorCode.STREAM_IO_EXCEPTION);
-        }
-    }
-
-    private void validateFilesNotNull(List<MultipartFile> files) {
-        if (files == null || files.isEmpty()) {
-            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
-        }
-    }
-
-    private void validateFileCount(List<MultipartFile> files, ImageUploadType uploadType) {
-        if (files.size() > uploadType.getMaxFiles()) {
-            throw new ImageLimitExceededException(ErrorCode.IMAGE_LIMIT_EXCEEDED);
         }
     }
 
@@ -107,6 +99,26 @@ public class DefaultImageValidator implements ImageValidator {
         if (!isConsistent) {
             throw new InvalidImageException(ErrorCode.INVALID_IMAGE_FORMAT);
         }
+    }
+
+    private void validateFilesNotNull(List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) {
+            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
+        }
+    }
+
+    private void validateFileCount(List<MultipartFile> files, ImageUploadType uploadType) {
+        if (files.size() > uploadType.getMaxFiles()) {
+            throw new ImageLimitExceededException(ErrorCode.IMAGE_LIMIT_EXCEEDED);
+        }
+    }
+
+    private String getBaseFilename(String filename) {
+        int lastDotIndex = filename.lastIndexOf('.');
+        if (lastDotIndex == -1 || lastDotIndex == filename.length() - 1) {
+            return "";
+        }
+        return filename.substring(0, lastDotIndex);
     }
 
     private String getFileExtension(String filename) {

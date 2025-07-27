@@ -7,5 +7,4 @@ public class ImageLimitExceededException extends ImageValidatorException {
     public ImageLimitExceededException(ErrorCode errorCode) {
         super(errorCode);
     }
-
 }

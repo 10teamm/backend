@@ -39,7 +39,7 @@ public enum ErrorCode {
         INVALID_IMAGE_FORMAT(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 이미지 형식입니다."),
         IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "이미지 파일이 누락 되었습니다."),
         IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST.value(), "이미지 크기가 허용 범위를 초과했습니다."),
-        IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST.value(), "이미지 파일은 최대 10개까지 업로드 가능합니다."),
+        IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST.value(), "최대 이미지 업로드 개수를 초과했습니다."),
         IMAGE_VALIDATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 유효성 검사에 실패했습니다."),
 
         // Image Storage Error
