@@ -32,16 +32,6 @@ public class User extends BaseTimeEntity {
     private Boolean isActive;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Pet> pets = new ArrayList<>();
-
-    public void addPet(Pet pet) {
-        pets.add(pet);
-        pet.setUser(this);
-    }
-
-    public void removePet(Pet pet) {
-        pets.remove(pet);
-        pet.setUser(null);
-    }
-
+    @Builder.Default
+    private final List<Pet> pets = new ArrayList<>();
 }
