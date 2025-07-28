@@ -1,3 +1,5 @@
+ALTER TABLE `catsgotogedog`.`sigtes_information`
+    RENAME TO  `catsgotogedog`.`sights_information` ;
 INSERT INTO `catsgotogedog`.`region_code` (`region_id`, `region_name`, `sido_code`, `region_level`) VALUES ('1', '서울', '1', '1');
 INSERT INTO `catsgotogedog`.`region_code` (`region_id`, `region_name`, `sido_code`, `region_level`) VALUES ('2', '인천', '2', '1');
 INSERT INTO `catsgotogedog`.`region_code` (`region_id`, `region_name`, `sido_code`, `region_level`) VALUES ('3', '대전', '3', '1');
