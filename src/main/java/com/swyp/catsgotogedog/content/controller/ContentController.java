@@ -1,15 +1,31 @@
 package com.swyp.catsgotogedog.content.controller;
 
+import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
+import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
+import com.swyp.catsgotogedog.content.service.ContentSearchService;
 import com.swyp.catsgotogedog.content.service.ContentService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/content")
 public class ContentController implements ContentControllerSwagger{
     private final ContentService contentService;
+    private final ContentSearchService contentSearchService;
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ContentDocument>> contentSearch(@RequestParam("keyword") String keyword){
+        return ResponseEntity.ok(contentSearchService.searchByKeyword(keyword));
+    }
+
+    @PostMapping("/save")
+    ResponseEntity<Void> saveContent(@RequestBody ContentRequest request) {
+        contentService.saveContent(request);
+        return ResponseEntity.ok().build();
+    }
 }

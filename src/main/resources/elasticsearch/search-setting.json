@@ -1,7 +1,9 @@
 {
-  "properties": {
-    "content_id": {
-      "type": "int"
+  "analysis": {
+    "analyzer": {
+      "korean": {
+        "type": "nori"
+      }
     }
   }
 }
