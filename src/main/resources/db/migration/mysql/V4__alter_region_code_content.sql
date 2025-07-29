@@ -18,5 +18,3 @@ ADD UNIQUE INDEX `sido_sigungu_code_UNIQUE` (`sido_code` ASC, `sigungu_code` ASC
 
 ALTER TABLE `catsgotogedog`.`region_code`
     ADD COLUMN `region_level` INT NULL AFTER `parent_code`;
-
-ALTER TABLE content AUTO_INCREMENT = 100000;

@@ -15,3 +15,6 @@ ALTER TABLE `catsgotogedog`.`content`
 ALTER TABLE `catsgotogedog`.`content`
     CHANGE COLUMN `mapx` `mapx` DECIMAL(13,10) NULL DEFAULT NULL ,
     CHANGE COLUMN `mapy` `mapy` DECIMAL(13,10) NULL DEFAULT NULL ;
+
+ALTER TABLE `catsgotogedog`.`content`
+    ADD COLUMN `overview` TEXT NULL;
