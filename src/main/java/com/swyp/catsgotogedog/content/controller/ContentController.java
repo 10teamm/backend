@@ -1,7 +1,7 @@
 package com.swyp.catsgotogedog.content.controller;
 
-import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
+import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
 import com.swyp.catsgotogedog.content.service.ContentSearchService;
 import com.swyp.catsgotogedog.content.service.ContentService;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +19,8 @@ public class ContentController implements ContentControllerSwagger{
     private final ContentSearchService contentSearchService;
 
     @GetMapping("/search")
-    public ResponseEntity<List<ContentDocument>> contentSearch(@RequestParam("keyword") String keyword){
-        return ResponseEntity.ok(contentSearchService.searchByKeyword(keyword));
+    public ResponseEntity<List<ContentResponse>> search(@RequestParam String keyword){
+        return ResponseEntity.ok(contentSearchService.searchByTitle(keyword));
     }
 
     @PostMapping("/save")

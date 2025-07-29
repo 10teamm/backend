@@ -37,4 +37,5 @@ public class ContentService {
         contentRepository.save(content);
         contentElasticRepository.save(ContentDocument.from(content));
     }
+
 }
