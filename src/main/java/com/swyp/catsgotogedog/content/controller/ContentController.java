@@ -19,8 +19,17 @@ public class ContentController implements ContentControllerSwagger{
     private final ContentSearchService contentSearchService;
 
     @GetMapping("/search")
-    public ResponseEntity<List<ContentResponse>> search(@RequestParam String keyword){
-        return ResponseEntity.ok(contentSearchService.searchByTitle(keyword));
+    public ResponseEntity<List<ContentResponse>> search(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String addr1,
+            @RequestParam(required = false) String addr2,
+            @RequestParam(required = false) Integer contentTypeId) {
+
+        List<ContentResponse> list = contentSearchService.search(title, addr1, addr2, contentTypeId);
+
+        return list.isEmpty()
+                ? ResponseEntity.noContent().build()   // 204
+                : ResponseEntity.ok(list);             // 200
     }
 
     @PostMapping("/save")
