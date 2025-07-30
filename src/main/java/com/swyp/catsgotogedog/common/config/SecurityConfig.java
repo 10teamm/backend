@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -25,6 +26,8 @@ public class SecurityConfig {
 
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final JwtTokenFilter jwtTokenFilter;
+    private final CatsgotogedogAuthenticationEntryPoint catsgotogedogAuthenticationEntryPoint;
+    private final OAuth2AutoLoginFilter oAuth2AutoLoginFilter;
 
     @Value("${allowed.origins.url}")
     private String allowedOriginsUrl;
@@ -35,7 +38,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(csrf -> csrf.disable())
+        http.csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -45,12 +48,15 @@ public class SecurityConfig {
                             "/error",
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
-                            "/api/**"
+                            "/api/user/reissue"
+                            // todo : 인증이 필요 없는 API에 대해 추가 작성 필요
                         ).permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new OAuth2AutoLoginFilter(), OAuth2AuthorizationRequestRedirectFilter.class)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .exceptionHandling(eh -> eh.authenticationEntryPoint(catsgotogedogAuthenticationEntryPoint))
+                .addFilterBefore(oAuth2AutoLoginFilter, OAuth2AuthorizationRequestRedirectFilter.class)
                 .oauth2Login(oauth -> oauth
-                        .loginPage("/login")          // 커스텀 로그인 화면 (없으면 기본 템플릿)
                         .successHandler(oAuth2LoginSuccessHandler))
                 .addFilterBefore(jwtTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
@@ -59,9 +65,10 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(List.of(allowedOriginsUrl));
-        configuration.setAllowedMethods(List.of(allowedHttpMethods));
+        List<String> origins = List.of(allowedOriginsUrl.split(","));
+        List<String> methods = List.of(allowedHttpMethods.split(","));
+        configuration.setAllowedOrigins(origins);
+        configuration.setAllowedMethods(methods);
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 

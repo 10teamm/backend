@@ -13,6 +13,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 
@@ -24,13 +25,23 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(CatsgotogedogException.class)
 	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleCatsgotogedogException(CatsgotogedogException ex) {
-		log.error("CatsgotogedogException : {}", ex.getMessage());
+		log.error("CatsgotogedogException : {}", ex.getMessage(), ex);
 		return createErrorResponse(ex.getErrorCode());
+	}
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+		log.error("CatsgotogedogException: {}", e.getMessage(), e);
+		int errorCode = ErrorCode.IMAGE_SIZE_EXCEEDED.getCode();
+		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.IMAGE_SIZE_EXCEEDED);
+		return ResponseEntity
+				.status(errorCode)
+				.body(response);
 	}
 
 	@ExceptionHandler(Exception.class)
 	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleException(Exception ex) {
-		log.error("Exception : {}", ex.getMessage());
+		log.error("Exception : {}", ex.getMessage(), ex);
 		int errorCode = ErrorCode.INTERNAL_SERVER_ERROR.getCode();
 		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR);
 		return ResponseEntity
@@ -95,6 +106,15 @@ public class GlobalExceptionHandler {
 		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.METHOD_NOT_ALLOWED, e.getMethod());
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
+			.body(response);
+	}
+
+	@ExceptionHandler(UnAuthorizedAccessException.class)
+	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleUnAuthorizedAccessException(UnAuthorizedAccessException  e) {
+		log.error("UnAuthorizedAccessException: {}", e.getMessage(), e);
+		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.UNAUTHORIZED_ACCESS);
+		return ResponseEntity
+			.status(HttpStatus.UNAUTHORIZED)
 			.body(response);
 	}
 

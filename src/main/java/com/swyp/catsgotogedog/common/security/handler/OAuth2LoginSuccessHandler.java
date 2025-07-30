@@ -3,38 +3,36 @@ package com.swyp.catsgotogedog.common.security.handler;
 import static com.swyp.catsgotogedog.common.security.filter.OAuth2AutoLoginFilter.*;
 
 import java.io.IOException;
-import java.time.Duration;
 
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
 import com.swyp.catsgotogedog.User.service.RefreshTokenService;
 import com.swyp.catsgotogedog.common.security.service.PrincipalDetails;
 import com.swyp.catsgotogedog.common.util.JwtTokenUtil;
+import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
+import com.swyp.catsgotogedog.global.exception.ErrorCode;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler
 	implements AuthenticationSuccessHandler {
 
     private final JwtTokenUtil jwt;
     private final RefreshTokenService rtService;
     private final UserRepository userRepo;
-
-    @Value("${frontend.base.url}")
-    private String frontend_base_url;
 
     @Value("${jwt.refresh-expire-day}")
     private int refreshDay;
@@ -50,24 +48,25 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String providerId = pd.getProviderId();
 
         User user = userRepo.findByProviderId(providerId)
-                .orElseThrow(() -> new IllegalStateException("회원이 없습니다"));
+                .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
 
         //String access  = jwt.createAccessToken(String.valueOf(user.getUserId()), user.getEmail());
-        String refresh = jwt.createRefreshToken(String.valueOf(user.getUserId()), user.getEmail());
+        String refresh = jwt.createRefreshToken(String.valueOf(user.getUserId()), user.getEmail(), user.getDisplayName());
 
         rtService.save(user, refresh, jwt.getRefreshTokenExpiry());
 
-        addRefreshTokenCookie(response, refresh, isAutoLogin(request));
+        HttpSession session = request.getSession(false);
+        addRefreshTokenCookie(response, refresh, isAutoLogin(session));
 
-        // String targetUrl = UriComponentsBuilder.fromUriString(frontend_base_url)
-        //     .queryParam("accessToken", access)
-        //     .build()
-        //     .toUriString();
-        getRedirectStrategy().sendRedirect(request, response, frontend_base_url);
+        if (session != null) {
+            log.info("targetUrl :: {}", session.getAttribute("targetUrl").toString());
+            String targetUrl = session.getAttribute("targetUrl").toString();
+            session.removeAttribute("targetUrl");
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        }
     }
 
-    private Boolean isAutoLogin(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
+    private Boolean isAutoLogin(HttpSession session) {
         if (session == null) {
             return false;
         }
