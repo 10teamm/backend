@@ -33,11 +33,21 @@ public enum ErrorCode {
         // 500 Internal Server Error
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부 오류가 발생했습니다."),
 
-        // Image Storage Error
+        // Image Validator Error
+        INVALID_IMAGE_NAME(HttpStatus.BAD_REQUEST.value(), "유효하지 않은 이미지 이름입니다."),
+        INVALID_IMAGE_EXTENSION(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 이미지 확장자입니다."),
+        INVALID_IMAGE_FORMAT(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 이미지 형식입니다."),
         IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "이미지 파일이 누락 되었습니다."),
+        IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST.value(), "이미지 크기가 허용 범위를 초과했습니다."),
+        IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST.value(), "최대 이미지 업로드 개수를 초과했습니다."),
+        IMAGE_VALIDATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 유효성 검사에 실패했습니다."),
+
+        // Image Storage Error
         IMAGE_KEY_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "이미지 키가 누락 되었습니다."),
-        TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST.value(), "이미지 파일은 최대 10개까지 업로드 가능합니다."),
-        IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 업로드에 실패했습니다.");
+        IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 업로드에 실패했습니다."),
+
+        // Stream IO Exception
+        STREAM_IO_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR.value(), "스트림 처리 중 오류가 발생했습니다.");
 
         private final int code;
         private final String message;
