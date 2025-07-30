@@ -37,4 +37,11 @@ public class ContentController implements ContentControllerSwagger{
         contentService.saveContent(request);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/savelist")
+    public ResponseEntity<?> saveList(@RequestBody List<ContentRequest> requests) {
+        requests.forEach(contentService::saveContent);
+        return ResponseEntity.ok().build();
+    }
+
 }
