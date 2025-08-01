@@ -4,6 +4,7 @@ package com.swyp.catsgotogedog.User.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class User extends BaseTimeEntity {
     private String imageFilename;
     private String imageUrl;
     private Boolean isActive;
+
+    private LocalDateTime nameUpdateAt; // displayName 변경 시 업데이트
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Pet> pets = new ArrayList<>();

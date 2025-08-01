@@ -33,6 +33,21 @@ public enum ErrorCode {
         // 500 Internal Server Error
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부 오류가 발생했습니다."),
 
+        // User 관련
+        DUPLICATE_DISPLAY_NAME(HttpStatus.BAD_REQUEST.value(), "이미 사용 중인 닉네임입니다."),
+        DISPLAY_NAME_UPDATE_TOO_SOON(HttpStatus.BAD_REQUEST.value(), "닉네임은 24시간마다 한 번만 변경할 수 있습니다."),
+        SAME_DISPLAY_NAME(HttpStatus.BAD_REQUEST.value(), "현재 닉네임과 동일합니다."),
+
+        // 반려동물 관련 (Pet)
+        PET_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 반려동물입니다."),
+        PET_SIZE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 반려동물 크기입니다."),
+        INVALID_PET_DATA(HttpStatus.BAD_REQUEST.value(), "반려동물 데이터가 유효하지 않습니다."),
+        INVALID_PET_GENDER(HttpStatus.BAD_REQUEST.value(), "반려동물 성별은 M(수컷) 또는 F(암컷)이어야 합니다."),
+        PET_NAME_REQUIRED(HttpStatus.BAD_REQUEST.value(), "반려동물 이름은 필수입니다."),
+        PET_BIRTH_REQUIRED(HttpStatus.BAD_REQUEST.value(), "반려동물 생년월일은 필수입니다."),
+        PET_SIZE_REQUIRED(HttpStatus.BAD_REQUEST.value(), "반려동물 크기는 필수입니다."),
+        PET_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST.value(), "반려동물은 최대 10마리까지만 등록할 수 있습니다."),
+
         // Image Validator Error
         INVALID_IMAGE_NAME(HttpStatus.BAD_REQUEST.value(), "유효하지 않은 이미지 이름입니다."),
         INVALID_IMAGE_EXTENSION(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 이미지 확장자입니다."),
