@@ -1,7 +1,6 @@
 package com.swyp.catsgotogedog.review.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +11,6 @@ import com.swyp.catsgotogedog.User.repository.UserRepository;
 import com.swyp.catsgotogedog.common.util.image.storage.ImageStorageService;
 import com.swyp.catsgotogedog.common.util.image.storage.dto.ImageInfo;
 import com.swyp.catsgotogedog.common.util.image.validator.ImageUploadType;
-import com.swyp.catsgotogedog.common.util.image.validator.ImageValidator;
 import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.repository.ContentRepository;
 import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
@@ -40,8 +38,8 @@ public class ReviewService {
 	// 리뷰 작성
 	@Transactional
 	public void createReview(int contentId, String userId, CreateReviewRequest request, List<MultipartFile> images) {
-		User user = validateDatas(userId);
-		Content content = validateDatas(contentId);
+		User user = validateUser(userId);
+		Content content = validateContent(contentId);
 
 
 		Review uploadedReview = reviewRepository.save(Review.builder()
@@ -60,14 +58,42 @@ public class ReviewService {
 
 	}
 
-	private User validateDatas(String userId) {
+	@Transactional
+	public void updateReview(int reviewId, String userId, CreateReviewRequest request, List<MultipartFile> images) {
+		User user = validateUser(userId);
+		Review review = validateReview(reviewId);
+
+
+		review.setScore(request.getScore());
+		review.setContent(request.getContent());
+
+		if(images != null && !images.isEmpty()) {
+			List<ImageInfo> imageInfos = imageStorageService.upload(images, ImageUploadType.REVIEW);
+			List<ReviewImage> saveImages = imageInfos.stream()
+				.map(imageInfo -> ReviewImage.builder()
+					.review(review)
+					.imageFilename(imageInfo.key())
+					.imageUrl(imageInfo.url())
+					.build()
+				).toList();
+			reviewImageRepository.saveAll(saveImages);
+		}
+	}
+
+
+	private User validateUser(String userId) {
 		return userRepository.findById(Integer.parseInt(userId))
 			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
 	}
 
-	private Content validateDatas(int contentId) {
+	private Content validateContent(int contentId) {
 		return contentRepository.findById(contentId)
 			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.CONTENT_NOT_FOUND));
+	}
+
+	private Review validateReview(int reviewId) {
+		return reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.REVIEW_NOT_FOUND));
 	}
 
 	private void uploadAndSaveReviewImages(Review review, List<MultipartFile> images) {

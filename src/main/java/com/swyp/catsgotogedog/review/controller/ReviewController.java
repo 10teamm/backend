@@ -9,9 +9,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,6 +44,21 @@ public class ReviewController implements ReviewControllerSwagger {
 
 		return ResponseEntity.ok(
 			CatsgotogedogApiResponse.success("리뷰 생성 성공", null)
+		);
+	}
+
+	@Override
+	@PutMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<CatsgotogedogApiResponse<?>> updateReview(
+		@PathVariable int reviewId,
+		@AuthenticationPrincipal String userId,
+		@Valid @ModelAttribute @ParameterObject CreateReviewRequest createReviewRequest,
+		@RequestParam(value = "images", required = false)List<MultipartFile> images) {
+
+		reviewService.updateReview(reviewId, userId, createReviewRequest, images);
+
+		return ResponseEntity.ok(
+			CatsgotogedogApiResponse.success("리뷰 수정 성공", null)
 		);
 	}
 }

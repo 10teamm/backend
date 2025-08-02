@@ -28,6 +28,7 @@ import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @Table(name = "content_review")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

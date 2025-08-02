@@ -58,4 +58,33 @@ public interface ReviewControllerSwagger {
 		@Parameter(description = "이미지 업로드 (최대 3장)")
 		@RequestParam(value = "images") List<MultipartFile> images
 	) throws IOException;
+
+	@Operation(
+		summary = "작성 리뷰를 수정합니다.",
+		description = "사용자 인증을 통해 리뷰를 수정합니다."
+	)
+	@SecurityRequirement(name = "bearer-key")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "리뷰 수정 성공"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "404", description = "ContentId가 존재하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+	})
+	ResponseEntity<CatsgotogedogApiResponse<?>> updateReview(
+		@Parameter(description = "수정할 리뷰 ID", required = true)
+		@PathVariable int reviewId,
+
+		@Parameter(hidden = true)
+		@AuthenticationPrincipal String userId,
+
+		@RequestPart(value = "createReviewRequest")
+		@ModelAttribute @ParameterObject CreateReviewRequest createReviewRequest,
+
+		@Parameter(description = "이미지 업로드 (최대 3장)")
+		@RequestParam(value = "images") List<MultipartFile> images
+	);
 }
