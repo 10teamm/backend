@@ -37,6 +37,9 @@ jobs:
       - name: Check ES container logs
         run: docker compose logs --tail=50 elasticsearch || true
 
+      - name: test uris check
+        run: grep -R --line-number --no-color "spring.elasticsearch.uris" src/test || true
+
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
@@ -50,6 +53,11 @@ jobs:
 
       - name: Give execute permission to gradlew
         run: chmod +x ./gradlew
+
+      - name: Override ES URI for tests
+        run: |
+          echo "spring.elasticsearch.uris=http://localhost:9200" >> src/test/resources/application.properties
+
 
       - name: Build with Gradle Wrapper
         run: ./gradlew clean build
