@@ -29,17 +29,16 @@ jobs:
       - name: Start Elasticsearch & Kibana
         run: |
             docker compose up -d
-            until curl -sSf http://localhost:9200 >/dev/null; do
+            timeout 120s bash -c '
+            until [[ "$(curl -s http://localhost:9200/_cluster/health | jq -r ".status" 2>/dev/null)" =~ ^(green|yellow)$ ]]; do
               echo "Waiting for Elasticsearch"
               sleep 5
             done
+            echo "-- ES health is ok "
+            '
 
       - name: Check ES container logs
         run: docker compose logs --tail=50 elasticsearch || true
-
-      - name: test uris check
-        run: grep -R --line-number "spring.elasticsearch.uris" src/test || true
-
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
