@@ -21,11 +21,14 @@ public class ContentResponse {
     private String copyright;
     private BigDecimal mapx;
     private BigDecimal mapy;
-    private int    mlevel;
+    private int mlevel;
     private String tel;
-    private int    zipcode;
+    private int zipcode;
 
-    public static ContentResponse from(Content c){
+    private String smallImageUrl;
+    private Double avgScore;
+
+    public static ContentResponse from(Content c, String smallImageUrl, Double avgScore){
         return ContentResponse.builder()
                 .contentId(c.getContentId())
                 .title(c.getTitle())
@@ -42,6 +45,8 @@ public class ContentResponse {
                 .mlevel(c.getMlevel())
                 .tel(c.getTel())
                 .zipcode(c.getZipcode())
+                .smallImageUrl(smallImageUrl)
+                .avgScore(avgScore)
                 .build();
     }
 }

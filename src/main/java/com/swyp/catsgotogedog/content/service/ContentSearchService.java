@@ -4,9 +4,12 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
+import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
 import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
 import com.swyp.catsgotogedog.content.repository.ContentElasticRepository;
+import com.swyp.catsgotogedog.content.repository.ContentImageRepository;
 import com.swyp.catsgotogedog.content.repository.ContentRepository;
+import com.swyp.catsgotogedog.review.repository.ContentReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
@@ -27,6 +30,8 @@ public class ContentSearchService {
     private final ContentRepository contentRepository;
     private final ContentElasticRepository contentElasticRepository;
     private final ElasticsearchOperations elasticsearchOperations;
+    private final ContentImageRepository contentImageRepository;
+    private final ContentReviewRepository contentReviewRepository;
 
     public List<ContentDocument> searchByKeyword(String keyword){
         return contentElasticRepository.findByTitleContaining(keyword);
@@ -81,21 +86,39 @@ public class ContentSearchService {
                 .withPageable(PageRequest.of(0, 20))
                 .build();
 
-        List<Integer> ids = elasticsearchOperations.search(nativeQuery, ContentDocument.class).stream()
+        List<Integer> ids = elasticsearchOperations
+                .search(nativeQuery, ContentDocument.class).stream()
                 .map(SearchHit::getContent)
                 .map(ContentDocument::getContentId)
                 .toList();
 
         if (ids.isEmpty()) return List.of();
 
-        Map<Integer, Content> map = contentRepository.findAllById(ids).stream()
+        Map<Integer, Content> contentMap = contentRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Content::getContentId, c -> c));
 
         return ids.stream()
-                .map(map::get)
+                .map(id -> {
+                    Content content = contentMap.get(id);
+                    if (content == null) return null;
+
+                    ContentImage image = contentImageRepository.findByContentId(id);
+                    String smallImageUrl = (image != null) ? image.getSmallImageUrl() : null;
+
+                    double avg = getAverageScore(id);
+
+                    return ContentResponse.from(content, smallImageUrl,avg);
+                })
                 .filter(Objects::nonNull)
-                .map(ContentResponse::from)
                 .toList();
+
     }
+
+    public double getAverageScore(int contentId) {
+        Double avg = contentReviewRepository.findAvgScoreByContentId(contentId);
+        double value = (avg != null) ? avg : 0.0;
+        return Math.round(value * 10.0) / 10.0;
+    }
+
 
 }
