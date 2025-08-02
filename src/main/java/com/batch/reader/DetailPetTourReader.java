@@ -6,25 +6,30 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.swyp.catsgotogedog.content.domain.entity.Content;
-import com.swyp.catsgotogedog.content.repository.ContentImageRepository;
 
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
-public class DetailImageReader {
+public class DetailPetTourReader {
 
-	private final ContentImageRepository contentImageRepository;
 	private final EntityManagerFactory entityManagerFactory;
 
 	@Bean
-	public JpaPagingItemReader<Content> detailImageContentReader() {
+	public JpaPagingItemReader<Content> detailPetTourItemReader() {
+		String jpqlQuery = "SELECT c"
+			+ " FROM Content c"
+			+ " WHERE NOT EXISTS"
+			+ " (SELECT 1 FROM PetGuide pg"
+			+ " WHERE pg.content = c)"
+			+ " ORDER BY c.contentId ASC";
+
 		return new JpaPagingItemReaderBuilder<Content>()
-			.name("contentReader")
+			.name("detailPetTourItemReader")
 			.entityManagerFactory(entityManagerFactory)
 			.pageSize(100)
-			.queryString("SELECT c FROM Content c WHERE NOT EXISTS (SELECT 1 FROM ContentImage ci WHERE ci.contentId = c) ORDER BY c.contentId ASC")
+			.queryString(jpqlQuery)
 			.build();
 	}
 }

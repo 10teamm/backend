@@ -6,25 +6,28 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.swyp.catsgotogedog.content.domain.entity.Content;
-import com.swyp.catsgotogedog.content.repository.ContentImageRepository;
 
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
-public class DetailImageReader {
+public class DetailInfoReader {
 
-	private final ContentImageRepository contentImageRepository;
 	private final EntityManagerFactory entityManagerFactory;
 
 	@Bean
-	public JpaPagingItemReader<Content> detailImageContentReader() {
+	public JpaPagingItemReader<Content> detailInfoItemReader() {
+		String jpqlQuery = "SELECT c FROM Content c " +
+			"WHERE NOT EXISTS (SELECT 1 FROM RecurInformation ri WHERE ri.content = c) " +
+			"AND NOT EXISTS (SELECT 1 FROM RecurInformationRoom rir WHERE rir.content = c) " +
+			"ORDER BY c.contentId ASC";
+
 		return new JpaPagingItemReaderBuilder<Content>()
-			.name("contentReader")
+			.name("detailInfoItemReader")
 			.entityManagerFactory(entityManagerFactory)
 			.pageSize(100)
-			.queryString("SELECT c FROM Content c WHERE NOT EXISTS (SELECT 1 FROM ContentImage ci WHERE ci.contentId = c) ORDER BY c.contentId ASC")
+			.queryString(jpqlQuery)
 			.build();
 	}
 }
