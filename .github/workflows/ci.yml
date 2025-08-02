@@ -29,6 +29,10 @@ jobs:
       - name: Start Elasticsearch & Kibana
         run: |
             docker compose up -d
+            until curl -sSf http://localhost:9200 >/dev/null; do
+              echo "Waiting for Elasticsearch"
+              sleep 5
+            done
 
       # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
