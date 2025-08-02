@@ -56,3 +56,10 @@ jobs:
 
       - name: Build with Gradle Wrapper
         run: ./gradlew clean build
+
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: backend/build/reports/tests/test
