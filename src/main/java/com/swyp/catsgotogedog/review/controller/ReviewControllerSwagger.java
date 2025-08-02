@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 import com.swyp.catsgotogedog.review.domain.request.CreateReviewRequest;
+import com.swyp.catsgotogedog.review.domain.response.ReviewResponse;
 
 import io.jsonwebtoken.io.IOException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -140,4 +141,23 @@ public interface ReviewControllerSwagger {
 		@Parameter(hidden = true)
 		@AuthenticationPrincipal String userId
 	);
+
+	@Operation(
+		summary = "컨텐츠에 작성된 리뷰 목록을 조회합니다.",
+		description = "ContentId를 통해 리뷰 목록을 조회합니다."
+	)
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "리뷰 목록 조회 성공"
+			, content = @Content(schema = @Schema(implementation = ReviewResponse.class))),
+		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "404", description = "컨텐츠가 존재하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+	})
+	ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewsByContentId(
+		@Parameter(description = "조회할 컨텐츠 ID", required = true)
+		@PathVariable int contentId,
+		@Parameter(description = "정렬 기준 (좋아요 순: r, 최신순: c, 기본: r)", required = false,
+		example = "r")
+		@RequestParam String sort);
 }

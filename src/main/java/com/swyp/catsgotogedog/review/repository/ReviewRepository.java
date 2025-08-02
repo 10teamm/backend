@@ -1,5 +1,6 @@
 package com.swyp.catsgotogedog.review.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +28,16 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 	@Query("SELECT r FROM Review r WHERE r.reviewId = :reviewId AND r.userId = :userId")
 	Optional<Review> findByIdAndUserId(@Param("reviewId") int reviewId, String userId);
 
+	List<Review> findByContentId(int contentId);
+
+	@Query("SELECT DISTINCT r FROM Review r "
+		+ "LEFT JOIN FETCH r.reviewImages "
+		+ "WHERE r.contentId = :contentId "
+		+ "ORDER BY "
+		+ "CASE WHEN :sort = 'r' THEN r.recommendedNumber END DESC, "
+		+ "CASE WHEN :sort = 'c' THEN r.createdAt END DESC, "
+		+ "r.recommendedNumber DESC")
+	List<Review> findByContentIdWithUserAndReviewImages(
+		@Param("contentId") int contentId,
+		@Param("sort") String sort);
 }

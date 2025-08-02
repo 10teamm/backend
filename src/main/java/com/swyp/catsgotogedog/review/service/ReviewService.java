@@ -1,7 +1,9 @@
 package com.swyp.catsgotogedog.review.service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,8 @@ import com.swyp.catsgotogedog.global.exception.ErrorCode;
 import com.swyp.catsgotogedog.review.domain.entity.Review;
 import com.swyp.catsgotogedog.review.domain.entity.ReviewImage;
 import com.swyp.catsgotogedog.review.domain.request.CreateReviewRequest;
+import com.swyp.catsgotogedog.review.domain.response.ReviewImageResponse;
+import com.swyp.catsgotogedog.review.domain.response.ReviewResponse;
 import com.swyp.catsgotogedog.review.repository.ReviewImageRepository;
 import com.swyp.catsgotogedog.review.repository.ReviewRepository;
 
@@ -114,6 +118,42 @@ public class ReviewService {
 		reviewImageRepository.deleteById(imageId);
 	}
 
+	// ContentId를 통한 리뷰 목록 조회
+	@Transactional(readOnly = true)
+	public List<ReviewResponse> fetchReviewsByContentId(int contentId, String sort) {
+		validateContent(contentId);
+
+		List<Review> reviews = reviewRepository.findByContentIdWithUserAndReviewImages(contentId, sort);
+
+		List<Integer> userIds = reviews.stream()
+			.map(Review::getUserId)
+			.distinct()
+			.collect(Collectors.toList());
+
+		List<User> users = userRepository.findAllById(userIds);
+		Map<Integer, User> userMap = users.stream()
+			.collect(Collectors.toMap(User::getUserId, Function.identity()));
+
+		return reviews.stream()
+			.map(review -> {
+				User user = userMap.get(review.getUserId());
+				return new ReviewResponse(
+					review.getContentId(),
+					review.getReviewId(),
+					user != null ? user.getUserId() : 0,
+					user != null ? user.getDisplayName() : "알 수 없음",
+					user != null ? user.getImageUrl() : "",
+					review.getContent(),
+					review.getScore(),
+					review.getRecommendedNumber(),
+					review.getReviewImages().stream()
+						.map(ReviewImageResponse::from)
+						.collect(Collectors.toList())
+				);
+			})
+			.collect(Collectors.toList());
+	}
+
 
 	private User validateUser(String userId) {
 		return userRepository.findById(Integer.parseInt(userId))
@@ -147,5 +187,6 @@ public class ReviewService {
 
 		reviewImageRepository.saveAll(saveImages);
 	}
+
 
 }

@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 import com.swyp.catsgotogedog.review.domain.request.CreateReviewRequest;
+import com.swyp.catsgotogedog.review.domain.response.ReviewResponse;
 import com.swyp.catsgotogedog.review.service.ReviewService;
 
 import io.jsonwebtoken.io.IOException;
@@ -92,6 +94,19 @@ public class ReviewController implements ReviewControllerSwagger {
 
 		return ResponseEntity.ok(
 			CatsgotogedogApiResponse.success("리뷰 이미지 삭제 성공", null)
+		);
+	}
+
+	@Override
+	@GetMapping("/content/{contentId}")
+	public ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewsByContentId(
+		@PathVariable int contentId,
+		@RequestParam(defaultValue = "r") String sort) {
+
+		List<ReviewResponse> reviewResponses = reviewService.fetchReviewsByContentId(contentId, sort);
+
+		return ResponseEntity.ok(
+			CatsgotogedogApiResponse.success("리뷰 조회 성공", reviewResponses)
 		);
 	}
 }
