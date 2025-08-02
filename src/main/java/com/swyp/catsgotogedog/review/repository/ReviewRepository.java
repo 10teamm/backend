@@ -13,8 +13,18 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 	/**
 	 * reviewId를 이용해 reviewImage 컬렉션도 함께 조회
 	 * @param reviewId
-	 * @return Review Entity
+	 * @return Optional<Review>
 	 */
 	@Query("SELECT r FROM Review r LEFT JOIN FETCH r.reviewImages WHERE r.reviewId = :reviewId")
 	Optional<Review> findByIdWithImages(@Param("reviewId") int reviewId);
+
+	/**
+	 * reviewId와 userId 를 통한 리뷰 컬렉션 조회
+	 * @param reviewId
+	 * @param userId
+	 * @return Optional<Review>
+	 */
+	@Query("SELECT r FROM Review r WHERE r.reviewId = :reviewId AND r.userId = :userId")
+	Optional<Review> findByIdAndUserId(@Param("reviewId") int reviewId, String userId);
+
 }

@@ -3,9 +3,11 @@ package com.swyp.catsgotogedog.review.controller;
 import java.util.List;
 
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +34,7 @@ public class ReviewController implements ReviewControllerSwagger {
 
 	private final ReviewService reviewService;
 
+	// 리뷰 작성
 	@Override
 	@PostMapping(value = "/{contentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<CatsgotogedogApiResponse<?>> createReview(
@@ -42,11 +45,12 @@ public class ReviewController implements ReviewControllerSwagger {
 
 		reviewService.createReview(contentId, userId, createReviewRequest, images);
 
-		return ResponseEntity.ok(
-			CatsgotogedogApiResponse.success("리뷰 생성 성공", null)
-		);
+		return ResponseEntity
+			.status(HttpStatus.CREATED)
+			.body(CatsgotogedogApiResponse.success("리뷰 생성 성공", null));
 	}
 
+	// 리뷰 수정
 	@Override
 	@PutMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<CatsgotogedogApiResponse<?>> updateReview(
@@ -59,6 +63,35 @@ public class ReviewController implements ReviewControllerSwagger {
 
 		return ResponseEntity.ok(
 			CatsgotogedogApiResponse.success("리뷰 수정 성공", null)
+		);
+	}
+
+	// 리뷰 삭제
+	@Override
+	@DeleteMapping("/{reviewId}")
+	public ResponseEntity<CatsgotogedogApiResponse<?>> deleteReview(
+		@PathVariable int reviewId,
+		@AuthenticationPrincipal String userId) {
+
+		reviewService.deleteReview(reviewId, userId);
+
+		return ResponseEntity.ok(
+			CatsgotogedogApiResponse.success("리뷰 삭제 성공", null)
+		);
+	}
+
+	// 리뷰 이미지 삭제
+	@Override
+	@DeleteMapping("/{reviewId}/image/{imageId}")
+	public ResponseEntity<CatsgotogedogApiResponse<?>> deleteReviewImage(
+		@PathVariable(name = "reviewId") int reviewId,
+		@PathVariable(name = "imageId") int imageId,
+		@AuthenticationPrincipal String userId) {
+
+		reviewService.deleteReviewImage(reviewId, imageId, userId);
+
+		return ResponseEntity.ok(
+			CatsgotogedogApiResponse.success("리뷰 이미지 삭제 성공", null)
 		);
 	}
 }

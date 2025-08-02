@@ -21,6 +21,7 @@ public enum ErrorCode {
         CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 컨텐츠 게시글입니다."),
         REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 리뷰입니다."),
         RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "리소스를 찾을 수 없습니다."),
+        REVIEW_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 리뷰 이미지입니다."),
 
         // 405 Method not allowed
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED.value(), "허용되지 않은 HTTP 메소드입니다."),

@@ -1,6 +1,7 @@
 package com.swyp.catsgotogedog.review.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,11 +59,12 @@ public class ReviewService {
 
 	}
 
+	// 리뷰 수정
 	@Transactional
 	public void updateReview(int reviewId, String userId, CreateReviewRequest request, List<MultipartFile> images) {
 		User user = validateUser(userId);
-		Review review = validateReview(reviewId);
-
+		Review review = reviewRepository.findByIdAndUserId(reviewId, userId)
+			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.REVIEW_NOT_FOUND));
 
 		review.setScore(request.getScore());
 		review.setContent(request.getContent());
@@ -78,6 +80,38 @@ public class ReviewService {
 				).toList();
 			reviewImageRepository.saveAll(saveImages);
 		}
+	}
+
+	// 리뷰 삭제
+	@Transactional
+	public void deleteReview(int reviewId, String userId) {
+		User user = validateUser(userId);
+		validateReview(reviewId);
+		Review review = reviewRepository.findByIdAndUserId(reviewId, userId)
+			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.FORBIDDEN_ACCESS));
+
+		List<ReviewImage> images = reviewImageRepository.findByReview(review);
+
+		images.forEach(image -> imageStorageService.delete(image.getImageFilename()));
+
+		reviewRepository.delete(review);
+
+	}
+
+	// 리뷰 이미지 삭제
+	@Transactional
+	public void deleteReviewImage(int reviewId, int imageId, String userId) {
+		validateUser(userId);
+		validateReview(reviewId);
+
+		reviewRepository.findByIdAndUserId(reviewId, userId)
+				.orElseThrow(() -> new CatsgotogedogException(ErrorCode.FORBIDDEN_ACCESS));
+
+		ReviewImage image = reviewImageRepository.findById(imageId)
+				.orElseThrow(() -> new CatsgotogedogException(ErrorCode.REVIEW_IMAGE_NOT_FOUND));
+
+		imageStorageService.delete(image.getImageFilename());
+		reviewImageRepository.deleteById(imageId);
 	}
 
 
@@ -113,4 +147,5 @@ public class ReviewService {
 
 		reviewImageRepository.saveAll(saveImages);
 	}
+
 }

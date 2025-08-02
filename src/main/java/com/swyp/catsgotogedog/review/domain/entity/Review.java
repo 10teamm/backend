@@ -7,6 +7,7 @@ import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.global.BaseTimeEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -49,7 +50,6 @@ public class Review extends BaseTimeEntity {
 
 	private int recommendedNumber;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "reviewId")
+	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ReviewImage> reviewImages;
 }

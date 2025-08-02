@@ -87,4 +87,57 @@ public interface ReviewControllerSwagger {
 		@Parameter(description = "이미지 업로드 (최대 3장)")
 		@RequestParam(value = "images") List<MultipartFile> images
 	);
+
+	@Operation(
+		summary = "작성한 리뷰를 삭제합니다.",
+		description = "사용자 인증을 통해 리뷰를 수정합니다."
+	)
+	@SecurityRequirement(name = "bearer-key")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "리뷰 삭제 성공"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "403", description = "접근 권한이 없음, 다른 사람의 리뷰 삭제시"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "404", description = "리뷰가 존재하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+	})
+	ResponseEntity<CatsgotogedogApiResponse<?>> deleteReview(
+		@Parameter(description = "삭제할 리뷰 ID", required = true)
+		@PathVariable int reviewId,
+
+		@Parameter(hidden = true)
+		@AuthenticationPrincipal String userId
+	);
+
+	@Operation(
+		summary = "작성한 리뷰의 이미지를 삭제합니다.",
+		description = "사용자 인증을 통해 리뷰의 이미지를 삭제합니다."
+	)
+	@SecurityRequirement(name = "bearer-key")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "이미지 삭제 성공"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "403", description = "접근 권한이 없음, 다른 사람의 리뷰 or 이미지 삭제시"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "404", description = "리뷰가 존재하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+	})
+	ResponseEntity<CatsgotogedogApiResponse<?>> deleteReviewImage(
+		@Parameter(description = "삭제할 리뷰 ID", required = true)
+		@PathVariable int reviewId,
+
+		@Parameter(description = "삭제할 이미지 ID", required = true)
+		@PathVariable int imageId,
+
+		@Parameter(hidden = true)
+		@AuthenticationPrincipal String userId
+	);
 }
