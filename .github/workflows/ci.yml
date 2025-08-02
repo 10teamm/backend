@@ -34,7 +34,11 @@ jobs:
               sleep 5
             done
 
-      # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
+      - name: Check ES container logs
+        run: docker compose logs --tail=50 elasticsearch || true
+
+
+    # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
