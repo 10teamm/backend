@@ -30,4 +30,6 @@ public class User extends BaseTimeEntity {
     private String imageFilename;
     private String imageUrl;
     private Boolean isActive;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Pet> pets;
 }
