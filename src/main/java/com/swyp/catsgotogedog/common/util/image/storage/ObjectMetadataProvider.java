@@ -1,4 +1,4 @@
-package com.swyp.catsgotogedog.common.util.imagestorage;
+package com.swyp.catsgotogedog.common.util.image.storage;
 
 import io.awspring.cloud.s3.ObjectMetadata;
 import org.springframework.stereotype.Component;

@@ -1,7 +1,12 @@
-package com.swyp.catsgotogedog.common.util.imagestorage;
+package com.swyp.catsgotogedog.common.util.image.storage;
 
-import com.swyp.catsgotogedog.common.util.imagestorage.dto.ImageInfo;
+import com.swyp.catsgotogedog.common.util.image.storage.dto.ImageInfo;
+import com.swyp.catsgotogedog.common.util.image.validator.ImageUploadType;
+import com.swyp.catsgotogedog.common.util.image.validator.ImageValidator;
 import com.swyp.catsgotogedog.global.exception.*;
+import com.swyp.catsgotogedog.global.exception.images.ImageNotFoundException;
+import com.swyp.catsgotogedog.global.exception.images.ImageUploadException;
+import com.swyp.catsgotogedog.global.exception.images.ImageLimitExceededException;
 import io.awspring.cloud.s3.ObjectMetadata;
 import io.awspring.cloud.s3.S3Resource;
 import io.awspring.cloud.s3.S3Template;
@@ -9,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -21,36 +27,41 @@ public class ImageStorageService {
 
     private final S3Template s3Template;
     private final ObjectMetadataProvider objectMetadataProvider;
+    private final ImageValidator imageValidator;
     private final String bucketName;
 
     private final int MAX_FILE_COUNT = 10;
 
     public ImageStorageService(S3Template s3Template,
                                ObjectMetadataProvider objectMetadataProvider,
+                               ImageValidator imageValidator,
                                @Value("${spring.cloud.aws.s3.bucket}") String bucketName) {
 
         this.s3Template = s3Template;
         this.objectMetadataProvider = objectMetadataProvider;
+        this.imageValidator = imageValidator;
         this.bucketName = bucketName;
     }
 
     /**
      * 다중 이미지 업로드
      * @param files MultipartFile list
+     * @param uploadType 업로드 타입 (프로필 업로드, 리뷰 업로드 등 개수 제한용)
      * @return List&lt;ImageInfo&gt;
      */
-    public List<ImageInfo> upload(List<MultipartFile> files) {
-        return upload(files, "");
+    public List<ImageInfo> upload(List<MultipartFile> files, ImageUploadType uploadType) {
+        return upload(files, "", uploadType);
     }
 
     /**
      * 다중 이미지 업로드
      * @param files MultipartFile list
      * @param path 업로드 경로
+     * @param uploadType 업로드 타입 (프로필 업로드, 리뷰 업로드 등 개수 제한용)
      * @return List&lt;ImageInfo&gt;
      */
-    public List<ImageInfo> upload(List<MultipartFile> files, String path) {
-        validateFiles(files);
+    public List<ImageInfo> upload(List<MultipartFile> files, String path, ImageUploadType uploadType) {
+        validateFiles(files,uploadType);
         return files.stream()
                 .map(file -> doUpload(file, path))
                 .collect(Collectors.toList());
@@ -59,20 +70,22 @@ public class ImageStorageService {
     /**
      * 단일 이미지 업로드
      * @param file MultipartFile
+     * @param uploadType 업로드 타입 (프로필 업로드, 리뷰 업로드 등 개수 제한용)
      * @return List&lt;ImageInfo&gt;
      */
-    public List<ImageInfo> upload(MultipartFile file) {
-        return upload(file, "");
+    public List<ImageInfo> upload(MultipartFile file, ImageUploadType uploadType) {
+        return upload(file, "", uploadType);
     }
 
     /**
      * 단일 이미지 업로드
      * @param file MultipartFile
      * @param path 업로드 경로
+     * @param uploadType 업로드 타입 (프로필 업로드, 리뷰 업로드 등 개수 제한용)
      * @return List&lt;ImageInfo&gt;
      */
-    public List<ImageInfo> upload(MultipartFile file, String path) {
-        validateFile(file);
+    public List<ImageInfo> upload(MultipartFile file, String path, ImageUploadType uploadType) {
+        validateFile(file, uploadType);
         return Collections.singletonList(doUpload(file, path));
     }
 
@@ -101,7 +114,9 @@ public class ImageStorageService {
         try (InputStream stream = file.getInputStream()) {
             S3Resource resource = s3Template.upload(bucketName, key, stream, metadata);
             return new ImageInfo(resource.getFilename(), resource.getURL().toString());
-        } catch (Exception e) { // IOException(InputStream), S3Exception 등
+        } catch (IOException e) { // Stream Exception
+            throw new ImageUploadException(ErrorCode.STREAM_IO_EXCEPTION);
+        } catch (Exception e) { // S3Exception 등
             throw new ImageUploadException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
     }
@@ -112,26 +127,18 @@ public class ImageStorageService {
     }
 
     // MIME 타입 검사 등 Tika를 사용한 바이너리 검사 기능 별도로 개발 필요
-    private void validateFiles(List<MultipartFile> files) {
-        if (files == null || files.isEmpty()) {
-            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
-        }
-        if (files.size() > MAX_FILE_COUNT) {
-            throw new TooManyImagesException(ErrorCode.TOO_MANY_IMAGES);
-        }
-        files.forEach(this::validateFile);
+    private void validateFiles(List<MultipartFile> files, ImageUploadType uploadType) {
+        imageValidator.validate(files, uploadType);
     }
 
     // MIME 타입 검사 등 Tika를 사용한 바이너리 검사 기능 별도로 개발 필요
-    private void validateFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
-        }
+    private void validateFile(MultipartFile file, ImageUploadType uploadType) {
+        imageValidator.validate(file, uploadType);
     }
 
     private void validateKeyList(List<String> keys) {
         if (keys == null || keys.isEmpty()) {
-            throw new ImageNotFoundException(ErrorCode.IMAGE_NOT_FOUND);
+            throw new ImageKeyNotFoundException(ErrorCode.IMAGE_KEY_NOT_FOUND);
         }
         // 전체 키 리스트의 유효성을 먼저 검사
         if (keys.stream().anyMatch(key -> key == null || key.isBlank())) {
@@ -147,8 +154,15 @@ public class ImageStorageService {
 
     // 파일 이름과 UUID를 조합하여 고유한 키 생성
     private String genKey(MultipartFile file, String path) {
-        String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "";
-        return path + UUID.randomUUID() + originalFilename;
+        return path + UUID.randomUUID() + getFileExtension(file.getOriginalFilename());
+    }
+
+    private String getFileExtension(String filename) {
+        int lastDotIndex = filename.lastIndexOf('.');
+        if (lastDotIndex == -1 || lastDotIndex == filename.length() - 1) {
+            return "";
+        }
+        return "." + filename.substring(lastDotIndex + 1).toLowerCase();
     }
 
 }
