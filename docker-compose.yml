@@ -7,6 +7,14 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
+      -
+
+    command: >
+      bash -c "
+        elasticsearch-plugin install --batch analysis-nori &&
+        /usr/local/bin/docker-entrypoint.sh eswrapper
+      "
+
     ports:
       - "9200:9200"
       - "9300:9300"
