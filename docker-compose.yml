@@ -7,7 +7,6 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
-      -
 
     command: >
       bash -c "
