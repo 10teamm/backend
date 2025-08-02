@@ -55,7 +55,7 @@ public class UserService {
 		return findUserById(userId);
 	}
 
-    public User update(String userId, UserUpdateRequest request) {
+    public void update(String userId, UserUpdateRequest request) {
         User user = findUserById(userId);
 
 		if (request.getDisplayName() != null) {
@@ -92,7 +92,7 @@ public class UserService {
 			user.setImageFilename(imageInfo.key());
 			user.setImageUrl(imageInfo.url());
         }
-        return userRepository.save(user);
+		userRepository.save(user);
     }
 
 	public void deleteProfileImage(String userId) {

@@ -68,7 +68,7 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<CatsgotogedogApiResponse<?>> updateProfile(
             @AuthenticationPrincipal String userId,
             @Valid @ModelAttribute UserUpdateRequest request) {
-        User updatedUser = userService.update(userId, request);
+        userService.update(userId, request);
         return ResponseEntity.ok(
                 CatsgotogedogApiResponse.success("프로필 수정 성공", null));
     }
