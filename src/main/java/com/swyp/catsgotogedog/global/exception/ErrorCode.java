@@ -41,6 +41,7 @@ public enum ErrorCode {
         IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST.value(), "이미지 크기가 허용 범위를 초과했습니다."),
         IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST.value(), "최대 이미지 업로드 개수를 초과했습니다."),
         IMAGE_VALIDATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 유효성 검사에 실패했습니다."),
+        REVIEW_IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST.value(), "리뷰 이미지는 최대 3개까지 업로드 가능합니다."),
 
         // Image Storage Error
         IMAGE_KEY_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "이미지 키가 누락 되었습니다."),
