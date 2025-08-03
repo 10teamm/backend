@@ -151,9 +151,9 @@ public class ContentSearchService {
     }
 
     public RegionCodeResponse getRegionName(int sidoCode, int sigunguCode){
-        RegionCode sido = regionCodeRepository.findRegionNameBySidoCodeAndRegionLevel(sidoCode,1);
+        RegionCode sido = regionCodeRepository.findBySidoCodeAndRegionLevel(sidoCode,1);
 
-        RegionCode sigungu = regionCodeRepository.findRegionNameByParentCodeAndSigunguCodeAndRegionLevel(sidoCode, sigunguCode,2);
+        RegionCode sigungu = regionCodeRepository.findByParentCodeAndSigunguCodeAndRegionLevel(sidoCode, sigunguCode,2);
 
         String sidoName = sido.getRegionName();
         String sigunguName = sigungu.getRegionName();

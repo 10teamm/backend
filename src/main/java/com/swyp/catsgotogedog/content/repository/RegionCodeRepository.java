@@ -12,7 +12,7 @@ public interface RegionCodeRepository extends JpaRepository<RegionCode, Integer>
 	Optional<RegionCode> findBySidoCodeAndSigunguCodeIsNull(int sidoCode);
 	List<RegionCode> findBySidoCode(int sidoCode);
   
-  RegionCode findRegionNameBySidoCodeAndRegionLevel(int sidoCode, int regionLevel);
+  RegionCode findBySidoCodeAndRegionLevel(int sidoCode, int regionLevel);
 
-  RegionCode findRegionNameByParentCodeAndSigunguCodeAndRegionLevel(int parentCode, int sigunguCode, int regionLevel);
+  RegionCode findByParentCodeAndSigunguCodeAndRegionLevel(int parentCode, int sigunguCode, int regionLevel);
 }
