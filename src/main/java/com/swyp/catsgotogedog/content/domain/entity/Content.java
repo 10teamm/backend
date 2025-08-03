@@ -1,57 +1,90 @@
 package com.swyp.catsgotogedog.content.domain.entity;
 
-import com.swyp.catsgotogedog.global.BaseTimeEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import java.time.LocalDateTime;
 
-import java.math.BigDecimal;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
-@Builder
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Content extends BaseTimeEntity {
+@Table(name = "content")
+@ToString
+@Builder
+public class Content {
+	@Id
+	@Column(name = "content_id", updatable = false)
+	private int contentId;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private int contentId;
+	@Column(name = "content_type_id", nullable = false)
+	private int contentTypeId;
 
-    @Column(nullable = false)
-    private int categoryId;
+	@Column(name = "category_id")
+	private String categoryId;
 
-    @Column(nullable = false)
-    private int regionId;
+	@Column(name = "sido_code")
+	private int sidoCode;
 
-    private String addr1;
+	@Column(name = "sigungu_code")
+	private int sigunguCode;
 
-    private String addr2;
+	@Column(name = "addr1")
+	private String addr1;
 
-    private String image;
+	@Column(name = "addr2")
+	private String addr2;
 
-    private String thumbImage;
+	@Column(name = "image")
+	private String imageUrl;
 
-    private String copyright;
+	@Column(name = "thumb_image")
+	private String thumbImageUrl;
 
-    @Column(precision = 13, scale = 10)
-    private BigDecimal mapx;
+	@Column(name = "copyright")
+	private String copyright;
 
-    @Column(precision = 13, scale = 10)
-    private BigDecimal mapy;
+	@Column(name = "mapx")
+	private double mapX;
 
-    private int mlevel;
+	@Column(name = "mapy")
+	private double mapy;
 
-    private String tel;
+	@Column(name = "mlevel")
+	private int mLevel;
 
-    private String title;
+	@Column(name = "tel")
+	private String tel;
 
-    private int zipcode;
+	@Column(name = "title")
+	private String title;
 
-    private int contentTypeId;
+	@Column(name = "zipcode")
+	private int zipCode;
 
-    private int sidoCode;
+	@Lob
+	@Column(name = "overview")
+	private String overview;
 
-    private int sigunguCode;
+	@CreatedDate
+	@Column(updatable = false)
+	private LocalDateTime createdAt;
+
+	@LastModifiedDate
+	private LocalDateTime modifiedAt;
 
 }

@@ -1,4 +1,6 @@
-package com.swyp.catsgotogedog.content.domain.entity;
+package com.swyp.catsgotogedog.content.domain.entity.batch.recur;
+
+import com.swyp.catsgotogedog.content.domain.entity.Content;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,35 +15,25 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
+@Table(name = "recur_information")
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "content_image")
-@Builder
-public class ContentImage {
+public class RecurInformation {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "content_image_id", updatable = false)
-	private int contentImageId;
+	private int recurId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "content_id")
-	private Content contentId;
+	private Content content;
 
-	@Column(name = "image_url")
-	private String imageUrl;
+	private String infoName;
 
-	@Column(name = "image_filename")
-	private String imageFilename;
-
-	@Column(name = "small_image_url")
-	private String smallImageUrl;
-
-	@Column(name = "small_image_filename")
-	private String smallImageFilename;
-
+	@Column(columnDefinition = "TEXT")
+	private String infoText;
 }
