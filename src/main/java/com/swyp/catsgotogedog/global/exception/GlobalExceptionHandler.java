@@ -118,5 +118,14 @@ public class GlobalExceptionHandler {
 			.body(response);
 	}
 
+	@ExceptionHandler(ExpiredTokenException.class)
+	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleExpiredTokenException(ExpiredTokenException e) {
+		log.warn("ExpiredTokenException : {}", e.getMessage(), e);
+		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.EXPIRED_TOKEN);
+		return ResponseEntity
+			.status(HttpStatus.UNAUTHORIZED)
+			.body(response);
+	}
+
 
 }
