@@ -120,10 +120,6 @@ public class ContentSearchService {
 
                     boolean wishData = (userId != null) ? getWishData(userId, id) : false;
 
-                    System.out.println("Test -- sido : "+content.getSidoCode());
-
-                    System.out.println("Test -- sigungu : "+content.getSigunguCode());
-
                     RegionCodeResponse regionName
                             = getRegionName(content.getSidoCode(), content.getSigunguCode());
 
