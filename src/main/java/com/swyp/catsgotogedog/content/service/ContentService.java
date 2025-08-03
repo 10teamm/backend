@@ -20,7 +20,6 @@ public class ContentService {
     public void saveContent(ContentRequest request){
         Content content = Content.builder()
                 .categoryId(request.getCategoryId())
-                .regionId(request.getRegionId())
                 .addr1(request.getAddr1())
                 .addr2(request.getAddr2())
                 .image(request.getImage())
@@ -28,10 +27,10 @@ public class ContentService {
                 .copyright(request.getCopyright())
                 .mapx(request.getMapx())
                 .mapy(request.getMapy())
-                .mlevel(request.getMlevel())
+                .mLevel(request.getMlevel())
                 .tel(request.getTel())
                 .title(request.getTitle())
-                .zipcode(request.getZipcode())
+                .zipCode(request.getZipcode())
                 .contentTypeId(request.getContentTypeId())
                 .build();
         contentRepository.save(content);

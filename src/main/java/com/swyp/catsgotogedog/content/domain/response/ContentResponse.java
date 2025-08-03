@@ -15,12 +15,11 @@ public class ContentResponse {
     private String addr2;
     private String image;
     private String thumbImage;
-    private int categoryId;
-    private int regionId;
+    private String categoryId;
     private int contentTypeId;
     private String copyright;
-    private BigDecimal mapx;
-    private BigDecimal mapy;
+    private double mapx;
+    private double mapy;
     private int mlevel;
     private String tel;
     private int zipcode;
@@ -47,14 +46,13 @@ public class ContentResponse {
                 .image(c.getImage())
                 .thumbImage(c.getThumbImage())
                 .categoryId(c.getCategoryId())
-                .regionId(c.getRegionId())
                 .contentTypeId(c.getContentTypeId())
                 .copyright(c.getCopyright())
                 .mapx(c.getMapx())
                 .mapy(c.getMapy())
-                .mlevel(c.getMlevel())
+                .mlevel(c.getMLevel())
                 .tel(c.getTel())
-                .zipcode(c.getZipcode())
+                .zipcode(c.getZipCode())
                 .smallImageUrl(smallImageUrl)
                 .avgScore(avgScore)
                 .wishData(wishData)

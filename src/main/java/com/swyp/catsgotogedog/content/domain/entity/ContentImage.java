@@ -30,7 +30,7 @@ public class ContentImage {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "content_id")
-	private Content contentId;
+	private Content content;
 
 	@Column(name = "image_url")
 	private String imageUrl;

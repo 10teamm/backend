@@ -17,7 +17,7 @@ public class ContentDocument {
     @Field(type= FieldType.Integer)
     private int contentId;
 
-    private int categoryId;
+    private String categoryId;
 
     private int sidoCode;
 

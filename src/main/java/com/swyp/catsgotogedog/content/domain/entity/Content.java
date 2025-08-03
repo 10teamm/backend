@@ -50,16 +50,16 @@ public class Content {
 	private String addr2;
 
 	@Column(name = "image")
-	private String imageUrl;
+	private String image;
 
 	@Column(name = "thumb_image")
-	private String thumbImageUrl;
+	private String thumbImage;
 
 	@Column(name = "copyright")
 	private String copyright;
 
 	@Column(name = "mapx")
-	private double mapX;
+	private double mapx;
 
 	@Column(name = "mapy")
 	private double mapy;

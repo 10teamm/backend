@@ -113,7 +113,7 @@ public class ContentSearchService {
                     Content content = contentMap.get(id);
                     if (content == null) return null;
 
-                    ContentImage image = contentImageRepository.findByContentId(id);
+                    ContentImage image = contentImageRepository.findByContent_ContentId(id);
                     String smallImageUrl = (image != null) ? image.getSmallImageUrl() : null;
 
                     double avg = getAverageScore(id);
