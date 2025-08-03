@@ -28,13 +28,13 @@ public class RegionCode {
 	private String regionName;
 
 	@Column(name = "sido_code")
-	private int sidoCode;
+	private Integer sidoCode;
 
 	@Column(name = "sigungu_code")
-	private int sigunguCode;
+	private Integer sigunguCode;
 
 	@Column(name = "parent_code")
-	private int parentCode;
+	private Integer parentCode;
 
 	@Column(name = "region_level")
 	private int regionLevel;
