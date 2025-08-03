@@ -30,7 +30,15 @@ public class ContentResponse {
 
     private boolean wishData;
 
-    public static ContentResponse from(Content c, String smallImageUrl, Double avgScore, boolean wishData){
+    private RegionCodeResponse regionName;
+
+    public static ContentResponse from(
+            Content c,
+            String smallImageUrl,
+            Double avgScore,
+            boolean wishData,
+            RegionCodeResponse regionName){
+
         return ContentResponse.builder()
                 .contentId(c.getContentId())
                 .title(c.getTitle())
@@ -50,6 +58,7 @@ public class ContentResponse {
                 .smallImageUrl(smallImageUrl)
                 .avgScore(avgScore)
                 .wishData(wishData)
+                .regionName(regionName)
                 .build();
     }
 }

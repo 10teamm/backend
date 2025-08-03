@@ -34,10 +34,10 @@ public class Content extends BaseTimeEntity {
 
     private String copyright;
 
-    @Column(precision = 10, scale = 8)
+    @Column(precision = 13, scale = 10)
     private BigDecimal mapx;
 
-    @Column(precision = 11, scale = 8)
+    @Column(precision = 13, scale = 10)
     private BigDecimal mapy;
 
     private int mlevel;
@@ -49,5 +49,9 @@ public class Content extends BaseTimeEntity {
     private int zipcode;
 
     private int contentTypeId;
+
+    private int sidoCode;
+
+    private int sigunguCode;
 
 }

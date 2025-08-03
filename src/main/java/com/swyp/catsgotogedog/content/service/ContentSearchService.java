@@ -7,14 +7,10 @@ import com.swyp.catsgotogedog.User.repository.UserRepository;
 import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
 import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
-import com.swyp.catsgotogedog.content.domain.entity.ContentWish;
+import com.swyp.catsgotogedog.content.domain.entity.RegionCode;
 import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
-import com.swyp.catsgotogedog.content.repository.ContentElasticRepository;
-import com.swyp.catsgotogedog.content.repository.ContentImageRepository;
-import com.swyp.catsgotogedog.content.repository.ContentRepository;
-import com.swyp.catsgotogedog.content.repository.ContentWishRepository;
-import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
-import com.swyp.catsgotogedog.global.exception.ErrorCode;
+import com.swyp.catsgotogedog.content.domain.response.RegionCodeResponse;
+import com.swyp.catsgotogedog.content.repository.*;
 import com.swyp.catsgotogedog.review.repository.ContentReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +37,7 @@ public class ContentSearchService {
     private final ContentReviewRepository contentReviewRepository;
     private final ContentWishRepository contentWishRepository;
     private final UserRepository userRepository;
+    private final RegionCodeRepository regionCodeRepository;
 
     public List<ContentDocument> searchByKeyword(String keyword){
         return contentElasticRepository.findByTitleContaining(keyword);
@@ -48,8 +45,8 @@ public class ContentSearchService {
 
 
     public List<ContentResponse> search(String title,
-                                        String addr1,
-                                        String addr2,
+                                        String sidoCode,
+                                        String sigunguCode,
                                         Integer contentTypeId,
                                         String userId) {
 
@@ -58,13 +55,13 @@ public class ContentSearchService {
         }
 
         boolean noTitle  = (title == null  || title.isBlank());
-        boolean noAddr1  = (addr1 == null  || addr1.isBlank());
-        boolean noAddr2  = (addr2 == null  || addr2.isBlank());
+        boolean noSidoCode  = (sidoCode == null  || sidoCode.isBlank());
+        boolean noSigunguCode = (sigunguCode == null  || sigunguCode.isBlank());
         boolean noTypeId = (contentTypeId == null || contentTypeId <= 0);
 
         BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
 
-        if (noTitle && noAddr1 && noAddr2 && noTypeId) {
+        if (noTitle && noSidoCode && noSigunguCode && noTypeId) {
             boolBuilder.must(m -> m.matchAll(ma -> ma));
         } else {
             if (!noTitle) {
@@ -75,14 +72,14 @@ public class ContentSearchService {
                 boolBuilder.must(m -> m.matchAll(ma -> ma));
             }
 
-            if (!noAddr1) {
-                boolBuilder.filter(f -> f.term(t -> t.field("addr1")
-                        .value(addr1)));
+            if (!noSidoCode) {
+                boolBuilder.filter(f -> f.term(t -> t.field("sidoCode")
+                        .value(sidoCode)));
             }
 
-            if (!noAddr2) {
-                boolBuilder.filter(f -> f.term(t -> t.field("addr2")
-                        .value(addr2)));
+            if (!noSigunguCode) {
+                boolBuilder.filter(f -> f.term(t -> t.field("sigunguCode")
+                        .value(sigunguCode)));
             }
 
             if (!noTypeId) {
@@ -123,7 +120,14 @@ public class ContentSearchService {
 
                     boolean wishData = (userId != null) ? getWishData(userId, id) : false;
 
-                    return ContentResponse.from(content, smallImageUrl,avg, wishData);
+                    System.out.println("Test -- sido : "+content.getSidoCode());
+
+                    System.out.println("Test -- sigungu : "+content.getSigunguCode());
+
+                    RegionCodeResponse regionName
+                            = getRegionName(content.getSidoCode(), content.getSigunguCode());
+
+                    return ContentResponse.from(content, smallImageUrl,avg, wishData, regionName);
                 })
                 .filter(Objects::nonNull)
                 .toList();
@@ -145,5 +149,17 @@ public class ContentSearchService {
 
         return liked;
     }
+
+    public RegionCodeResponse getRegionName(int sidoCode, int sigunguCode){
+        RegionCode sido = regionCodeRepository.findRegionNameBySidoCodeAndRegionLevel(sidoCode,1);
+
+        RegionCode sigungu = regionCodeRepository.findRegionNameByParentCodeAndSigunguCodeAndRegionLevel(sidoCode, sigunguCode,2);
+
+        String sidoName = sido.getRegionName();
+        String sigunguName = sigungu.getRegionName();
+
+        return new RegionCodeResponse(sidoName,sigunguName);
+    }
+
 
 }

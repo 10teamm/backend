@@ -44,6 +44,12 @@
     },
     "contentTypeId": {
       "type": "integer"
+    },
+    "sidoCode": {
+      "type": "integer"
+    },
+    "sigunguCode": {
+      "type": "integer"
     }
   }
 }

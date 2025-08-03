@@ -19,9 +19,9 @@ public class ContentDocument {
 
     private int categoryId;
 
-    private String addr1;
+    private int sidoCode;
 
-    private String addr2;
+    private int sigunguCode;
 
     private String title;
 
@@ -31,8 +31,8 @@ public class ContentDocument {
         return ContentDocument.builder()
                 .contentId(content.getContentId())
                 .categoryId(content.getCategoryId())
-                .addr1(content.getAddr1())
-                .addr2(content.getAddr2())
+                .sidoCode(content.getSidoCode())
+                .sigunguCode(content.getSigunguCode())
                 .title(content.getTitle())
                 .contentTypeId(content.getContentTypeId())
                 .build();

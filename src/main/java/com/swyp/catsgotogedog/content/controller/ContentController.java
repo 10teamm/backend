@@ -4,6 +4,8 @@ import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
 import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
 import com.swyp.catsgotogedog.content.service.ContentSearchService;
 import com.swyp.catsgotogedog.content.service.ContentService;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +24,17 @@ public class ContentController implements ContentControllerSwagger{
     @GetMapping("/search")
     public ResponseEntity<List<ContentResponse>> search(
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) String addr1,
-            @RequestParam(required = false) String addr2,
+            @RequestParam(required = false) String sido,
+            @RequestParam(required = false) String sigungu,
             @RequestParam(required = false) Integer contentTypeId,
-            @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String principal) {
 
-        List<ContentResponse> list = contentSearchService.search(title, addr1, addr2, contentTypeId, userId);
+        String userId = null;
+        if (StringUtils.hasText(principal) && NumberUtils.isCreatable(principal)) {
+            userId = principal;
+        }
+
+        List<ContentResponse> list = contentSearchService.search(title, sido, sigungu, contentTypeId, userId);
 
         return list.isEmpty()
                 ? ResponseEntity.noContent().build()   // 204
