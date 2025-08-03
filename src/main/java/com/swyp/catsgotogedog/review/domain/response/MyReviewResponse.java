@@ -4,15 +4,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record ReviewResponse (
+public record MyReviewResponse(
 	int contentId,
+	String contentTitle,
 	int reviewId,
-	int userId,
-	String displayName,
-	String profileImageUrl,
 	String content,
 	BigDecimal score,
-	LocalDateTime createdAt,
 	int recommendedNumber,
+	LocalDateTime createdAt,
 	List<ReviewImageResponse> images
 ) {}

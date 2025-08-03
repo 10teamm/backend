@@ -159,5 +159,30 @@ public interface ReviewControllerSwagger {
 		@PathVariable int contentId,
 		@Parameter(description = "정렬 기준 (좋아요 순: r, 최신순: c, 기본: r)", required = false,
 		example = "r")
-		@RequestParam String sort);
+		@RequestParam String sort,
+		@Parameter(description = "요청 페이지")
+		@RequestParam(defaultValue = "0") int page,
+		@Parameter(description = "페이지당 결과 갯수")
+		@RequestParam(defaultValue = "4") int size);
+
+	@Operation(
+		summary = "자신의 리뷰 목록을 조회합니다.",
+		description = "사용자 인증을 통해 리뷰 목록을 조회합니다."
+	)
+	@SecurityRequirement(name = "bearer-key")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "리뷰 목록 조회 성공"
+			, content = @Content(schema = @Schema(implementation = ReviewResponse.class))),
+		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "404", description = "컨텐츠가 존재하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+	})
+	ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewsByUserId(
+		@Parameter(hidden = true)
+		@AuthenticationPrincipal String userId,
+		@Parameter(description = "요청 페이지")
+		@RequestParam(defaultValue = "0") int page,
+		@Parameter(description = "페이지당 결과 갯수")
+		@RequestParam(defaultValue = "4") int size);
 }

@@ -3,6 +3,9 @@ package com.swyp.catsgotogedog.review.controller;
 import java.util.List;
 
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 import com.swyp.catsgotogedog.review.domain.request.CreateReviewRequest;
+import com.swyp.catsgotogedog.review.domain.response.ContentReviewPageResponse;
 import com.swyp.catsgotogedog.review.domain.response.ReviewResponse;
 import com.swyp.catsgotogedog.review.service.ReviewService;
 
@@ -97,16 +101,37 @@ public class ReviewController implements ReviewControllerSwagger {
 		);
 	}
 
+	// 컨텐츠별 리뷰 조회
 	@Override
 	@GetMapping("/content/{contentId}")
 	public ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewsByContentId(
 		@PathVariable int contentId,
-		@RequestParam(defaultValue = "r") String sort) {
+		@RequestParam(defaultValue = "r") String sort,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "4") int size) {
 
-		List<ReviewResponse> reviewResponses = reviewService.fetchReviewsByContentId(contentId, sort);
+		Pageable pageable = PageRequest.of(page, size);
+
+		ContentReviewPageResponse reviewResponses = reviewService.fetchReviewsByContentId(contentId, sort, pageable);
 
 		return ResponseEntity.ok(
 			CatsgotogedogApiResponse.success("리뷰 조회 성공", reviewResponses)
 		);
 	}
+
+	@Override
+	@GetMapping("/")
+	public ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewsByUserId(
+		@AuthenticationPrincipal String userId,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "4") int size) {
+
+		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+
+		return ResponseEntity.ok(
+			CatsgotogedogApiResponse.success("리뷰 조회 성공",
+				reviewService.fetchReviewsByUserId(userId, pageable))
+		);
+	}
+
 }

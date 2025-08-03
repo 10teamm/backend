@@ -41,7 +41,10 @@ public class Review extends BaseTimeEntity {
 	private int reviewId;
 	private int userId;
 	private String content;
-	private int contentId;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "contentId")
+	private Content contentEntity;
 
 	@Column(precision = 2, scale = 1)
 	@DecimalMin(value = "0.5", message = "별점은 0.5 이상이어야 합니다.")

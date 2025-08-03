@@ -1,9 +1,6 @@
 package com.swyp.catsgotogedog.review.domain.request;
 
 import java.math.BigDecimal;
-import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;
