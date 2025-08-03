@@ -106,19 +106,23 @@ public class ReviewController implements ReviewControllerSwagger {
 	@GetMapping("/content/{contentId}")
 	public ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewsByContentId(
 		@PathVariable int contentId,
+		@AuthenticationPrincipal String userId,
 		@RequestParam(defaultValue = "r") String sort,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "4") int size) {
 
 		Pageable pageable = PageRequest.of(page, size);
 
-		ContentReviewPageResponse reviewResponses = reviewService.fetchReviewsByContentId(contentId, sort, pageable);
+		String actUserId = (userId != null && !userId.equals("anonymousUser")) ? userId : null;
+		log.info("actUserId: {}", actUserId);
+		ContentReviewPageResponse reviewResponses = reviewService.fetchReviewsByContentId(contentId, sort, pageable, actUserId);
 
 		return ResponseEntity.ok(
 			CatsgotogedogApiResponse.success("리뷰 조회 성공", reviewResponses)
 		);
 	}
 
+	// 자신의 작성 리뷰 조회
 	@Override
 	@GetMapping("/")
 	public ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewsByUserId(

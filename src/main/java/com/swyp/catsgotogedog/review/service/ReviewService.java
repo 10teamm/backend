@@ -1,8 +1,10 @@
 package com.swyp.catsgotogedog.review.service;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,6 +27,7 @@ import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
 import com.swyp.catsgotogedog.global.exception.ErrorCode;
 import com.swyp.catsgotogedog.review.domain.entity.Review;
 import com.swyp.catsgotogedog.review.domain.entity.ReviewImage;
+import com.swyp.catsgotogedog.review.domain.entity.ReviewRecommendHistory;
 import com.swyp.catsgotogedog.review.domain.request.CreateReviewRequest;
 import com.swyp.catsgotogedog.review.domain.response.ContentReviewPageResponse;
 import com.swyp.catsgotogedog.review.domain.response.MyReviewPageResponse;
@@ -32,6 +35,7 @@ import com.swyp.catsgotogedog.review.domain.response.MyReviewResponse;
 import com.swyp.catsgotogedog.review.domain.response.ReviewImageResponse;
 import com.swyp.catsgotogedog.review.domain.response.ReviewResponse;
 import com.swyp.catsgotogedog.review.repository.ReviewImageRepository;
+import com.swyp.catsgotogedog.review.repository.ReviewRecommendHistoryRepository;
 import com.swyp.catsgotogedog.review.repository.ReviewRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -47,6 +51,7 @@ public class ReviewService {
 	private final UserRepository userRepository;
 	private final ContentRepository contentRepository;
 	private final ImageStorageService imageStorageService;
+	private final ReviewRecommendHistoryRepository reviewRecommendHistoryRepository;
 
 	// 리뷰 작성
 	@Transactional
@@ -128,7 +133,7 @@ public class ReviewService {
 
 	// ContentId를 통한 리뷰 목록 조회
 	@Transactional(readOnly = true)
-	public ContentReviewPageResponse fetchReviewsByContentId(int contentId, String sort, Pageable pageable) {
+	public ContentReviewPageResponse fetchReviewsByContentId(int contentId, String sort, Pageable pageable, String userId) {
 		validateContent(contentId);
 
 		Sort sortObj = createSort(sort);
@@ -136,6 +141,15 @@ public class ReviewService {
 
 		Page<Review> reviewPage = reviewRepository.findByContentIdWithUserAndReviewImages(contentId, sortedPageable);
 
+		Set<Integer> recommendedReviewIds;
+		if(userId != null) {
+			recommendedReviewIds = reviewRecommendHistoryRepository.findRecommendedReviewIdsByUserIdAndReviewIds(
+					Integer.parseInt(userId),
+					reviewPage.getContent()
+			);
+		} else {
+			recommendedReviewIds = new HashSet<>();
+		}
 
 		List<Integer> userIds = reviewPage.getContent().stream()
 			.map(Review::getUserId)
@@ -158,6 +172,7 @@ public class ReviewService {
 					review.getScore(),
 					review.getCreatedAt(),
 					review.getRecommendedNumber(),
+					recommendedReviewIds.contains(review.getReviewId()),
 					review.getReviewImages().stream()
 						.map(ReviewImageResponse::from)
 						.collect(Collectors.toList())

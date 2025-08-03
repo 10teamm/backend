@@ -144,8 +144,10 @@ public interface ReviewControllerSwagger {
 
 	@Operation(
 		summary = "컨텐츠에 작성된 리뷰 목록을 조회합니다.",
-		description = "ContentId를 통해 리뷰 목록을 조회합니다."
+		description = "Bearer 키 입력시 현재 사용자가 좋아요 누른 리뷰 반환 값을 매핑하여 반환합니다."
+			+ " 키 입력을 안할 경우 좋아요를 누른 리뷰인지 판단하지 않습니다."
 	)
+	@SecurityRequirement(name = "bearer-key")
 	@ApiResponses({
 		@ApiResponse(responseCode = "200", description = "리뷰 목록 조회 성공"
 			, content = @Content(schema = @Schema(implementation = ReviewResponse.class))),
@@ -157,6 +159,8 @@ public interface ReviewControllerSwagger {
 	ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewsByContentId(
 		@Parameter(description = "조회할 컨텐츠 ID", required = true)
 		@PathVariable int contentId,
+		@Parameter(description = "로그인 상태일 경우 자동 기입", required = false)
+		@AuthenticationPrincipal String userId,
 		@Parameter(description = "정렬 기준 (좋아요 순: r, 최신순: c, 기본: r)", required = false,
 		example = "r")
 		@RequestParam String sort,

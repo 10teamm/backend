@@ -14,5 +14,6 @@ public record ReviewResponse (
 	BigDecimal score,
 	LocalDateTime createdAt,
 	int recommendedNumber,
+	boolean isRecommended,
 	List<ReviewImageResponse> images
 ) {}
