@@ -2,6 +2,7 @@ package com.swyp.catsgotogedog.content.controller;
 
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
 import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
+import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.service.ContentSearchService;
 import com.swyp.catsgotogedog.content.service.ContentService;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -51,6 +52,18 @@ public class ContentController implements ContentControllerSwagger{
     public ResponseEntity<?> saveList(@RequestBody List<ContentRequest> requests) {
         requests.forEach(contentService::saveContent);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/placedetail")
+    public ResponseEntity<?> getPlaceDetail(@RequestParam int contentId, @AuthenticationPrincipal String principal){
+
+        String userId = null;
+        if (StringUtils.hasText(principal) && NumberUtils.isCreatable(principal)) {
+            userId = principal;
+        }
+
+        PlaceDetailResponse placeDetailResponse = contentService.getPlaceDetail(contentId,userId);
+        return ResponseEntity.ok(placeDetailResponse);
     }
 
 }
