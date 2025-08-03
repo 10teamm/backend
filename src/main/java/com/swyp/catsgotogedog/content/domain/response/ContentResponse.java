@@ -28,7 +28,9 @@ public class ContentResponse {
     private String smallImageUrl;
     private Double avgScore;
 
-    public static ContentResponse from(Content c, String smallImageUrl, Double avgScore){
+    private boolean wishData;
+
+    public static ContentResponse from(Content c, String smallImageUrl, Double avgScore, boolean wishData){
         return ContentResponse.builder()
                 .contentId(c.getContentId())
                 .title(c.getTitle())
@@ -47,6 +49,7 @@ public class ContentResponse {
                 .zipcode(c.getZipcode())
                 .smallImageUrl(smallImageUrl)
                 .avgScore(avgScore)
+                .wishData(wishData)
                 .build();
     }
 }

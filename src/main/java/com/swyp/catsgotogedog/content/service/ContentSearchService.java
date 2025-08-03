@@ -2,13 +2,19 @@ package com.swyp.catsgotogedog.content.service;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import com.swyp.catsgotogedog.User.domain.entity.User;
+import com.swyp.catsgotogedog.User.repository.UserRepository;
 import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
 import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
+import com.swyp.catsgotogedog.content.domain.entity.ContentWish;
 import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
 import com.swyp.catsgotogedog.content.repository.ContentElasticRepository;
 import com.swyp.catsgotogedog.content.repository.ContentImageRepository;
 import com.swyp.catsgotogedog.content.repository.ContentRepository;
+import com.swyp.catsgotogedog.content.repository.ContentWishRepository;
+import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
+import com.swyp.catsgotogedog.global.exception.ErrorCode;
 import com.swyp.catsgotogedog.review.repository.ContentReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +39,8 @@ public class ContentSearchService {
     private final ElasticsearchOperations elasticsearchOperations;
     private final ContentImageRepository contentImageRepository;
     private final ContentReviewRepository contentReviewRepository;
+    private final ContentWishRepository contentWishRepository;
+    private final UserRepository userRepository;
 
     public List<ContentDocument> searchByKeyword(String keyword){
         return contentElasticRepository.findByTitleContaining(keyword);
@@ -41,7 +50,12 @@ public class ContentSearchService {
     public List<ContentResponse> search(String title,
                                         String addr1,
                                         String addr2,
-                                        Integer contentTypeId) {
+                                        Integer contentTypeId,
+                                        String userId) {
+
+        if (userId != null) {
+            Optional<User> user = userRepository.findById(Integer.parseInt(userId));
+        }
 
         boolean noTitle  = (title == null  || title.isBlank());
         boolean noAddr1  = (addr1 == null  || addr1.isBlank());
@@ -107,7 +121,9 @@ public class ContentSearchService {
 
                     double avg = getAverageScore(id);
 
-                    return ContentResponse.from(content, smallImageUrl,avg);
+                    boolean wishData = (userId != null) ? getWishData(userId, id) : false;
+
+                    return ContentResponse.from(content, smallImageUrl,avg, wishData);
                 })
                 .filter(Objects::nonNull)
                 .toList();
@@ -120,5 +136,14 @@ public class ContentSearchService {
         return Math.round(value * 10.0) / 10.0;
     }
 
+    public Boolean getWishData(String userId, int contentId){
+        var existing = contentWishRepository.findByUserIdAndContentId(Integer.parseInt(userId), contentId);
+
+        boolean liked;
+
+        liked = existing.isPresent();
+
+        return liked;
+    }
 
 }

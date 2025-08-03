@@ -5,6 +5,7 @@ import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
 import com.swyp.catsgotogedog.content.service.ContentSearchService;
 import com.swyp.catsgotogedog.content.service.ContentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
@@ -23,9 +24,10 @@ public class ContentController implements ContentControllerSwagger{
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String addr1,
             @RequestParam(required = false) String addr2,
-            @RequestParam(required = false) Integer contentTypeId) {
+            @RequestParam(required = false) Integer contentTypeId,
+            @AuthenticationPrincipal String userId) {
 
-        List<ContentResponse> list = contentSearchService.search(title, addr1, addr2, contentTypeId);
+        List<ContentResponse> list = contentSearchService.search(title, addr1, addr2, contentTypeId, userId);
 
         return list.isEmpty()
                 ? ResponseEntity.noContent().build()   // 204
