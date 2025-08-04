@@ -1,22 +1,25 @@
 package com.swyp.catsgotogedog.content.service;
 
+import com.swyp.catsgotogedog.User.domain.entity.User;
+import com.swyp.catsgotogedog.User.repository.UserRepository;
 import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
 import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
+import com.swyp.catsgotogedog.content.domain.entity.ViewLog;
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
 import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.domain.response.RegionCodeResponse;
-import com.swyp.catsgotogedog.content.repository.ContentElasticRepository;
-import com.swyp.catsgotogedog.content.repository.ContentImageRepository;
-import com.swyp.catsgotogedog.content.repository.ContentRepository;
-import com.swyp.catsgotogedog.content.repository.ContentWishRepository;
+import com.swyp.catsgotogedog.content.repository.*;
 import com.swyp.catsgotogedog.review.domain.entity.ContentReview;
 import com.swyp.catsgotogedog.review.repository.ContentReviewRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,9 @@ public class ContentService {
     private final ContentElasticRepository contentElasticRepository;
     private final ContentImageRepository contentImageRepository;
     private final ContentWishRepository contentWishRepository;
+    private final ViewTotalRepository viewTotalRepository;
+    private final UserRepository userRepository;
+    private final ViewLogRepository viewLogRepository;
 
     private final ContentSearchService contentSearchService;
 
@@ -51,6 +57,8 @@ public class ContentService {
 
     public PlaceDetailResponse getPlaceDetail(int contentId, String userId){
 
+        viewTotalRepository.upsertAndIncrease(contentId);
+
         Content content = contentRepository.findByContentId(contentId);
 
         ContentImage contentImage = contentImageRepository.findByContent_ContentId(contentId);
@@ -65,4 +73,5 @@ public class ContentService {
 
         return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData,wishCnt);
     }
+
 }
