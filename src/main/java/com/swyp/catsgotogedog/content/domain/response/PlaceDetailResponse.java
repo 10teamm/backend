@@ -22,14 +22,16 @@ public record PlaceDetailResponse(
         String smallImageUrl,
         Double avgScore,
         boolean wishData,
-        int wishCnt) {
+        int wishCnt,
+        boolean visited) {
 
     public static PlaceDetailResponse from(
             Content c,
             String smallImageUrl,
             Double avgScore,
             boolean wishData,
-            int wishCnt){
+            int wishCnt,
+            boolean visited){
 
         return PlaceDetailResponse.builder()
                 .contentId(c.getContentId())
@@ -50,6 +52,7 @@ public record PlaceDetailResponse(
                 .avgScore(avgScore)
                 .wishData(wishData)
                 .wishCnt(wishCnt)
+                .visited(visited)
                 .build();
     }
 }

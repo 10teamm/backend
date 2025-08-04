@@ -31,6 +31,7 @@ public class ContentService {
     private final ViewTotalRepository viewTotalRepository;
     private final UserRepository userRepository;
     private final ViewLogRepository viewLogRepository;
+    private final VisitHistoryRepository visitHistoryRepository;
 
     private final ContentSearchService contentSearchService;
 
@@ -74,7 +75,9 @@ public class ContentService {
 
         int wishCnt = contentWishRepository.countByContentId(contentId);
 
-        return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData,wishCnt);
+        boolean visited = hasVisited(userId, contentId);
+
+        return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData,wishCnt,visited);
     }
 
     public void recordView(String userId, int contentId){
@@ -114,5 +117,12 @@ public class ContentService {
         return contents.stream()
                 .map(LastViewHistoryResponse::from)
                 .toList();
+    }
+
+    public boolean hasVisited(String userId, int contentId) {
+        if (userId == null || userId.isBlank()) {
+            return false;
+        }
+        return visitHistoryRepository.existsByUser_IdAndContent_ContentId(Integer.parseInt(userId), contentId);
     }
 }
