@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface ContentWishRepository extends JpaRepository<ContentWish, Integer> {
     Optional<ContentWish> findByUserIdAndContentId(int userId, int contentId);
+    int countByContentId(int contentId);
 }

@@ -21,13 +21,15 @@ public record PlaceDetailResponse(
         int zipcode,
         String smallImageUrl,
         Double avgScore,
-        boolean wishData) {
+        boolean wishData,
+        int wishCnt) {
 
     public static PlaceDetailResponse from(
             Content c,
             String smallImageUrl,
             Double avgScore,
-            boolean wishData){
+            boolean wishData,
+            int wishCnt){
 
         return PlaceDetailResponse.builder()
                 .contentId(c.getContentId())
@@ -47,6 +49,7 @@ public record PlaceDetailResponse(
                 .smallImageUrl(smallImageUrl)
                 .avgScore(avgScore)
                 .wishData(wishData)
+                .wishCnt(wishCnt)
                 .build();
     }
 }

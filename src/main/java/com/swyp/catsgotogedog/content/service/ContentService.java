@@ -10,6 +10,7 @@ import com.swyp.catsgotogedog.content.domain.response.RegionCodeResponse;
 import com.swyp.catsgotogedog.content.repository.ContentElasticRepository;
 import com.swyp.catsgotogedog.content.repository.ContentImageRepository;
 import com.swyp.catsgotogedog.content.repository.ContentRepository;
+import com.swyp.catsgotogedog.content.repository.ContentWishRepository;
 import com.swyp.catsgotogedog.review.domain.entity.ContentReview;
 import com.swyp.catsgotogedog.review.repository.ContentReviewRepository;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class ContentService {
     private final ContentRepository contentRepository;
     private final ContentElasticRepository contentElasticRepository;
     private final ContentImageRepository contentImageRepository;
-    private final ContentReviewRepository contentReviewRepository;
+    private final ContentWishRepository contentWishRepository;
 
     private final ContentSearchService contentSearchService;
 
@@ -60,6 +61,8 @@ public class ContentService {
 
         boolean wishData = (userId != null) ? contentSearchService.getWishData(userId, contentId) : false;
 
-        return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData);
+        int wishCnt = contentWishRepository.countByContentId(contentId);
+
+        return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData,wishCnt);
     }
 }
