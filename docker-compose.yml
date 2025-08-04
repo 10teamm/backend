@@ -10,7 +10,9 @@ services:
 
     command: >
       bash -c "
-        elasticsearch-plugin install --batch analysis-nori &&
+        if [ ! -d '/usr/share/elasticsearch/plugins/analysis-nori' ]; then
+          elasticsearch-plugin install --batch analysis-nori;
+        fi &&
         /usr/local/bin/docker-entrypoint.sh eswrapper
       "
 
