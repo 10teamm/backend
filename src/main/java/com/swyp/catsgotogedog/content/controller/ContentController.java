@@ -1,7 +1,9 @@
 package com.swyp.catsgotogedog.content.controller;
 
+import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
 import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
+import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.service.ContentSearchService;
 import com.swyp.catsgotogedog.content.service.ContentService;
@@ -64,6 +66,12 @@ public class ContentController implements ContentControllerSwagger{
 
         PlaceDetailResponse placeDetailResponse = contentService.getPlaceDetail(contentId,userId);
         return ResponseEntity.ok(placeDetailResponse);
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<LastViewHistoryResponse>> getRecentViews(@AuthenticationPrincipal String userId) {
+        List<LastViewHistoryResponse> recent = contentService.getRecentViews(userId);
+        return ResponseEntity.ok().body(recent);
     }
 
 }

@@ -7,19 +7,18 @@ import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
 import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
 import com.swyp.catsgotogedog.content.domain.entity.ViewLog;
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
-import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
+import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
-import com.swyp.catsgotogedog.content.domain.response.RegionCodeResponse;
 import com.swyp.catsgotogedog.content.repository.*;
-import com.swyp.catsgotogedog.review.domain.entity.ContentReview;
-import com.swyp.catsgotogedog.review.repository.ContentReviewRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -101,5 +100,19 @@ public class ContentService {
                         .content(content)
                         .build()
         );
+    }
+
+    public List<LastViewHistoryResponse> getRecentViews(String userId) {
+
+        if (userId == null || userId.isBlank()) {
+            return null;
+        }
+
+        Pageable top = PageRequest.of(0, 20);
+        List<Content> contents = viewLogRepository.findRecentContentByUser(Integer.parseInt(userId), top);
+
+        return contents.stream()
+                .map(LastViewHistoryResponse::from)
+                .toList();
     }
 }
