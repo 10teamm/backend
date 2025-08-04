@@ -1,6 +1,5 @@
 package com.swyp.catsgotogedog.content.controller;
 
-import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
 import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
 import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
@@ -57,7 +56,7 @@ public class ContentController implements ContentControllerSwagger{
     }
 
     @GetMapping("/placedetail")
-    public ResponseEntity<?> getPlaceDetail(@RequestParam int contentId, @AuthenticationPrincipal String principal){
+    public ResponseEntity<PlaceDetailResponse> getPlaceDetail(@RequestParam int contentId, @AuthenticationPrincipal String principal){
 
         String userId = null;
         if (StringUtils.hasText(principal) && NumberUtils.isCreatable(principal)) {
