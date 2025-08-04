@@ -59,6 +59,10 @@ public class ContentService {
 
         viewTotalRepository.upsertAndIncrease(contentId);
 
+        if(userId != null){
+            recordView(userId, contentId);
+        }
+
         Content content = contentRepository.findByContentId(contentId);
 
         ContentImage contentImage = contentImageRepository.findByContent_ContentId(contentId);
@@ -74,4 +78,28 @@ public class ContentService {
         return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData,wishCnt);
     }
 
+    public void recordView(String userId, int contentId){
+
+//        if (userId != null) {
+//            Optional<User> user = userRepository.findById(Integer.parseInt(userId));
+//        }
+
+        Content content = contentRepository.findByContentId(contentId);
+        if (content == null) {
+            throw new EntityNotFoundException("contentId=" + contentId);
+        }
+
+        User user = null;
+        if (userId != null && !userId.isBlank()) {
+            user = userRepository.findById(Integer.parseInt(userId))
+                    .orElseThrow(() -> new EntityNotFoundException("userId=" + userId));
+        }
+
+        viewLogRepository.save(
+                ViewLog.builder()
+                        .user(user)
+                        .content(content)
+                        .build()
+        );
+    }
 }
