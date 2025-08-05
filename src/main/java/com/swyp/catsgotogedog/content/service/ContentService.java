@@ -73,7 +73,7 @@ public class ContentService {
 
         boolean wishData = (userId != null) ? contentSearchService.getWishData(userId, contentId) : false;
 
-        int wishCnt = contentWishRepository.countByContentId(contentId);
+        int wishCnt = contentWishRepository.countByContentContentId(contentId);
 
         boolean visited = hasVisited(userId, contentId);
 
