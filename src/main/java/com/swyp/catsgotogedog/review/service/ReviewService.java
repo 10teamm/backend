@@ -140,7 +140,14 @@ public class ReviewService {
 		Sort sortObj = createSort(sort);
 		Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortObj);
 
+		// 페이징 리뷰
 		Page<Review> reviewPage = reviewRepository.findByContentIdWithUserAndReviewImages(contentId, sortedPageable);
+		List<Review> reviews = reviewRepository.findByContentEntityContentId((contentId));
+
+		List<ReviewImageResponse> contentReviewImages = reviews.stream()
+			.flatMap(review -> review.getReviewImages().stream())
+				.map(ReviewImageResponse::from)
+				.toList();
 
 		Set<Integer> recommendedReviewIds;
 		if(userId != null) {
@@ -183,6 +190,7 @@ public class ReviewService {
 
 		return new ContentReviewPageResponse(
 			reviewResponses,
+			contentReviewImages,
 			(int) reviewPage.getTotalElements(),
 			reviewPage.getTotalPages(),
 			reviewPage.getNumber(),

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record ContentReviewPageResponse (
 	@Schema(description = "컨텐츠 리뷰 목록")
 	List<ReviewResponse> reviews,
+	List<ReviewImageResponse> reviewImages,
 	@Schema(description = "총 조회 갯수")
 	int totalElements,
 	@Schema(description = "총 페이지 갯수")
