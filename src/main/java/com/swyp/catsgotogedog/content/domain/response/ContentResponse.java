@@ -4,7 +4,7 @@ import com.swyp.catsgotogedog.content.domain.entity.Content;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Builder
@@ -24,19 +24,19 @@ public class ContentResponse {
     private String tel;
     private int zipcode;
 
-    private String smallImageUrl;
     private Double avgScore;
-
     private boolean wishData;
-
     private RegionCodeResponse regionName;
+    private List<String> hashtag;
+    private String restDate;
 
     public static ContentResponse from(
             Content c,
-            String smallImageUrl,
             Double avgScore,
             boolean wishData,
-            RegionCodeResponse regionName){
+            RegionCodeResponse regionName,
+            List<String> hashtag,
+            String restDate){
 
         return ContentResponse.builder()
                 .contentId(c.getContentId())
@@ -53,10 +53,11 @@ public class ContentResponse {
                 .mlevel(c.getMLevel())
                 .tel(c.getTel())
                 .zipcode(c.getZipCode())
-                .smallImageUrl(smallImageUrl)
                 .avgScore(avgScore)
                 .wishData(wishData)
                 .regionName(regionName)
+                .hashtag(hashtag)
+                .restDate(restDate)
                 .build();
     }
 }
