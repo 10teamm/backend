@@ -21,6 +21,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD_DEV }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE_DEV }}
+          MYSQL_ROOT_HOST: '%'
         ports:
           - 3306:3306
         options: >-
