@@ -59,6 +59,9 @@ public class ContentSearchService {
         boolean noSigunguCode = (sigunguCode == null  || sigunguCode.isBlank());
         boolean noTypeId = (contentTypeId == null || contentTypeId <= 0);
 
+        System.out.println("noTypeId : "+noTypeId);
+        System.out.println("contentTypeId : "+contentTypeId);
+
         BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
 
         if (noTitle && noSidoCode && noSigunguCode && noTypeId) {
@@ -73,17 +76,17 @@ public class ContentSearchService {
             }
 
             if (!noSidoCode) {
-                boolBuilder.filter(f -> f.term(t -> t.field("sidoCode")
+                boolBuilder.filter(f -> f.term(t -> t.field("sido_code")
                         .value(sidoCode)));
             }
 
             if (!noSigunguCode) {
-                boolBuilder.filter(f -> f.term(t -> t.field("sigunguCode")
+                boolBuilder.filter(f -> f.term(t -> t.field("sigungu_code")
                         .value(sigunguCode)));
             }
 
             if (!noTypeId) {
-                boolBuilder.filter(f -> f.term(t -> t.field("contentTypeId")
+                boolBuilder.filter(f -> f.term(t -> t.field("content_type_id")
                         .value(contentTypeId)));
             }
         }
