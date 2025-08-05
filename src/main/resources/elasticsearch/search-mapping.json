@@ -4,7 +4,7 @@
       "type": "integer"
     },
     "categoryId": {
-      "type": "integer"
+      "type": "text"
     },
     "regionId": {
       "type": "integer"

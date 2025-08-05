@@ -35,6 +35,13 @@ jobs:
       - name: Build with Gradle Wrapper
         run: ./gradlew clean build
 
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests/test
+
       - name: Upload build artifact # only cd.yml
         uses: actions/upload-artifact@v4
         with:
