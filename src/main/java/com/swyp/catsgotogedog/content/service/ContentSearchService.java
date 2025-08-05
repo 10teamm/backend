@@ -33,11 +33,13 @@ public class ContentSearchService {
     private final ContentRepository contentRepository;
     private final ContentElasticRepository contentElasticRepository;
     private final ElasticsearchOperations elasticsearchOperations;
-    private final ContentImageRepository contentImageRepository;
     private final ContentReviewRepository contentReviewRepository;
     private final ContentWishRepository contentWishRepository;
     private final UserRepository userRepository;
     private final RegionCodeRepository regionCodeRepository;
+    private final SightsInformationRepository sightsInformationRepository;
+    private final RestaurantInformationRepository restaurantInformationRepository;
+    private final HashtagRepository hashtagRepository;
 
     public List<ContentDocument> searchByKeyword(String keyword){
         return contentElasticRepository.findByTitleContaining(keyword);
@@ -59,6 +61,9 @@ public class ContentSearchService {
         boolean noSigunguCode = (sigunguCode == null  || sigunguCode.isBlank());
         boolean noTypeId = (contentTypeId == null || contentTypeId <= 0);
 
+        System.out.println("noTypeId : "+noTypeId);
+        System.out.println("contentTypeId : "+contentTypeId);
+
         BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
 
         if (noTitle && noSidoCode && noSigunguCode && noTypeId) {
@@ -73,17 +78,17 @@ public class ContentSearchService {
             }
 
             if (!noSidoCode) {
-                boolBuilder.filter(f -> f.term(t -> t.field("sidoCode")
+                boolBuilder.filter(f -> f.term(t -> t.field("sido_code")
                         .value(sidoCode)));
             }
 
             if (!noSigunguCode) {
-                boolBuilder.filter(f -> f.term(t -> t.field("sigunguCode")
+                boolBuilder.filter(f -> f.term(t -> t.field("sigungu_code")
                         .value(sigunguCode)));
             }
 
             if (!noTypeId) {
-                boolBuilder.filter(f -> f.term(t -> t.field("contentTypeId")
+                boolBuilder.filter(f -> f.term(t -> t.field("content_type_id")
                         .value(contentTypeId)));
             }
         }
@@ -113,21 +118,18 @@ public class ContentSearchService {
                     Content content = contentMap.get(id);
                     if (content == null) return null;
 
-                    ContentImage image = contentImageRepository.findByContent_ContentId(id);
-                    String smallImageUrl = (image != null) ? image.getSmallImageUrl() : null;
-
                     double avg = getAverageScore(id);
 
                     boolean wishData = (userId != null) ? getWishData(userId, id) : false;
 
-                    System.out.println("Test -- sido : "+content.getSidoCode());
-
-                    System.out.println("Test -- sigungu : "+content.getSigunguCode());
-
                     RegionCodeResponse regionName
                             = getRegionName(content.getSidoCode(), content.getSigunguCode());
 
-                    return ContentResponse.from(content, smallImageUrl,avg, wishData, regionName);
+                    List<String> hashtag = hashtagRepository.findContentsByContentId(id);
+
+                    String restDate = getRestDate(id);
+
+                    return ContentResponse.from(content, avg, wishData, regionName, hashtag, restDate);
                 })
                 .filter(Objects::nonNull)
                 .toList();
@@ -159,6 +161,17 @@ public class ContentSearchService {
         String sigunguName = sigungu.getRegionName();
 
         return new RegionCodeResponse(sidoName,sigunguName);
+    }
+
+    public String getRestDate(int contentId) {
+
+        String restDate = sightsInformationRepository.findRestDateByContentId(contentId);
+        if (restDate != null) {
+            return restDate;
+        }
+
+        restDate = restaurantInformationRepository.findRestDateByContentId(contentId);
+        return restDate;
     }
 
 
