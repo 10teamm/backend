@@ -33,11 +33,13 @@ public class ContentSearchService {
     private final ContentRepository contentRepository;
     private final ContentElasticRepository contentElasticRepository;
     private final ElasticsearchOperations elasticsearchOperations;
-    private final ContentImageRepository contentImageRepository;
     private final ContentReviewRepository contentReviewRepository;
     private final ContentWishRepository contentWishRepository;
     private final UserRepository userRepository;
     private final RegionCodeRepository regionCodeRepository;
+    private final SightsInformationRepository sightsInformationRepository;
+    private final RestaurantInformationRepository restaurantInformationRepository;
+    private final HashtagRepository hashtagRepository;
 
     public List<ContentDocument> searchByKeyword(String keyword){
         return contentElasticRepository.findByTitleContaining(keyword);
@@ -123,7 +125,9 @@ public class ContentSearchService {
                     RegionCodeResponse regionName
                             = getRegionName(content.getSidoCode(), content.getSigunguCode());
 
-                    return ContentResponse.from(content, avg, wishData, regionName);
+                    List<String> hashtag = hashtagRepository.findContentsByContentId(id);
+
+                    return ContentResponse.from(content, avg, wishData, regionName,hashtag);
                 })
                 .filter(Objects::nonNull)
                 .toList();
