@@ -52,6 +52,7 @@ public class ReviewService {
 	private final ContentRepository contentRepository;
 	private final ImageStorageService imageStorageService;
 	private final ReviewRecommendHistoryRepository reviewRecommendHistoryRepository;
+	private final ReviewReportService reviewReportService;
 
 	// 리뷰 작성
 	@Transactional
@@ -173,6 +174,7 @@ public class ReviewService {
 					review.getCreatedAt(),
 					review.getRecommendedNumber(),
 					recommendedReviewIds.contains(review.getReviewId()),
+					reviewReportService.isBlindReview(review.getReviewId()),
 					review.getReviewImages().stream()
 						.map(ReviewImageResponse::from)
 						.collect(Collectors.toList())

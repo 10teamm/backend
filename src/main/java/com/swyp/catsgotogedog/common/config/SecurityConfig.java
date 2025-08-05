@@ -52,7 +52,7 @@ public class SecurityConfig {
                             "/api/content/**",
                             // todo : 인증이 필요 없는 API에 대해 추가 작성 필요
                             "/api/review/content/**",
-                            "/api/category/**"
+                            "/api/code/**"
                         ).permitAll()
                         .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
