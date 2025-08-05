@@ -4,6 +4,7 @@ import java.util.List;
 
 public record ContentReviewPageResponse (
 	List<ReviewResponse> reviews,
+	List<ReviewImageResponse> reviewImages,
 	int totalElements,
 	int totalPages,
 	int currentPage,
