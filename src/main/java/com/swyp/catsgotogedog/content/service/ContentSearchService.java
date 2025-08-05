@@ -116,21 +116,14 @@ public class ContentSearchService {
                     Content content = contentMap.get(id);
                     if (content == null) return null;
 
-                    ContentImage image = contentImageRepository.findByContent_ContentId(id);
-                    String smallImageUrl = (image != null) ? image.getSmallImageUrl() : null;
-
                     double avg = getAverageScore(id);
 
                     boolean wishData = (userId != null) ? getWishData(userId, id) : false;
 
-                    System.out.println("Test -- sido : "+content.getSidoCode());
-
-                    System.out.println("Test -- sigungu : "+content.getSigunguCode());
-
                     RegionCodeResponse regionName
                             = getRegionName(content.getSidoCode(), content.getSigunguCode());
 
-                    return ContentResponse.from(content, smallImageUrl,avg, wishData, regionName);
+                    return ContentResponse.from(content, avg, wishData, regionName);
                 })
                 .filter(Objects::nonNull)
                 .toList();

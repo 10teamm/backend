@@ -24,7 +24,6 @@ public class ContentResponse {
     private String tel;
     private int zipcode;
 
-    private String smallImageUrl;
     private Double avgScore;
 
     private boolean wishData;
@@ -33,7 +32,6 @@ public class ContentResponse {
 
     public static ContentResponse from(
             Content c,
-            String smallImageUrl,
             Double avgScore,
             boolean wishData,
             RegionCodeResponse regionName){
@@ -53,7 +51,6 @@ public class ContentResponse {
                 .mlevel(c.getMLevel())
                 .tel(c.getTel())
                 .zipcode(c.getZipCode())
-                .smallImageUrl(smallImageUrl)
                 .avgScore(avgScore)
                 .wishData(wishData)
                 .regionName(regionName)
