@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Category", description = "카테고리 관련 API")
+@Tag(name = "Code", description = "코드 관련 API")
 public interface CategoryControllerSwagger {
 
 	@Operation(
@@ -38,4 +38,22 @@ public interface CategoryControllerSwagger {
 		@Parameter(description = "시군구 코드", required = false)
 		Integer sigunguCode
 	);
+
+	@Operation(
+		summary = "신고 사유 목록을 조회합니다.",
+		description = "리뷰 신고를 위한 신고 사유 목록입니다. 해당 사유 ID를 통해 리뷰 신고 처리를 진행해주세요"
+	)
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "사유 목록 조회 성공"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "403", description = "접근 권한이 없음, 다른 사람의 리뷰 삭제시"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "404", description = "리뷰가 존재하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+	})
+	ResponseEntity<CatsgotogedogApiResponse<?>> fetchResons();
 }
