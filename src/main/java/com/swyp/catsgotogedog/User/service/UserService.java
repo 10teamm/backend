@@ -13,6 +13,7 @@ import com.swyp.catsgotogedog.common.util.JwtTokenUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ public class UserService {
 	private final RefreshTokenService rtService;
 	private final JwtTokenUtil jwt;
 	private final ImageStorageService imageStorageService;
+	private final SocialWithdrawalService socialWithdrawalService;
 
 	public String reIssue(String refreshToken) {
 
@@ -106,9 +108,52 @@ public class UserService {
 		userRepository.save(user);
 	}
 
-	private User findUserById(String userId) {
-		return userRepository.findById(Integer.parseInt(userId))
-				.orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND));
+	@Transactional
+	public void withdraw(String userId, String refreshToken) {
+		// 리프레시 토큰 검증
+		if (!rtService.validate(refreshToken)) {
+			throw new InvalidTokenException(ErrorCode.INVALID_TOKEN);
+		}
+
+		User user = findUserById(userId);
+
+		// 소셜 서비스에서 회원 탈퇴 처리
+		socialWithdrawalService.withdrawFromSocialProvider(user);
+
+		// 프로필 이미지 삭제
+		if (StringUtils.hasText(user.getImageFilename())) {
+			imageStorageService.delete(user.getImageFilename());
+		}
+
+		// 리프레시 토큰 삭제
+		rtService.delete(refreshToken);
+
+		// 사용자 완전 삭제
+//		userRepository.delete(user);
+
+		// 비활성화 방식
+        user.setEmail("none");
+        user.setDisplayName("탈퇴한 사용자_" + user.getUserId());
+		user.setProvider("none");
+		user.setProviderId("none");
+        user.setImageFilename(null);
+		user.setImageUrl("https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/no_image.png");
+        user.setIsActive(false);
+        user.setOauthToken(null);
+        userRepository.save(user);
+
+        log.debug("사용자 탈퇴 완료 - UserId: {}", userId);
+	}
+
+    private User findUserById(String userId) {
+        User user = userRepository.findById(Integer.parseInt(userId))
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        if (!user.getIsActive()) {
+			throw new CatsgotogedogException(ErrorCode.INACTIVE_USER);
+		}
+
+		return user;
 	}
 
 }

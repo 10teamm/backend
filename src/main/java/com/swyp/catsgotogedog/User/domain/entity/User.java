@@ -32,6 +32,8 @@ public class User extends BaseTimeEntity {
     private String imageUrl;
     private Boolean isActive;
     private LocalDateTime nameUpdateAt; // displayName 변경 시 업데이트
+    private String oauthToken; // OAuth2 Access Token
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Pet> pets;
 }

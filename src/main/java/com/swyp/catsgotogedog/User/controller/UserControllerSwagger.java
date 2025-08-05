@@ -108,4 +108,28 @@ public interface UserControllerSwagger {
         @Parameter(description = "인증된 사용자 ID", hidden = true)
         String userId
     );
+
+    @Operation(
+        summary = "회원 탈퇴",
+        description = "소셜 로그인 사용자의 회원 탈퇴를 처리합니다. " +
+                     "소셜 서비스 제공자(Google, Kakao, Naver)에게 연결 해제를 요청하고, " +
+                     "사용자의 모든 정보를 비식별화하며 리프레시 토큰을 무효화합니다."
+    )
+    @SecurityRequirement(name = "bearer-key")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 또는 유효하지 않은 토큰",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+    })
+    ResponseEntity<CatsgotogedogApiResponse<?>> withdraw(
+        @Parameter(description = "인증된 사용자 ID", hidden = true)
+        String userId,
+        @Parameter(description = "리프레시 토큰", hidden = true)
+        String refresh
+    );
 }

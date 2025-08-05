@@ -53,20 +53,25 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         }
 
         User user = userRepository.findByProviderAndProviderId(provider, info.id())
+                .map(existingUser -> {
+                    existingUser.setOauthToken(req.getAccessToken().getTokenValue());
+                    return userRepository.save(existingUser);
+                })
                 .orElseGet(() -> {
                     String display_name = info.name();
                     while(userRepository.findByDisplayName(display_name).isPresent()) {
                         display_name = info.name() + generateRandomString();
                     }
                     return userRepository.save(
-                        User.builder()
-                            .provider(provider)
-                            .providerId(info.id())
-                            .email(info.email())
-                            .displayName(display_name)
-                            .imageUrl(info.profileImage())
-                            .isActive(Boolean.TRUE)
-                            .build()
+                            User.builder()
+                                    .provider(provider)
+                                    .providerId(info.id())
+                                    .email(info.email())
+                                    .displayName(display_name)
+                                    .imageUrl(info.profileImage())
+                                    .isActive(Boolean.TRUE)
+                                    .oauthToken(req.getAccessToken().getTokenValue())
+                                    .build()
                     );
                 });
 

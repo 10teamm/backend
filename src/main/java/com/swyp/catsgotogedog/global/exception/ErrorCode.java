@@ -38,6 +38,9 @@ public enum ErrorCode {
         DUPLICATE_DISPLAY_NAME(HttpStatus.BAD_REQUEST.value(), "이미 사용 중인 닉네임입니다."),
         DISPLAY_NAME_UPDATE_TOO_SOON(HttpStatus.BAD_REQUEST.value(), "닉네임은 24시간마다 한 번만 변경할 수 있습니다."),
         SAME_DISPLAY_NAME(HttpStatus.BAD_REQUEST.value(), "현재 닉네임과 동일합니다."),
+        UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 소셜 로그인 제공자입니다."),
+        SOCIAL_WITHDRAWAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "소셜 서비스 연결 해제에 실패했습니다."),
+        INACTIVE_USER(HttpStatus.UNAUTHORIZED.value(), "비활성화된 사용자입니다."),
 
         // 반려동물 관련 (Pet)
         PET_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 반려동물입니다."),
