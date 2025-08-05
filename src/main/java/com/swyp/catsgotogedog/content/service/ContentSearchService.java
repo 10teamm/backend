@@ -127,7 +127,9 @@ public class ContentSearchService {
 
                     List<String> hashtag = hashtagRepository.findContentsByContentId(id);
 
-                    return ContentResponse.from(content, avg, wishData, regionName,hashtag);
+                    String restDate = getRestDate(id);
+
+                    return ContentResponse.from(content, avg, wishData, regionName, hashtag, restDate);
                 })
                 .filter(Objects::nonNull)
                 .toList();
@@ -159,6 +161,17 @@ public class ContentSearchService {
         String sigunguName = sigungu.getRegionName();
 
         return new RegionCodeResponse(sidoName,sigunguName);
+    }
+
+    public String getRestDate(int contentId) {
+
+        String restDate = sightsInformationRepository.findRestDateByContentId(contentId);
+        if (restDate != null) {
+            return restDate;
+        }
+
+        restDate = restaurantInformationRepository.findRestDateByContentId(contentId);
+        return restDate;
     }
 
 

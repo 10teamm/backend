@@ -28,13 +28,15 @@ public class ContentResponse {
     private boolean wishData;
     private RegionCodeResponse regionName;
     private List<String> hashtag;
+    private String restDate;
 
     public static ContentResponse from(
             Content c,
             Double avgScore,
             boolean wishData,
             RegionCodeResponse regionName,
-            List<String> hashtag){
+            List<String> hashtag,
+            String restDate){
 
         return ContentResponse.builder()
                 .contentId(c.getContentId())
@@ -55,6 +57,7 @@ public class ContentResponse {
                 .wishData(wishData)
                 .regionName(regionName)
                 .hashtag(hashtag)
+                .restDate(restDate)
                 .build();
     }
 }
