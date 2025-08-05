@@ -114,7 +114,6 @@ public class ReviewController implements ReviewControllerSwagger {
 		Pageable pageable = PageRequest.of(page, size);
 
 		String actUserId = (userId != null && !userId.equals("anonymousUser")) ? userId : null;
-		log.info("actUserId: {}", actUserId);
 		ContentReviewPageResponse reviewResponses = reviewService.fetchReviewsByContentId(contentId, sort, pageable, actUserId);
 
 		return ResponseEntity.ok(

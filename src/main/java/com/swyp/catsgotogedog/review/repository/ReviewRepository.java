@@ -1,5 +1,6 @@
 package com.swyp.catsgotogedog.review.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.review.domain.entity.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
@@ -42,4 +44,8 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 	 */
 	@EntityGraph(attributePaths = {"reviewImages"})
 	Page<Review> findByUserId(int userId, Pageable pageable);
+
+	List<Review> findByContentEntity(Content contentEntity);
+
+	List<Review> findByContentEntityContentId(int contentEntityContentId);
 }
