@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class ViewTotal {
     @Id
     @Column(name = "content_id")
-    private Long contentId;
+    private int contentId;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -19,7 +19,7 @@ public class ViewTotal {
     private Content content;
 
     @Column(name = "total_view", nullable = false)
-    private Integer totalView;
+    private int totalView;
 
     @LastModifiedDate
     @Column(name = "updated_at",

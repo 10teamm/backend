@@ -11,6 +11,7 @@ import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.repository.*;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class ContentService {
     private final ContentRepository contentRepository;
     private final ContentElasticRepository contentElasticRepository;
@@ -77,7 +79,9 @@ public class ContentService {
 
         boolean visited = hasVisited(userId, contentId);
 
-        return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData,wishCnt,visited);
+        int totalView = viewTotalRepository.findTotalViewByContentId(contentId);
+
+        return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData,wishCnt,visited,totalView);
     }
 
     public void recordView(String userId, int contentId){

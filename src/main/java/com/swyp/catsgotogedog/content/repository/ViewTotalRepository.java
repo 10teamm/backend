@@ -17,4 +17,11 @@ public interface ViewTotalRepository extends JpaRepository<ViewTotal, Integer> {
           updated_at = NOW()
         """, nativeQuery = true)
     void upsertAndIncrease(int contentId);
+
+    @Query("""
+        SELECT vt.totalView
+          FROM ViewTotal vt
+         WHERE vt.contentId = :contentId
+    """)
+    int findTotalViewByContentId(int contentId);
 }

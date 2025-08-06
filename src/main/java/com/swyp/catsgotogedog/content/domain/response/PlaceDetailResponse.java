@@ -23,7 +23,8 @@ public record PlaceDetailResponse(
         Double avgScore,
         boolean wishData,
         int wishCnt,
-        boolean visited) {
+        boolean visited,
+        int totalView) {
 
     public static PlaceDetailResponse from(
             Content c,
@@ -31,7 +32,8 @@ public record PlaceDetailResponse(
             Double avgScore,
             boolean wishData,
             int wishCnt,
-            boolean visited){
+            boolean visited,
+            int totalView){
 
         return PlaceDetailResponse.builder()
                 .contentId(c.getContentId())
@@ -53,6 +55,7 @@ public record PlaceDetailResponse(
                 .wishData(wishData)
                 .wishCnt(wishCnt)
                 .visited(visited)
+                .totalView(totalView)
                 .build();
     }
 }
