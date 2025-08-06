@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,6 +72,15 @@ public class ContentController implements ContentControllerSwagger{
     public ResponseEntity<List<LastViewHistoryResponse>> getRecentViews(@AuthenticationPrincipal String userId) {
         List<LastViewHistoryResponse> recent = contentService.getRecentViews(userId);
         return ResponseEntity.ok().body(recent);
+    }
+
+    @GetMapping("/visited-check")
+    public ResponseEntity<?> checkVisited(
+            @AuthenticationPrincipal String userId,
+            @RequestParam int contentId
+    ) {
+        boolean visited = contentService.checkVisited(userId, contentId);
+        return ResponseEntity.ok(Map.of("visited", visited));
     }
 
 }

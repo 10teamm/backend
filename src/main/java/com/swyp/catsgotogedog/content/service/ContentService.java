@@ -2,15 +2,16 @@ package com.swyp.catsgotogedog.content.service;
 
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
-import com.swyp.catsgotogedog.content.domain.entity.Content;
-import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
-import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
-import com.swyp.catsgotogedog.content.domain.entity.ViewLog;
+import com.swyp.catsgotogedog.content.domain.entity.*;
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
+import com.swyp.catsgotogedog.content.domain.response.ContentImageResponse;
 import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.repository.*;
+import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
+import com.swyp.catsgotogedog.global.exception.ErrorCode;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class ContentService {
     private final ContentRepository contentRepository;
     private final ContentElasticRepository contentElasticRepository;
@@ -65,10 +67,6 @@ public class ContentService {
 
         Content content = contentRepository.findByContentId(contentId);
 
-        ContentImage contentImage = contentImageRepository.findByContent_ContentId(contentId);
-
-        String smallImageUrl = (contentImage != null) ? contentImage.getSmallImageUrl() : null;
-
         double avg = contentSearchService.getAverageScore(contentId);
 
         boolean wishData = (userId != null) ? contentSearchService.getWishData(userId, contentId) : false;
@@ -77,7 +75,11 @@ public class ContentService {
 
         boolean visited = hasVisited(userId, contentId);
 
-        return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData,wishCnt,visited);
+        int totalView = viewTotalRepository.findTotalViewByContentId(contentId);
+
+        List<ContentImageResponse> detailImage = getDetailImage(contentId);
+
+        return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage);
     }
 
     public void recordView(String userId, int contentId){
@@ -105,6 +107,32 @@ public class ContentService {
         );
     }
 
+    public boolean checkVisited(String userId, int contentId){
+        if (userId == null || userId.isBlank()) {
+            return false;
+        }
+
+        User user = userRepository.findById(Integer.parseInt(userId))
+                .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Content content = contentRepository.findByContentId(contentId);
+
+        boolean visited = hasVisited(userId, contentId);
+
+        if(visited){
+            visitHistoryRepository.deleteByUserAndContent(user,content);
+            return false;
+        }else{
+            VisitHistory vh = VisitHistory.builder()
+                    .user(user)
+                    .content(content)
+                    .build();
+            visitHistoryRepository.save(vh);
+            return true;
+        }
+    }
+
+
     public List<LastViewHistoryResponse> getRecentViews(String userId) {
 
         if (userId == null || userId.isBlank()) {
@@ -124,5 +152,17 @@ public class ContentService {
             return false;
         }
         return visitHistoryRepository.existsByUser_UserIdAndContent_ContentId(Integer.parseInt(userId), contentId);
+    }
+
+    public List<ContentImageResponse> getDetailImage(int contentId){
+        Content content = contentRepository.findByContentId(contentId);
+        List<ContentImage> images = contentImageRepository.findAllByContent(content);
+
+        return images.stream()
+                .map(ci -> new ContentImageResponse(
+                        ci.getImageUrl(),
+                        ci.getImageFilename()
+                ))
+                .toList();
     }
 }

@@ -3,6 +3,8 @@ package com.swyp.catsgotogedog.content.domain.response;
 import com.swyp.catsgotogedog.content.domain.entity.Content;
 import lombok.Builder;
 
+import java.util.List;
+
 @Builder
 public record PlaceDetailResponse(
         int contentId,
@@ -19,19 +21,22 @@ public record PlaceDetailResponse(
         int mlevel,
         String tel,
         int zipcode,
-        String smallImageUrl,
         Double avgScore,
         boolean wishData,
         int wishCnt,
-        boolean visited) {
+        boolean visited,
+        int totalView,
+        String overview,
+        List<ContentImageResponse> detailImage) {
 
     public static PlaceDetailResponse from(
             Content c,
-            String smallImageUrl,
             Double avgScore,
             boolean wishData,
             int wishCnt,
-            boolean visited){
+            boolean visited,
+            int totalView,
+            List<ContentImageResponse> detailImage){
 
         return PlaceDetailResponse.builder()
                 .contentId(c.getContentId())
@@ -48,11 +53,13 @@ public record PlaceDetailResponse(
                 .mlevel(c.getMLevel())
                 .tel(c.getTel())
                 .zipcode(c.getZipCode())
-                .smallImageUrl(smallImageUrl)
                 .avgScore(avgScore)
                 .wishData(wishData)
                 .wishCnt(wishCnt)
                 .visited(visited)
+                .totalView(totalView)
+                .overview(c.getOverview())
+                .detailImage(detailImage)
                 .build();
     }
 }
