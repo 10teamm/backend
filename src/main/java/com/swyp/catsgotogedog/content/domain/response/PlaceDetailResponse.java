@@ -24,7 +24,8 @@ public record PlaceDetailResponse(
         boolean wishData,
         int wishCnt,
         boolean visited,
-        int totalView) {
+        int totalView,
+        String overview) {
 
     public static PlaceDetailResponse from(
             Content c,
@@ -56,6 +57,7 @@ public record PlaceDetailResponse(
                 .wishCnt(wishCnt)
                 .visited(visited)
                 .totalView(totalView)
+                .overview(c.getOverview())
                 .build();
     }
 }
