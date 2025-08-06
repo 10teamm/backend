@@ -7,6 +7,7 @@ import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
 import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
 import com.swyp.catsgotogedog.content.domain.entity.ViewLog;
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
+import com.swyp.catsgotogedog.content.domain.response.ContentImageResponse;
 import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.repository.*;
@@ -67,10 +68,6 @@ public class ContentService {
 
         Content content = contentRepository.findByContentId(contentId);
 
-        ContentImage contentImage = contentImageRepository.findByContent_ContentId(contentId);
-
-        String smallImageUrl = (contentImage != null) ? contentImage.getSmallImageUrl() : null;
-
         double avg = contentSearchService.getAverageScore(contentId);
 
         boolean wishData = (userId != null) ? contentSearchService.getWishData(userId, contentId) : false;
@@ -81,7 +78,9 @@ public class ContentService {
 
         int totalView = viewTotalRepository.findTotalViewByContentId(contentId);
 
-        return PlaceDetailResponse.from(content,smallImageUrl,avg,wishData,wishCnt,visited,totalView);
+        List<ContentImageResponse> detailImage = getDetailImage(contentId);
+
+        return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage);
     }
 
     public void recordView(String userId, int contentId){
@@ -128,5 +127,17 @@ public class ContentService {
             return false;
         }
         return visitHistoryRepository.existsByUser_UserIdAndContent_ContentId(Integer.parseInt(userId), contentId);
+    }
+
+    public List<ContentImageResponse> getDetailImage(int contentId){
+        Content content = contentRepository.findByContentId(contentId);
+        List<ContentImage> images = contentImageRepository.findAllByContent(content);
+
+        return images.stream()
+                .map(ci -> new ContentImageResponse(
+                        ci.getImageUrl(),
+                        ci.getImageFilename()
+                ))
+                .toList();
     }
 }
