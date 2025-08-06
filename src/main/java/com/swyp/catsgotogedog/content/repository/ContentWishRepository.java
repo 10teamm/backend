@@ -13,6 +13,10 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ContentWishRepository extends JpaRepository<ContentWish, Integer> {
+
+	@Query("SELECT COUNT(c) FROM ContentWish c WHERE c.content.contentId = :contentId")
+	int countByContentContentId(int contentId);
+
     @Query("SELECT cw FROM ContentWish cw WHERE cw.userId = :userId AND cw.content.contentId = :contentId")
 	Optional<ContentWish> findByUserIdAndContentId(@Param("userId") int userId, @Param("contentId") int contentId);
 
@@ -20,4 +24,5 @@ public interface ContentWishRepository extends JpaRepository<ContentWish, Intege
 	Set<Integer> findWishedContentIdsByUserIdAndContentIds(@Param("userId") Integer userId, @Param("contentIds") List<Integer> contentIds);
 
 	Page<ContentWish> findAllByUserId(int userId, Pageable pageable);
+
 }
