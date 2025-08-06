@@ -123,6 +123,6 @@ public class ContentService {
         if (userId == null || userId.isBlank()) {
             return false;
         }
-        return visitHistoryRepository.existsByUser_IdAndContent_ContentId(Integer.parseInt(userId), contentId);
+        return visitHistoryRepository.existsByUser_UserIdAndContent_ContentId(Integer.parseInt(userId), contentId);
     }
 }
