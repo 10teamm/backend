@@ -4,6 +4,8 @@ import com.swyp.catsgotogedog.User.domain.request.UserUpdateRequest;
 import com.swyp.catsgotogedog.common.util.image.storage.ImageStorageService;
 import com.swyp.catsgotogedog.common.util.image.storage.dto.ImageInfo;
 import com.swyp.catsgotogedog.common.util.image.validator.ImageUploadType;
+import com.swyp.catsgotogedog.common.util.perspectiveApi.dto.ToxicityCheckResult;
+import com.swyp.catsgotogedog.common.util.perspectiveApi.service.ToxicityCheckService;
 import com.swyp.catsgotogedog.global.exception.*;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public class UserService {
 	private final RefreshTokenService rtService;
 	private final JwtTokenUtil jwt;
 	private final ImageStorageService imageStorageService;
+	private final ToxicityCheckService toxicityCheckService;
 
 	public String reIssue(String refreshToken) {
 
@@ -76,6 +79,13 @@ public class UserService {
 
 				if (userRepository.existsByDisplayName(newDisplayName)) {
 					throw new CatsgotogedogException(ErrorCode.DUPLICATE_DISPLAY_NAME);
+				}
+				// 닉네임 변경
+				ToxicityCheckResult checkResult = toxicityCheckService.checkNickname(newDisplayName);
+				if (!checkResult.passed()) {
+					log.debug("닉네임 '{}'은(는) 독성 점수 {}로 부적절합니다. 기준치: {}",
+							newDisplayName, checkResult.toxicityScore(), checkResult.threshold());
+					throw new CatsgotogedogException(ErrorCode.TOO_TOXIC_DISPLAY_NAME);
 				}
 				user.setDisplayName(newDisplayName);
 				user.setNameUpdateAt(LocalDateTime.now());
