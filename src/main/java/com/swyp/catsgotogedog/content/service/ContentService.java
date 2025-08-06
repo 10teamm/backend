@@ -2,15 +2,14 @@ package com.swyp.catsgotogedog.content.service;
 
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
-import com.swyp.catsgotogedog.content.domain.entity.Content;
-import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
-import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
-import com.swyp.catsgotogedog.content.domain.entity.ViewLog;
+import com.swyp.catsgotogedog.content.domain.entity.*;
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
 import com.swyp.catsgotogedog.content.domain.response.ContentImageResponse;
 import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.repository.*;
+import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
+import com.swyp.catsgotogedog.global.exception.ErrorCode;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
@@ -107,6 +106,32 @@ public class ContentService {
                         .build()
         );
     }
+
+    public boolean checkVisited(String userId, int contentId){
+        if (userId == null || userId.isBlank()) {
+            return false;
+        }
+
+        User user = userRepository.findById(Integer.parseInt(userId))
+                .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Content content = contentRepository.findByContentId(contentId);
+
+        boolean visited = hasVisited(userId, contentId);
+
+        if(visited){
+            visitHistoryRepository.deleteByUserAndContent(user,content);
+            return false;
+        }else{
+            VisitHistory vh = VisitHistory.builder()
+                    .user(user)
+                    .content(content)
+                    .build();
+            visitHistoryRepository.save(vh);
+            return true;
+        }
+    }
+
 
     public List<LastViewHistoryResponse> getRecentViews(String userId) {
 

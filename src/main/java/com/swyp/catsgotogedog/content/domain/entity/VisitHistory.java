@@ -2,10 +2,12 @@ package com.swyp.catsgotogedog.content.domain.entity;
 
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 @Entity
 @Getter
+@Builder
 public class VisitHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
