@@ -17,6 +17,7 @@ public class PetProfileResponse {
     private String name;
     private char gender;
     private LocalDate birth;
+    private String type;
     private boolean fierceDog;
     private String size;
     private String imageFilename;
@@ -28,6 +29,7 @@ public class PetProfileResponse {
                 .name(pet.getName())
                 .gender(pet.getGender())
                 .birth(pet.getBirth())
+                .type(pet.getType())
                 .fierceDog(pet.isFierceDog())
                 .size(pet.getSizeId().getSize())
                 .imageFilename(pet.getImageFilename())
