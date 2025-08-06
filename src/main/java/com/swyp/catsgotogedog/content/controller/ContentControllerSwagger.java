@@ -14,10 +14,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Content", description = "컨텐츠 (관광지, 숙소, 음식점, 축제/공연/행사) 관련 API")
 public interface ContentControllerSwagger {
@@ -79,6 +81,29 @@ public interface ContentControllerSwagger {
     ResponseEntity<List<LastViewHistoryResponse>> getRecentViews(
             @Parameter(hidden = true)
             @AuthenticationPrincipal String userId
+    );
+
+    @Operation(
+            summary = "방문 여부 체크",
+            description = "로그인된 사용자의 해당 콘텐츠 방문 여부를 체크 또는 해제, " +
+                    "체크돼 있으면 해제하고(false), 체크돼 있지 않으면 체크합니다(true). " +
+                    "비회원인 경우 아무 동작 없이 false 반환",
+            security = { @SecurityRequirement(name = "bearer-key") }
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "체크 결과",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "인증 필요"),
+            @ApiResponse(responseCode = "404", description = "해당 콘텐츠 또는 사용자 없음")
+    })
+    @GetMapping("/visited-check")
+    ResponseEntity<?> checkVisited(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal String userId,
+
+            @Parameter(description = "장소 ID", required = true)
+            @RequestParam int contentId
     );
 
 }
