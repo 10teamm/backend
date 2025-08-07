@@ -40,6 +40,7 @@ public class ContentSearchService {
     private final SightsInformationRepository sightsInformationRepository;
     private final RestaurantInformationRepository restaurantInformationRepository;
     private final HashtagRepository hashtagRepository;
+    private final ViewTotalRepository viewTotalRepository;
 
     public List<ContentDocument> searchByKeyword(String keyword){
         return contentElasticRepository.findByTitleContaining(keyword);
@@ -129,7 +130,9 @@ public class ContentSearchService {
 
                     String restDate = getRestDate(id);
 
-                    return ContentResponse.from(content, avg, wishData, regionName, hashtag, restDate);
+                    int totalView = viewTotalRepository.findTotalViewByContentId(id);
+
+                    return ContentResponse.from(content, avg, wishData, regionName, hashtag, restDate, totalView);
                 })
                 .filter(Objects::nonNull)
                 .toList();
