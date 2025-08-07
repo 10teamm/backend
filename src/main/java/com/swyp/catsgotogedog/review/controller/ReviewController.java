@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 import com.swyp.catsgotogedog.review.domain.request.CreateReviewRequest;
 import com.swyp.catsgotogedog.review.domain.response.ContentReviewPageResponse;
-import com.swyp.catsgotogedog.review.domain.response.ReviewResponse;
 import com.swyp.catsgotogedog.review.service.ReviewService;
 
 import io.jsonwebtoken.io.IOException;
@@ -46,7 +45,7 @@ public class ReviewController implements ReviewControllerSwagger {
 	public ResponseEntity<CatsgotogedogApiResponse<?>> createReview(
 		@PathVariable int contentId,
 		@AuthenticationPrincipal String userId,
-		@Valid @ModelAttribute @ParameterObject CreateReviewRequest createReviewRequest,
+		@ModelAttribute @Valid CreateReviewRequest createReviewRequest,
 		@RequestParam(value = "images", required = false)List<MultipartFile> images) throws IOException {
 
 		reviewService.createReview(contentId, userId, createReviewRequest, images);
@@ -74,7 +73,7 @@ public class ReviewController implements ReviewControllerSwagger {
 
 	// 리뷰 삭제
 	@Override
-	@DeleteMapping("/{reviewId}")
+	@DeleteMapping(value = "/{reviewId}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<CatsgotogedogApiResponse<?>> deleteReview(
 		@PathVariable int reviewId,
 		@AuthenticationPrincipal String userId) {
@@ -88,7 +87,7 @@ public class ReviewController implements ReviewControllerSwagger {
 
 	// 리뷰 이미지 삭제
 	@Override
-	@DeleteMapping("/{reviewId}/image/{imageId}")
+	@DeleteMapping(value = "/{reviewId}/image/{imageId}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<CatsgotogedogApiResponse<?>> deleteReviewImage(
 		@PathVariable(name = "reviewId") int reviewId,
 		@PathVariable(name = "imageId") int imageId,
@@ -114,7 +113,6 @@ public class ReviewController implements ReviewControllerSwagger {
 		Pageable pageable = PageRequest.of(page, size);
 
 		String actUserId = (userId != null && !userId.equals("anonymousUser")) ? userId : null;
-		log.info("actUserId: {}", actUserId);
 		ContentReviewPageResponse reviewResponses = reviewService.fetchReviewsByContentId(contentId, sort, pageable, actUserId);
 
 		return ResponseEntity.ok(

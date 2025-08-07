@@ -2,6 +2,8 @@ package com.swyp.catsgotogedog.global.exception;
 
 import org.springframework.http.HttpStatus;
 
+import com.google.api.Http;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +24,8 @@ public enum ErrorCode {
         REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 리뷰입니다."),
         RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "리소스를 찾을 수 없습니다."),
         REVIEW_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 리뷰 이미지입니다."),
+        SIGUNGU_CODE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "해당 지역을 찾을 수 없습니다."),
+        SIDO_CODE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "해당 시/도를 찾을 수 없습니다."),
 
         // 405 Method not allowed
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED.value(), "허용되지 않은 HTTP 메소드입니다."),
@@ -30,10 +34,16 @@ public enum ErrorCode {
         MESSAGE_NOT_READABLE(HttpStatus.BAD_REQUEST.value(), "요청 본문 형식이 올바르지 않습니다."),
         ARGUMENT_NOT_VALID(HttpStatus.BAD_REQUEST.value(), "유효성 검사에 실패했습니다."),
         MISSING_REQUEST_PARAMETER(HttpStatus.BAD_REQUEST.value(), "필수 파라미터가 누락되었습니다."),
+        SIGUNGU_NEEDS_WITH_SIDO_CODE(HttpStatus.BAD_REQUEST.value(), "시/군/구  코드는 반드시 시/도 코드와 함께 요청해야 합니다."),
+        REPORT_REASON_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "유효하지 않은 신고 사유입니다."),
+        ALREADY_REPORTED(HttpStatus.BAD_REQUEST.value(), "이미 신고한 리뷰입니다."),
+        OWN_REVIEW_CANT_REPORT(HttpStatus.BAD_REQUEST.value(), "자신이 작성한 리뷰는 신고할 수 없어요."),
+        CLOVA_HASHTAG_CLIENT_ERROR(HttpStatus.BAD_REQUEST.value(), "Hashtag 생성 요청중 오류 발생"),
+        CLOVA_HASHTAG_SERVER_ERROR(HttpStatus.BAD_REQUEST.value(), "클로바 서버 연결 오류"),
 
         // 500 Internal Server Error
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부 오류가 발생했습니다."),
-
+        
         // User 관련
         DUPLICATE_DISPLAY_NAME(HttpStatus.BAD_REQUEST.value(), "이미 사용 중인 닉네임입니다."),
         DISPLAY_NAME_UPDATE_TOO_SOON(HttpStatus.BAD_REQUEST.value(), "닉네임은 24시간마다 한 번만 변경할 수 있습니다."),
