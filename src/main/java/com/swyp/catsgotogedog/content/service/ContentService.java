@@ -2,15 +2,14 @@ package com.swyp.catsgotogedog.content.service;
 
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
-import com.swyp.catsgotogedog.content.domain.entity.Content;
-import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
-import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
-import com.swyp.catsgotogedog.content.domain.entity.ViewLog;
+import com.swyp.catsgotogedog.content.domain.entity.*;
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
 import com.swyp.catsgotogedog.content.domain.response.ContentImageResponse;
 import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.repository.*;
+import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
+import com.swyp.catsgotogedog.global.exception.ErrorCode;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
@@ -83,6 +82,30 @@ public class ContentService {
         return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage);
     }
 
+    public boolean checkWish(String userId, int contentId){
+        if (userId == null || userId.isBlank()|| userId.equals("anonymousUser")) {
+            return false;
+        }
+
+        validateUser(userId);
+
+        Content content = contentRepository.findByContentId(contentId);
+
+        boolean isWished = isWished(userId, contentId);
+
+        if(isWished){
+            contentWishRepository.deleteByUserIdAndContent(Integer.parseInt(userId),content);
+            return false;
+        }else{
+            ContentWish cw = ContentWish.builder()
+                    .userId(Integer.parseInt(userId))
+                    .content(content)
+                    .build();
+            contentWishRepository.save(cw);
+            return true;
+        }
+    }
+
     public void recordView(String userId, int contentId){
 
 //        if (userId != null) {
@@ -139,5 +162,17 @@ public class ContentService {
                         ci.getImageFilename()
                 ))
                 .toList();
+    }
+
+    public boolean isWished(String userId, int contentId) {
+        if (userId == null || userId.isBlank()) {
+            return false;
+        }
+        return contentWishRepository.existsByUserIdAndContent_ContentId(Integer.parseInt(userId), contentId);
+    }
+
+    private User validateUser(String userId) {
+        return userRepository.findById(Integer.parseInt(userId))
+                .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }

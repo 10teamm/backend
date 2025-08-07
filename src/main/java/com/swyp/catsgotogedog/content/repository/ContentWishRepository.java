@@ -1,5 +1,7 @@
 package com.swyp.catsgotogedog.content.repository;
 
+import com.swyp.catsgotogedog.User.domain.entity.User;
+import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.domain.entity.ContentWish;
 
 import org.springframework.data.domain.Page;
@@ -25,4 +27,7 @@ public interface ContentWishRepository extends JpaRepository<ContentWish, Intege
 
 	Page<ContentWish> findAllByUserId(int userId, Pageable pageable);
 
+	boolean existsByUserIdAndContent_ContentId(int userId, int contentId);
+
+	void deleteByUserIdAndContent(int userId, Content content);
 }
