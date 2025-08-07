@@ -1,11 +1,19 @@
 package com.swyp.catsgotogedog.pet.domain.validation;
 
+import com.swyp.catsgotogedog.common.util.perspectiveApi.service.ToxicityCheckService;
+import com.swyp.catsgotogedog.common.util.perspectiveApi.dto.ToxicityCheckResult;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
+@Component
+@RequiredArgsConstructor
 public class PetNameValidator implements ConstraintValidator<ValidPetName, String> {
+
+    private final ToxicityCheckService toxicityCheckService;
 
     // 허용된 특수문자: 쉼표(,), 마침표(.), 작은따옴표(')
     private static final Pattern ALLOWED_SPECIAL_CHARS = Pattern.compile("[,.'_]");
@@ -58,6 +66,17 @@ public class PetNameValidator implements ConstraintValidator<ValidPetName, Strin
         if (CONSECUTIVE_CONSONANTS.matcher(trimmedName).find() ||
             CONSECUTIVE_VOWELS.matcher(trimmedName).find()) {
             setCustomMessage(context, "올바른 단어를 입력해주세요.");
+            return false;
+        }
+
+        // 5. 비속어 필터링 체크 (반려동물 이름 기준치: 0.8)
+        ToxicityCheckResult toxicityResult = toxicityCheckService.checkPetName(trimmedName);
+        if (!toxicityResult.passed()) {
+            if (toxicityResult.errorMessage() != null) {
+                setCustomMessage(context, "반려동물 이름 검증 중 오류가 발생했습니다.");
+            } else {
+                setCustomMessage(context, "부적절한 반려동물 이름입니다. 다른 이름을 사용해주세요.");
+            }
             return false;
         }
 
