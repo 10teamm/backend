@@ -81,6 +81,15 @@ public class ContentController implements ContentControllerSwagger{
     ) {
         boolean checkWish = contentService.checkWish(userId, contentId);
         return ResponseEntity.ok(Map.of("checkWish", checkWish));
+
+    @GetMapping("/visited-check")
+    public ResponseEntity<?> checkVisited(
+            @AuthenticationPrincipal String userId,
+            @RequestParam int contentId
+    ) {
+        boolean visited = contentService.checkVisited(userId, contentId);
+        return ResponseEntity.ok(Map.of("visited", visited));
+
     }
 
 }

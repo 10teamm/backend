@@ -71,11 +71,12 @@ public class ContentService {
 
         boolean wishData = (userId != null) ? contentSearchService.getWishData(userId, contentId) : false;
 
-        int wishCnt = contentWishRepository.countByContentContentId(contentId);
+        int wishCnt = contentWishRepository.countByContent_ContentId(contentId);
 
         boolean visited = hasVisited(userId, contentId);
 
-        int totalView = viewTotalRepository.findTotalViewByContentId(contentId);
+        int totalView = viewTotalRepository.findTotalViewByContentId(contentId)
+                .orElse(0);
 
         List<ContentImageResponse> detailImage = getDetailImage(contentId);
 
@@ -130,6 +131,32 @@ public class ContentService {
                         .build()
         );
     }
+
+    public boolean checkVisited(String userId, int contentId){
+        if (userId == null || userId.isBlank()|| userId.equals("anonymousUser")) {
+            return false;
+        }
+
+        User user = userRepository.findById(Integer.parseInt(userId))
+                .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Content content = contentRepository.findByContentId(contentId);
+
+        boolean visited = hasVisited(userId, contentId);
+
+        if(visited){
+            visitHistoryRepository.deleteByUserAndContent(user,content);
+            return false;
+        }else{
+            VisitHistory vh = VisitHistory.builder()
+                    .user(user)
+                    .content(content)
+                    .build();
+            visitHistoryRepository.save(vh);
+            return true;
+        }
+    }
+
 
     public List<LastViewHistoryResponse> getRecentViews(String userId) {
 
