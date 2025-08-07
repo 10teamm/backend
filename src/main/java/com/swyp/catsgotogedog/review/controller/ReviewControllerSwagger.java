@@ -176,7 +176,7 @@ public interface ReviewControllerSwagger {
 			, content = @Content(schema = @Schema(implementation = ReviewResponse.class))),
 		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
 			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
-		@ApiResponse(responseCode = "404", description = "컨텐츠가 존재하지 않음"
+		@ApiResponse(responseCode = "404", description = "리뷰가 존재하지 않음"
 			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
 	})
 	ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewsByUserId(
@@ -186,4 +186,42 @@ public interface ReviewControllerSwagger {
 		@RequestParam(defaultValue = "0") int page,
 		@Parameter(description = "페이지당 결과 갯수")
 		@RequestParam(defaultValue = "4") int size);
+
+	@Operation(
+		summary = "특정 리뷰를 좋아요 처리.",
+		description = "사용자 인증을 통해 리뷰에 좋아요 기능."
+	)
+	@SecurityRequirement(name = "bearer-key")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "리뷰 좋아요 성공"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음, 이미 좋아요된 리뷰입니다."
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "404", description = "리뷰가 존재하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+	})
+	ResponseEntity<CatsgotogedogApiResponse<?>> recommendReview(
+		@Parameter(hidden = true)
+		@AuthenticationPrincipal String userId,
+		@Parameter(description = "리뷰 ID", required = true)
+		@PathVariable int reviewId);
+
+	@Operation(
+		summary = "특정 리뷰를 좋아요 해제 처리.",
+		description = "사용자 인증을 통해 리뷰에 좋아요 해제 기능."
+	)
+	@SecurityRequirement(name = "bearer-key")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "리뷰 좋아요 해제 성공"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음, 좋아요 상태인 리뷰가 아닙니다."
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "404", description = "리뷰가 존재하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+	})
+	ResponseEntity<CatsgotogedogApiResponse<?>> cancelRecommendReview(
+		@Parameter(hidden = true)
+		@AuthenticationPrincipal String userId,
+		@Parameter(description = "리뷰 ID", required = true)
+		@PathVariable int reviewId);
 }

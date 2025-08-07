@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -127,5 +128,12 @@ public class GlobalExceptionHandler {
 			.body(response);
 	}
 
+	@ExceptionHandler(MalformedJwtException.class)
+	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleMalformedJwtException(MalformedJwtException e) {
+		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(HttpStatus.BAD_REQUEST.value() , e.getMessage());
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(response);
+	}
 
 }

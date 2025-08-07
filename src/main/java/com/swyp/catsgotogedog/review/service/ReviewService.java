@@ -189,14 +189,14 @@ public class ReviewService {
 			}).toList();
 
 		return new ContentReviewPageResponse(
-			reviewResponses,
-			contentReviewImages,
 			(int) reviewPage.getTotalElements(),
 			reviewPage.getTotalPages(),
 			reviewPage.getNumber(),
 			reviewPage.getSize(),
 			reviewPage.hasNext(),
-			reviewPage.hasPrevious()
+			reviewPage.hasPrevious(),
+			reviewResponses,
+			contentReviewImages
 		);
 	}
 
@@ -212,13 +212,13 @@ public class ReviewService {
 			.toList();
 
 		return new MyReviewPageResponse(
-			myReviewResponses,
 			(int) reviewPage.getTotalElements(),
 			reviewPage.getTotalPages(),
 			reviewPage.getNumber(),
 			reviewPage.getSize(),
 			reviewPage.hasNext(),
-			reviewPage.hasPrevious()
+			reviewPage.hasPrevious(),
+			myReviewResponses
 		);
 	}
 

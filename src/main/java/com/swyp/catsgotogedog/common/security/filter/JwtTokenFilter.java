@@ -1,6 +1,9 @@
 package com.swyp.catsgotogedog.common.security.filter;
 
 import com.swyp.catsgotogedog.common.util.JwtTokenUtil;
+import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
+
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +29,16 @@ public class JwtTokenFilter implements Filter {
         String bearer = request.getHeader("Authorization");
 
         if (bearer != null && bearer.startsWith("Bearer ")) {
-            String token = bearer.substring(7);
-            String sub   = jwt.getSubject(token);
+            try {
+                String token = bearer.substring(7);
+                String sub   = jwt.getSubject(token);
 
-            var auth = new UsernamePasswordAuthenticationToken(
+                var auth = new UsernamePasswordAuthenticationToken(
                     sub, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } catch (MalformedJwtException e) {
+                throw new MalformedJwtException("잘못된 토큰 형식입니다. 요청된 Authorization : " + bearer, e);
+            }
         }
         chain.doFilter(req, res);
     }

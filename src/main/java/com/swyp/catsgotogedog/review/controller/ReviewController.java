@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 import com.swyp.catsgotogedog.review.domain.request.CreateReviewRequest;
 import com.swyp.catsgotogedog.review.domain.response.ContentReviewPageResponse;
+import com.swyp.catsgotogedog.review.service.ReviewRecommendService;
 import com.swyp.catsgotogedog.review.service.ReviewService;
 
 import io.jsonwebtoken.io.IOException;
@@ -38,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReviewController implements ReviewControllerSwagger {
 
 	private final ReviewService reviewService;
+	private final ReviewRecommendService reviewRecommendService;
 
 	// 리뷰 작성
 	@Override
@@ -134,6 +136,28 @@ public class ReviewController implements ReviewControllerSwagger {
 			CatsgotogedogApiResponse.success("리뷰 조회 성공",
 				reviewService.fetchReviewsByUserId(userId, pageable))
 		);
+	}
+
+	// 리뷰 좋아요
+	@Override
+	@PostMapping("/recommend/{reviewId}")
+	public ResponseEntity<CatsgotogedogApiResponse<?>> recommendReview(
+		@AuthenticationPrincipal String userId,
+		@PathVariable int reviewId) {
+
+		reviewRecommendService.recommendReview(reviewId, userId);
+		return ResponseEntity.ok(CatsgotogedogApiResponse.success("리뷰 좋아요 완료", null));
+	}
+
+	// 리뷰 좋아요 취소
+	@Override
+	@DeleteMapping("/recommend/{reviewId}")
+	public ResponseEntity<CatsgotogedogApiResponse<?>> cancelRecommendReview(
+		@AuthenticationPrincipal String userId,
+		@PathVariable int reviewId) {
+
+		reviewRecommendService.cancelRecommendReview(reviewId, userId);
+		return ResponseEntity.ok(CatsgotogedogApiResponse.success("리뷰 좋아요 취소 완료", null));
 	}
 
 }
