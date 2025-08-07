@@ -15,7 +15,7 @@ import java.util.Set;
 public interface ContentWishRepository extends JpaRepository<ContentWish, Integer> {
 
 	@Query("SELECT COUNT(c) FROM ContentWish c WHERE c.content.contentId = :contentId")
-	int countByContentContentId(int contentId);
+	int countByContent_ContentId(int contentId);
 
     @Query("SELECT cw FROM ContentWish cw WHERE cw.userId = :userId AND cw.content.contentId = :contentId")
 	Optional<ContentWish> findByUserIdAndContentId(@Param("userId") int userId, @Param("contentId") int contentId);
