@@ -76,7 +76,8 @@ public class ContentService {
 
         boolean visited = hasVisited(userId, contentId);
 
-        int totalView = viewTotalRepository.findTotalViewByContentId(contentId);
+        int totalView = viewTotalRepository.findTotalViewByContentId(contentId)
+                .orElse(0);
 
         List<ContentImageResponse> detailImage = getDetailImage(contentId);
 
