@@ -4,6 +4,7 @@ import com.swyp.catsgotogedog.content.domain.entity.Content;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -31,6 +32,7 @@ public class ContentResponse {
     private String restDate;
     private int totalView;
     private int wishCnt;
+    private LocalDateTime createdAt;
 
     public static ContentResponse from(
             Content c,
@@ -64,6 +66,7 @@ public class ContentResponse {
                 .restDate(restDate)
                 .totalView(totalView)
                 .wishCnt(wishCnt)
+                .createdAt(c.getCreatedAt())
                 .build();
     }
 }
