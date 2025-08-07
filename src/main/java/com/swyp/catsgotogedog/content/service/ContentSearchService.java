@@ -132,7 +132,9 @@ public class ContentSearchService {
 
                     int totalView = viewTotalRepository.findTotalViewByContentId(id);
 
-                    return ContentResponse.from(content, avg, wishData, regionName, hashtag, restDate, totalView);
+                    int wishCnt = contentWishRepository.countByContent_ContentId(id);
+
+                    return ContentResponse.from(content, avg, wishData, regionName, hashtag, restDate, totalView, wishCnt);
                 })
                 .filter(Objects::nonNull)
                 .toList();

@@ -30,6 +30,7 @@ public class ContentResponse {
     private List<String> hashtag;
     private String restDate;
     private int totalView;
+    private int wishCnt;
 
     public static ContentResponse from(
             Content c,
@@ -38,7 +39,8 @@ public class ContentResponse {
             RegionCodeResponse regionName,
             List<String> hashtag,
             String restDate,
-            int totalView){
+            int totalView,
+            int wishCnt){
 
         return ContentResponse.builder()
                 .contentId(c.getContentId())
@@ -61,6 +63,7 @@ public class ContentResponse {
                 .hashtag(hashtag)
                 .restDate(restDate)
                 .totalView(totalView)
+                .wishCnt(wishCnt)
                 .build();
     }
 }
