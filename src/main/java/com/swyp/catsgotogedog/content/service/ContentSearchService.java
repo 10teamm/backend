@@ -14,6 +14,7 @@ import com.swyp.catsgotogedog.content.repository.*;
 import com.swyp.catsgotogedog.review.repository.ContentReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -100,7 +101,7 @@ public class ContentSearchService {
 
         NativeQuery nativeQuery = NativeQuery.builder()
                 .withQuery(esQuery)
-                .withPageable(PageRequest.of(0, 20))
+                .withPageable(Pageable.unpaged())
                 .build();
 
         List<Integer> ids = elasticsearchOperations
@@ -115,28 +116,24 @@ public class ContentSearchService {
                 .collect(Collectors.toMap(Content::getContentId, c -> c));
 
         return ids.stream()
-                .map(id -> {
-                    Content content = contentMap.get(id);
-                    if (content == null) return null;
+                .map(contentMap::get)
+                .filter(Objects::nonNull)
+                .filter(c -> c.getSidoCode() != 0 && c.getSigunguCode() != 0)
+                .map(content -> {
 
+                    int id = content.getContentId();
                     double avg = getAverageScore(id);
-
                     boolean wishData = (userId != null) ? getWishData(userId, id) : false;
-
-                    RegionCodeResponse regionName
-                            = getRegionName(content.getSidoCode(), content.getSigunguCode());
-
+                    RegionCodeResponse regionName = getRegionName(content.getSidoCode(), content.getSigunguCode());
                     List<String> hashtag = hashtagRepository.findContentsByContentId(id);
-
                     String restDate = getRestDate(id);
-
-                    int totalView = viewTotalRepository.findTotalViewByContentId(id);
-
+                    int totalView = viewTotalRepository.findTotalViewByContentId(id).orElse(0);
                     int wishCnt = contentWishRepository.countByContent_ContentId(id);
 
-                    return ContentResponse.from(content, avg, wishData, regionName, hashtag, restDate, totalView, wishCnt);
+                    return ContentResponse.from(
+                            content, avg, wishData, regionName, hashtag, restDate, totalView, wishCnt
+                    );
                 })
-                .filter(Objects::nonNull)
                 .toList();
 
     }
