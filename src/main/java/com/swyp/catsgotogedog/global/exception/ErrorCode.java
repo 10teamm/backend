@@ -48,6 +48,7 @@ public enum ErrorCode {
         DUPLICATE_DISPLAY_NAME(HttpStatus.BAD_REQUEST.value(), "이미 사용 중인 닉네임입니다."),
         DISPLAY_NAME_UPDATE_TOO_SOON(HttpStatus.BAD_REQUEST.value(), "닉네임은 24시간마다 한 번만 변경할 수 있습니다."),
         SAME_DISPLAY_NAME(HttpStatus.BAD_REQUEST.value(), "현재 닉네임과 동일합니다."),
+        TOO_TOXIC_DISPLAY_NAME(HttpStatus.BAD_REQUEST.value(), "부적절한 닉네임입니다. 다른 닉네임을 사용해주세요."),
 
         // 반려동물 관련 (Pet)
         PET_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 반려동물입니다."),
@@ -72,6 +73,11 @@ public enum ErrorCode {
         // Image Storage Error
         IMAGE_KEY_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "이미지 키가 누락 되었습니다."),
         IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 업로드에 실패했습니다."),
+
+        // 필터링 API 관련
+        PERSPECTIVE_API_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Perspective API 연결에 실패했습니다."),
+        PERSPECTIVE_API_RESPONSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Perspective API 응답 처리에 실패했습니다."),
+        PERSPECTIVE_API_REQUEST_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Perspective API 요청 준비에 실패했습니다."),
 
         // Stream IO Exception
         STREAM_IO_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR.value(), "스트림 처리 중 오류가 발생했습니다.");
