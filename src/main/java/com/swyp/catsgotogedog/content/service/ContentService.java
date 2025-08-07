@@ -108,7 +108,7 @@ public class ContentService {
     }
 
     public boolean checkVisited(String userId, int contentId){
-        if (userId == null || userId.isBlank()) {
+        if (userId == null || userId.isBlank()|| userId.equals("anonymousUser")) {
             return false;
         }
 
