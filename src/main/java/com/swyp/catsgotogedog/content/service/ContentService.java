@@ -71,11 +71,12 @@ public class ContentService {
 
         boolean wishData = (userId != null) ? contentSearchService.getWishData(userId, contentId) : false;
 
-        int wishCnt = contentWishRepository.countByContentContentId(contentId);
+        int wishCnt = contentWishRepository.countByContent_ContentId(contentId);
 
         boolean visited = hasVisited(userId, contentId);
 
-        int totalView = viewTotalRepository.findTotalViewByContentId(contentId);
+        int totalView = viewTotalRepository.findTotalViewByContentId(contentId)
+                .orElse(0);
 
         List<ContentImageResponse> detailImage = getDetailImage(contentId);
 
