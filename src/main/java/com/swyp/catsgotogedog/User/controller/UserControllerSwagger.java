@@ -1,5 +1,7 @@
 package com.swyp.catsgotogedog.User.controller;
 
+import com.swyp.catsgotogedog.User.domain.request.UserUpdateRequest;
+import com.swyp.catsgotogedog.User.domain.response.UserProfileResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -47,5 +49,63 @@ public interface UserControllerSwagger {
     ResponseEntity<CatsgotogedogApiResponse<?>> logout(
         @Parameter(description = "리프레시 토큰", hidden = true)
         String refresh
+    );
+    
+    @Operation(
+        summary = "사용자 프로필 조회",
+        description = "인증된 사용자의 프로필 정보를 조회합니다."
+    )
+    @SecurityRequirement(name = "bearer-key")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "프로필 조회 성공",
+                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
+        @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+    })
+    ResponseEntity<CatsgotogedogApiResponse<?>> profile(
+        @Parameter(description = "인증된 사용자 ID", hidden = true)
+        String userId
+    );
+
+    @Operation(
+        summary = "사용자 정보 수정",
+        description = "인증된 사용자의 정보를 수정합니다. 사용자 ID는 인증된 사용자로부터 가져옵니다."
+    )
+    @SecurityRequirement(name = "bearer-key")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "사용자 정보 수정 성공",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+    })
+    ResponseEntity<CatsgotogedogApiResponse<?>> updateProfile(
+        @Parameter(description = "인증된 사용자 ID", hidden = true)
+        String userId,
+        @Parameter(description = "수정할 사용자 정보", required = true)
+        UserUpdateRequest request
+    );
+
+    @Operation(
+        summary = "사용자 프로필 이미지 삭제",
+        description = "인증된 사용자의 프로필 이미지를 삭제합니다."
+    )
+    @SecurityRequirement(name = "bearer-key")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "프로필 이미지 삭제 성공",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+    })
+    ResponseEntity<CatsgotogedogApiResponse<?>> deleteProfileImage(
+        @Parameter(description = "인증된 사용자 ID", hidden = true)
+        String userId
     );
 }
