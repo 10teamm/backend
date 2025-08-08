@@ -74,7 +74,7 @@ public class ContentController implements ContentControllerSwagger{
         return ResponseEntity.ok().body(recent);
     }
 
-    @GetMapping("/visited-check")
+    @PostMapping("/visited-check")
     public ResponseEntity<?> checkVisited(
             @AuthenticationPrincipal String userId,
             @RequestParam int contentId
