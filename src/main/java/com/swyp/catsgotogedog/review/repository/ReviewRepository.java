@@ -21,7 +21,7 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 	 * @return Optional<Review>
 	 */
 	@Query("SELECT r FROM Review r WHERE r.reviewId = :reviewId AND r.userId = :userId")
-	Optional<Review> findByIdAndUserId(@Param("reviewId") int reviewId, String userId);
+	Optional<Review> findByIdAndUserId(@Param("reviewId") int reviewId, @Param("userId") String userId);
 
 	/**
 	 * contentId와 pageable 요소를 통한 페이징 Review 목록
