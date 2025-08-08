@@ -39,6 +39,7 @@ public class Pet {
 
 	private char gender;
 	private LocalDate birth;
+	private String type;
 	private boolean fierceDog;
 	@ManyToOne
 	@JoinColumn(name = "size_id", nullable = false)
