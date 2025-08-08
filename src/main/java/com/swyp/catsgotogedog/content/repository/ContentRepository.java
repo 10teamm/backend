@@ -16,4 +16,15 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
         + "LEFT JOIN hashtag h ON c.content_id = h.content_id "
         + "WHERE h.content_id IS NULL", nativeQuery = true)
     List<Content> findContentsWithoutHashtags();
+
+    /**
+     * 이미지가 있는 컨텐츠만 랜덤으로 5개 조회 (AI 추천용)
+     */
+    @Query(value = """
+    SELECT DISTINCT c.* FROM content c 
+    WHERE c.image != ""
+    AND c.overview != ""
+    ORDER BY RAND() LIMIT 5
+    """, nativeQuery = true)
+    List<Content> findRandomContentsWithImages();
 }
