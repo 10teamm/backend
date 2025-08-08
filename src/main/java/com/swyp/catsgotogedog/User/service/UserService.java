@@ -15,8 +15,11 @@ import com.swyp.catsgotogedog.common.util.JwtTokenUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -114,6 +117,35 @@ public class UserService {
 		}
 		user.setImageUrl("https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/no_image.png");
 		userRepository.save(user);
+	}
+
+	@Transactional
+	public void withdraw(String userId, String refreshToken) {
+		// 리프레시 토큰 검증
+		if (!rtService.validate(refreshToken)) {
+			throw new InvalidTokenException(ErrorCode.INVALID_TOKEN);
+		}
+
+		User user = findUserById(userId);
+
+		// 프로필 이미지 삭제
+		if (StringUtils.hasText(user.getImageFilename())) {
+			imageStorageService.delete(user.getImageFilename());
+		}
+
+		// 리프레시 토큰 삭제
+		rtService.delete(refreshToken);
+
+		SecureRandom random = new SecureRandom();
+
+		// 비활성화 방식
+		user.setEmail("none");
+		user.setDisplayName("탈퇴회원_" + 10000 + random.nextInt(90000));
+		user.setProvider("none");
+		user.setProviderId("none");
+		user.setImageFilename(null);
+		user.setImageUrl("https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/default_user_image.png");
+		user.setIsActive(false);
 	}
 
 	private User findUserById(String userId) {
