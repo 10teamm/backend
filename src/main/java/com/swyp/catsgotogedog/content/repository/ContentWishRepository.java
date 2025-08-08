@@ -30,4 +30,6 @@ public interface ContentWishRepository extends JpaRepository<ContentWish, Intege
 	boolean existsByUserIdAndContent_ContentId(int userId, int contentId);
 
 	void deleteByUserIdAndContent(int userId, Content content);
+
+	List<ContentWish> findByUserIdAndContentContentIdIn(@Param("userId") int userId, @Param("topContentIds") List<Integer> topContentIds);
 }

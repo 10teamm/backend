@@ -1,5 +1,6 @@
 package com.swyp.catsgotogedog.content.service;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import com.swyp.catsgotogedog.User.domain.entity.User;
@@ -50,7 +51,7 @@ public class ContentSearchService {
 
     public List<ContentResponse> search(String title,
                                         String sidoCode,
-                                        String sigunguCode,
+                                        List<String> sigunguCode,
                                         Integer contentTypeId,
                                         String userId) {
 
@@ -60,11 +61,8 @@ public class ContentSearchService {
 
         boolean noTitle  = (title == null  || title.isBlank());
         boolean noSidoCode  = (sidoCode == null  || sidoCode.isBlank());
-        boolean noSigunguCode = (sigunguCode == null  || sigunguCode.isBlank());
+        boolean noSigunguCode = (sigunguCode == null  || sigunguCode.isEmpty());
         boolean noTypeId = (contentTypeId == null || contentTypeId <= 0);
-
-        System.out.println("noTypeId : "+noTypeId);
-        System.out.println("contentTypeId : "+contentTypeId);
 
         BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
 
@@ -85,8 +83,14 @@ public class ContentSearchService {
             }
 
             if (!noSigunguCode) {
-                boolBuilder.filter(f -> f.term(t -> t.field("sigungu_code")
-                        .value(sigunguCode)));
+                boolBuilder.filter(f -> f.terms(t -> t
+                        .field("sigungu_code")
+                        .terms(v -> v.value(
+                                sigunguCode.stream()
+                                        .map(FieldValue::of)
+                                        .toList()
+                        ))
+                ));
             }
 
             if (!noTypeId) {

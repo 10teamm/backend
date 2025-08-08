@@ -189,14 +189,14 @@ public class ReviewService {
 			}).toList();
 
 		return new ContentReviewPageResponse(
-			reviewResponses,
-			contentReviewImages,
 			(int) reviewPage.getTotalElements(),
 			reviewPage.getTotalPages(),
 			reviewPage.getNumber(),
 			reviewPage.getSize(),
 			reviewPage.hasNext(),
-			reviewPage.hasPrevious()
+			reviewPage.hasPrevious(),
+			reviewResponses,
+			contentReviewImages
 		);
 	}
 
@@ -212,14 +212,26 @@ public class ReviewService {
 			.toList();
 
 		return new MyReviewPageResponse(
-			myReviewResponses,
 			(int) reviewPage.getTotalElements(),
 			reviewPage.getTotalPages(),
 			reviewPage.getNumber(),
 			reviewPage.getSize(),
 			reviewPage.hasNext(),
-			reviewPage.hasPrevious()
+			reviewPage.hasPrevious(),
+			myReviewResponses
 		);
+	}
+
+	// 유저의 특정 리뷰 데이터 조회
+	@Transactional(readOnly = true)
+	public MyReviewResponse fetchReviewById(int reviewId, String userId) {
+		validateUser(userId);
+		validateReview(reviewId);
+
+		Review review = reviewRepository.findByIdAndUserId(reviewId, userId)
+			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.REVIEW_FORBIDDEN_ACCESS));
+
+		return toReviewResponse(review);
 	}
 
 

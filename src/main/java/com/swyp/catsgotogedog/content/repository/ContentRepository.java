@@ -17,6 +17,8 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
         + "WHERE h.content_id IS NULL", nativeQuery = true)
     List<Content> findContentsWithoutHashtags();
 
+    List<Content> findAllByContentIdIn(List<Integer> contentIds);
+
     /**
      * 이미지가 있는 컨텐츠만 랜덤으로 5개 조회 (AI 추천용)
      */

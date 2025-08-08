@@ -80,4 +80,25 @@ public class UserController implements UserControllerSwagger {
         return ResponseEntity.ok(
                 CatsgotogedogApiResponse.success("프로필 이미지 삭제 성공", null));
     }
+
+    //todo :: 소셜 연결 해제 구현 필요 (현재 DB를 통한 삭제만 구현)
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<CatsgotogedogApiResponse<?>> withdraw(
+        @AuthenticationPrincipal String userId,
+        @CookieValue("X-Refresh-Token") String refresh) {
+
+        userService.withdraw(userId, refresh);
+
+        ResponseCookie cookie = ResponseCookie.from(("X-Refresh-Token"), refresh)
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .maxAge(0)
+            .sameSite("None")
+            .build();
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(CatsgotogedogApiResponse.success("회원 탈퇴 성공", null));
+    }
 }

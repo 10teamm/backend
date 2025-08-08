@@ -108,4 +108,29 @@ public interface UserControllerSwagger {
         @Parameter(description = "인증된 사용자 ID", hidden = true)
         String userId
     );
+
+    @Operation(
+        summary = "회원 탈퇴",
+        description = """
+                X-Refresh-Token 쿠키를 제거하고 기존 사용자 정보는 삭제 처리 데이터로 변경됩니다.
+                리뷰는 삭제된 유저 정보로 조회됩니다.
+            """
+    )
+    @SecurityRequirement(name = "bearer-key")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공",
+            content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 또는 유효하지 않은 토큰",
+            content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터",
+            content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+            content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+    })
+    ResponseEntity<CatsgotogedogApiResponse<?>> withdraw(
+        @Parameter(description = "인증된 사용자 ID", hidden = true)
+        String userId,
+        @Parameter(description = "리프레시 토큰", hidden = true)
+        String refresh
+    );
 }
