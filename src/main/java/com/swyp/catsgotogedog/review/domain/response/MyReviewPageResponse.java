@@ -5,8 +5,6 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record MyReviewPageResponse(
-	@Schema(description = "작성 리뷰 목록")
-	List<MyReviewResponse> reviews,
 	@Schema(description = "총 조회 갯수")
 	int totalElements,
 	@Schema(description = "총 페이지")
@@ -18,5 +16,7 @@ public record MyReviewPageResponse(
 	@Schema(description = "다음 존재 여부")
 	boolean hasNext,
 	@Schema(description = "이전 존재 여부")
-	boolean hasPrevious
+	boolean hasPrevious,
+	@Schema(description = "작성 리뷰 목록")
+	List<MyReviewResponse> reviews
 ) {}
