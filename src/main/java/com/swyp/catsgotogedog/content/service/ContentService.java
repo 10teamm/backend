@@ -22,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+import static java.time.LocalDateTime.now;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -105,6 +107,7 @@ public class ContentService {
                 ViewLog.builder()
                         .user(user)
                         .content(content)
+                        .viewedAt(now())
                         .build()
         );
     }
