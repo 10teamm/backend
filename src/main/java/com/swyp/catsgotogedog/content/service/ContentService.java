@@ -8,6 +8,8 @@ import com.swyp.catsgotogedog.content.domain.response.ContentImageResponse;
 import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.repository.*;
+import com.swyp.catsgotogedog.pet.domain.entity.PetGuide;
+import com.swyp.catsgotogedog.pet.repository.PetGuideRepository;
 import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
 import com.swyp.catsgotogedog.global.exception.ErrorCode;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,6 +22,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
+
+import static java.time.LocalDateTime.now;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +39,7 @@ public class ContentService {
     private final UserRepository userRepository;
     private final ViewLogRepository viewLogRepository;
     private final VisitHistoryRepository visitHistoryRepository;
+    private final PetGuideRepository petGuideRepository;
 
     private final ContentSearchService contentSearchService;
 
@@ -80,7 +86,10 @@ public class ContentService {
 
         List<ContentImageResponse> detailImage = getDetailImage(contentId);
 
-        return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage);
+        PetGuide petGuide = getPetGuide(contentId)
+                .orElse(null);
+
+        return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage,petGuide);
     }
 
     public boolean checkWish(String userId, int contentId){
@@ -128,6 +137,7 @@ public class ContentService {
                 ViewLog.builder()
                         .user(user)
                         .content(content)
+                        .viewedAt(now())
                         .build()
         );
     }
@@ -191,6 +201,14 @@ public class ContentService {
                 .toList();
     }
 
+
+    public Optional<PetGuide> getPetGuide(int contentId) {
+        if (petGuideRepository.existsByContent_ContentId(contentId)) {
+            return petGuideRepository.findByContent_ContentId(contentId);
+        }
+        return Optional.empty();
+    }
+
     public boolean isWished(String userId, int contentId) {
         if (userId == null || userId.isBlank()) {
             return false;
@@ -202,4 +220,5 @@ public class ContentService {
         return userRepository.findById(Integer.parseInt(userId))
                 .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
     }
+
 }
