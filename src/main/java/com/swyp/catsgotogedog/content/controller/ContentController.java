@@ -27,7 +27,7 @@ public class ContentController implements ContentControllerSwagger{
     public ResponseEntity<List<ContentResponse>> search(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String sido,
-            @RequestParam(required = false) String sigungu,
+            @RequestParam(required = false) List<String> sigungu,
             @RequestParam(required = false) Integer contentTypeId,
             @AuthenticationPrincipal String principal) {
 
