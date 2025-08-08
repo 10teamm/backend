@@ -1,6 +1,8 @@
 package com.swyp.catsgotogedog.content.domain.response;
 
 import com.swyp.catsgotogedog.content.domain.entity.Content;
+import com.swyp.catsgotogedog.pet.domain.entity.PetGuide;
+import com.swyp.catsgotogedog.pet.domain.response.PetGuideResponse;
 import lombok.Builder;
 
 import java.util.List;
@@ -27,7 +29,8 @@ public record PlaceDetailResponse(
         boolean visited,
         int totalView,
         String overview,
-        List<ContentImageResponse> detailImage) {
+        List<ContentImageResponse> detailImage,
+        PetGuide petGuide) {
 
     public static PlaceDetailResponse from(
             Content c,
@@ -36,7 +39,8 @@ public record PlaceDetailResponse(
             int wishCnt,
             boolean visited,
             int totalView,
-            List<ContentImageResponse> detailImage){
+            List<ContentImageResponse> detailImage,
+            PetGuide petGuide){
 
         return PlaceDetailResponse.builder()
                 .contentId(c.getContentId())
@@ -60,6 +64,7 @@ public record PlaceDetailResponse(
                 .totalView(totalView)
                 .overview(c.getOverview())
                 .detailImage(detailImage)
+                .petGuide(petGuide)
                 .build();
     }
 }

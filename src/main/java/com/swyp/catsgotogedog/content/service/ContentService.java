@@ -11,6 +11,8 @@ import com.swyp.catsgotogedog.content.domain.response.ContentImageResponse;
 import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.repository.*;
+import com.swyp.catsgotogedog.pet.domain.entity.PetGuide;
+import com.swyp.catsgotogedog.pet.repository.PetGuideRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
 
@@ -37,6 +40,7 @@ public class ContentService {
     private final UserRepository userRepository;
     private final ViewLogRepository viewLogRepository;
     private final VisitHistoryRepository visitHistoryRepository;
+    private final PetGuideRepository petGuideRepository;
 
     private final ContentSearchService contentSearchService;
 
@@ -83,7 +87,10 @@ public class ContentService {
 
         List<ContentImageResponse> detailImage = getDetailImage(contentId);
 
-        return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage);
+        PetGuide petGuide = getPetGuide(contentId)
+                .orElse(null);
+
+        return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage,petGuide);
     }
 
     public void recordView(String userId, int contentId){
@@ -144,4 +151,12 @@ public class ContentService {
                 ))
                 .toList();
     }
+
+    public Optional<PetGuide> getPetGuide(int contentId) {
+        if (petGuideRepository.existsByContent_ContentId(contentId)) {
+            return petGuideRepository.findByContent_ContentId(contentId);
+        }
+        return Optional.empty();
+    }
+
 }
