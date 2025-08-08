@@ -74,6 +74,7 @@ public class ContentController implements ContentControllerSwagger{
         return ResponseEntity.ok().body(recent);
     }
 
+
     @PostMapping("/wish-check")
     public ResponseEntity<?> checkWish(
             @AuthenticationPrincipal String userId,
@@ -83,7 +84,7 @@ public class ContentController implements ContentControllerSwagger{
         return ResponseEntity.ok(Map.of("checkWish", checkWish));
     }
 
-    @GetMapping("/visited-check")
+    @PostMapping("/visited-check")
     public ResponseEntity<?> checkVisited(
             @AuthenticationPrincipal String userId,
             @RequestParam int contentId
