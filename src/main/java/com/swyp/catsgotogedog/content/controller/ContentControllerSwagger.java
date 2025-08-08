@@ -43,7 +43,7 @@ public interface ContentControllerSwagger {
             @RequestParam(required = false) String sido,
 
             @Parameter(description = "시/군/구 코드", required = false)
-            @RequestParam(required = false) String sigungu,
+            @RequestParam(required = false) List<String> sigunguCode,
 
             @Parameter(description = "컨텐츠 유형 ID", required = false)
             @RequestParam(required = false) Integer contentTypeId,
