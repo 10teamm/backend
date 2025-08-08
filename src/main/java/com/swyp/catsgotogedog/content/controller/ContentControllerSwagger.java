@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -67,22 +68,30 @@ public interface ContentControllerSwagger {
             @Parameter(hidden = true)
             @AuthenticationPrincipal String principal
     );
-
+  
     @Operation(
-            summary = "최근 본 장소 목록 조회",
-            description = "로그인 사용자의 최근 본 장소 목록을 조회합, 비회원은 null",
+            summary = "찜 체크 기능",
+            description = "로그인된 사용자의 해당 콘텐츠 찜 상태를 설정 또는 해제. " +
+                    "이미 찜돼 있으면 해제(false), 아니면 찜(true). " +
+                    "비회원이거나 인증 정보가 없으면 false 반환",
             security = { @SecurityRequirement(name = "bearer-key") }
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = LastViewHistoryResponse.class)))),
-            @ApiResponse(responseCode = "401", description = "인증 필요")
+            @ApiResponse(responseCode = "200", description = "찜 처리 결과 반환",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "인증 필요"),
+            @ApiResponse(responseCode = "404", description = "해당 사용자 또는 콘텐츠 없음")
     })
-    ResponseEntity<List<LastViewHistoryResponse>> getRecentViews(
+    @PostMapping("/wish-check")
+    ResponseEntity<?> checkWish(
             @Parameter(hidden = true)
-            @AuthenticationPrincipal String userId
-    );
+            @AuthenticationPrincipal String userId,
 
+            @Parameter(description = "컨텐츠 ID", required = true)
+            @RequestParam int contentId
+    );
+  
     @Operation(
             summary = "방문 여부 체크",
             description = "로그인된 사용자의 해당 콘텐츠 방문 여부를 체크 또는 해제, " +

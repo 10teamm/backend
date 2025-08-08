@@ -58,6 +58,7 @@ public class PetService {
                 .name(petProfileRequest.getName())
                 .gender(petProfileRequest.getGender().charAt(0))
                 .birth(petProfileRequest.getBirth())
+                .type(petProfileRequest.getType())
                 .fierceDog(petProfileRequest.isFierceDog())
                 .sizeId(petSize)
                 .imageUrl(imageUrl)
@@ -84,6 +85,7 @@ public class PetService {
         pet.setName(petProfileRequest.getName());
         pet.setGender(petProfileRequest.getGender().charAt(0));
         pet.setBirth(petProfileRequest.getBirth());
+        pet.setType(petProfileRequest.getType());
         pet.setFierceDog(petProfileRequest.isFierceDog());
         pet.setSizeId(petSize);
 

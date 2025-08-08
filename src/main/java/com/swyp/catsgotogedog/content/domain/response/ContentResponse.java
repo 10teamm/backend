@@ -4,6 +4,7 @@ import com.swyp.catsgotogedog.content.domain.entity.Content;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -29,6 +30,9 @@ public class ContentResponse {
     private RegionCodeResponse regionName;
     private List<String> hashtag;
     private String restDate;
+    private int totalView;
+    private int wishCnt;
+    private LocalDateTime createdAt;
 
     public static ContentResponse from(
             Content c,
@@ -36,7 +40,9 @@ public class ContentResponse {
             boolean wishData,
             RegionCodeResponse regionName,
             List<String> hashtag,
-            String restDate){
+            String restDate,
+            int totalView,
+            int wishCnt){
 
         return ContentResponse.builder()
                 .contentId(c.getContentId())
@@ -58,6 +64,9 @@ public class ContentResponse {
                 .regionName(regionName)
                 .hashtag(hashtag)
                 .restDate(restDate)
+                .totalView(totalView)
+                .wishCnt(wishCnt)
+                .createdAt(c.getCreatedAt())
                 .build();
     }
 }

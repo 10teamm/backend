@@ -1,5 +1,7 @@
 package com.swyp.catsgotogedog.content.repository;
 
+import com.swyp.catsgotogedog.User.domain.entity.User;
+import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.domain.entity.ContentWish;
 
 import org.springframework.data.domain.Page;
@@ -15,7 +17,7 @@ import java.util.Set;
 public interface ContentWishRepository extends JpaRepository<ContentWish, Integer> {
 
 	@Query("SELECT COUNT(c) FROM ContentWish c WHERE c.content.contentId = :contentId")
-	int countByContentContentId(int contentId);
+	int countByContent_ContentId(int contentId);
 
     @Query("SELECT cw FROM ContentWish cw WHERE cw.userId = :userId AND cw.content.contentId = :contentId")
 	Optional<ContentWish> findByUserIdAndContentId(@Param("userId") int userId, @Param("contentId") int contentId);
@@ -25,4 +27,7 @@ public interface ContentWishRepository extends JpaRepository<ContentWish, Intege
 
 	Page<ContentWish> findAllByUserId(int userId, Pageable pageable);
 
+	boolean existsByUserIdAndContent_ContentId(int userId, int contentId);
+
+	void deleteByUserIdAndContent(int userId, Content content);
 }

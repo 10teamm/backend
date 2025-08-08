@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 public interface ViewTotalRepository extends JpaRepository<ViewTotal, Integer> {
     @Modifying
     @Transactional
@@ -23,5 +25,5 @@ public interface ViewTotalRepository extends JpaRepository<ViewTotal, Integer> {
           FROM ViewTotal vt
          WHERE vt.contentId = :contentId
     """)
-    int findTotalViewByContentId(int contentId);
+    Optional<Integer> findTotalViewByContentId(int contentId);
 }

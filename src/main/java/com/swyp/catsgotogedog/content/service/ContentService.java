@@ -71,15 +71,40 @@ public class ContentService {
 
         boolean wishData = (userId != null) ? contentSearchService.getWishData(userId, contentId) : false;
 
-        int wishCnt = contentWishRepository.countByContentContentId(contentId);
+        int wishCnt = contentWishRepository.countByContent_ContentId(contentId);
 
         boolean visited = hasVisited(userId, contentId);
 
-        int totalView = viewTotalRepository.findTotalViewByContentId(contentId);
+        int totalView = viewTotalRepository.findTotalViewByContentId(contentId)
+                .orElse(0);
 
         List<ContentImageResponse> detailImage = getDetailImage(contentId);
 
         return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage);
+    }
+
+    public boolean checkWish(String userId, int contentId){
+        if (userId == null || userId.isBlank()|| userId.equals("anonymousUser")) {
+            return false;
+        }
+
+        validateUser(userId);
+
+        Content content = contentRepository.findByContentId(contentId);
+
+        boolean isWished = isWished(userId, contentId);
+
+        if(isWished){
+            contentWishRepository.deleteByUserIdAndContent(Integer.parseInt(userId),content);
+            return false;
+        }else{
+            ContentWish cw = ContentWish.builder()
+                    .userId(Integer.parseInt(userId))
+                    .content(content)
+                    .build();
+            contentWishRepository.save(cw);
+            return true;
+        }
     }
 
     public void recordView(String userId, int contentId){
@@ -164,5 +189,17 @@ public class ContentService {
                         ci.getImageFilename()
                 ))
                 .toList();
+    }
+
+    public boolean isWished(String userId, int contentId) {
+        if (userId == null || userId.isBlank()) {
+            return false;
+        }
+        return contentWishRepository.existsByUserIdAndContent_ContentId(Integer.parseInt(userId), contentId);
+    }
+
+    private User validateUser(String userId) {
+        return userRepository.findById(Integer.parseInt(userId))
+                .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }
