@@ -1,6 +1,7 @@
 package com.swyp.catsgotogedog.review.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
@@ -24,24 +25,26 @@ public class ReviewRecommendService {
 	private final ReviewRecommendHistoryRepository reviewRecommendHistoryRepository;
 
 	// 좋아요 처리
+	@Transactional
 	public void recommendReview(int reviewId, String strUserId) {
 		int userId = Integer.parseInt(strUserId);
 		User user = validateUser(userId);
 		Review targetReview = validateReview(reviewId);
 
 		reviewRecommendHistoryRepository.findReviewRecommendHistoryByReviewAndUserId(targetReview, userId)
-			.ifPresentOrElse(reviewRecommendHistory -> {
+			.ifPresent(reviewRecommendHistory -> {
 					throw new CatsgotogedogException(ErrorCode.ALREADY_RECOMMENDED);
-				},
-				() -> reviewRecommendHistoryRepository.save(ReviewRecommendHistory.builder()
-					.userId(user.getUserId())
-					.review(targetReview)
-					.build()
-				)
-			);
+				});
+		reviewRecommendHistoryRepository.save(ReviewRecommendHistory.builder()
+			.userId(user.getUserId())
+			.review(targetReview)
+			.build());
+
+		targetReview.setRecommendedNumber(targetReview.getRecommendedNumber() + 1);
 	}
 
 	// 좋아요 해제 처리
+	@Transactional
 	public void cancelRecommendReview(int reviewId, String strUserId) {
 		int userId = Integer.parseInt(strUserId);
 		User user = validateUser(userId);
@@ -53,6 +56,7 @@ public class ReviewRecommendService {
 					throw new CatsgotogedogException(ErrorCode.NOT_RECOMMENDED_REVIEW);
 				}
 			);
+		targetReview.setRecommendedNumber(targetReview.getRecommendedNumber() - 1);
 	}
 
 	private User validateUser(int userId) {

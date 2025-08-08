@@ -17,6 +17,7 @@ public enum ErrorCode {
 
         // 403 Forbidden
         FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN.value(), "접근 권한이 없습니다."),
+        REVIEW_FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN.value(), "리뷰 접근 권한이 없습니다."),
 
         // 404 Notfound
         MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 회원입니다."),

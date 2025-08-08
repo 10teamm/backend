@@ -222,6 +222,18 @@ public class ReviewService {
 		);
 	}
 
+	// 유저의 특정 리뷰 데이터 조회
+	@Transactional(readOnly = true)
+	public MyReviewResponse fetchReviewById(int reviewId, String userId) {
+		validateUser(userId);
+		validateReview(reviewId);
+
+		Review review = reviewRepository.findByIdAndUserId(reviewId, userId)
+			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.REVIEW_FORBIDDEN_ACCESS));
+
+		return toReviewResponse(review);
+	}
+
 
 	private User validateUser(String userId) {
 		return userRepository.findById(Integer.parseInt(userId))

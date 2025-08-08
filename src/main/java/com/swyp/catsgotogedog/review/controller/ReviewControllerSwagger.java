@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 import com.swyp.catsgotogedog.review.domain.request.CreateReviewRequest;
+import com.swyp.catsgotogedog.review.domain.response.MyReviewResponse;
 import com.swyp.catsgotogedog.review.domain.response.ReviewResponse;
 
 import io.jsonwebtoken.io.IOException;
@@ -223,5 +224,23 @@ public interface ReviewControllerSwagger {
 		@Parameter(hidden = true)
 		@AuthenticationPrincipal String userId,
 		@Parameter(description = "리뷰 ID", required = true)
+		@PathVariable int reviewId);
+
+	@Operation(
+		summary = "특정 리뷰 정보 조회.",
+		description = "사용자 인증을 통해 특정 리뷰 정보를 조회합니다."
+	)
+	@SecurityRequirement(name = "bearer-key")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "리뷰 조회 성공"
+			, content = @Content(schema = @Schema(implementation = MyReviewResponse.class))),
+		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음, 이미 좋아요된 리뷰입니다."
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "404", description = "리뷰가 존재하지 않음"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+	})
+	ResponseEntity<CatsgotogedogApiResponse<?>> fetchReviewInformation(
+		@Parameter(hidden = true)
+		@AuthenticationPrincipal String userId,
 		@PathVariable int reviewId);
 }
