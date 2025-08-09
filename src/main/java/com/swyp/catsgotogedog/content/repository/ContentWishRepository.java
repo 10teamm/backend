@@ -32,4 +32,9 @@ public interface ContentWishRepository extends JpaRepository<ContentWish, Intege
 	void deleteByUserIdAndContent(int userId, Content content);
 
 	List<ContentWish> findByUserIdAndContentContentIdIn(@Param("userId") int userId, @Param("topContentIds") List<Integer> topContentIds);
+
+	@Query("SELECT cw.content.contentId FROM ContentWish cw WHERE cw.userId = :userId")
+	List<Integer> findContentIdsByUserId(@Param("userId") int userId);
+
+	long countByUserId(int userId);
 }
