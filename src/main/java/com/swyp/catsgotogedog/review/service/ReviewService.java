@@ -88,6 +88,13 @@ public class ReviewService {
 		review.setContent(request.getContent());
 
 		if(images != null && !images.isEmpty()) {
+			List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
+			int totalImages = reviewImages.size() + images.size();
+
+			if(totalImages > ImageUploadType.REVIEW.getMaxFiles() || images.size() > ImageUploadType.REVIEW.getMaxFiles()) {
+				throw new CatsgotogedogException(ErrorCode.REVIEW_IMAGE_LIMIT_EXCEEDED);
+			}
+
 			List<ImageInfo> imageInfos = imageStorageService.upload(images, ImageUploadType.REVIEW);
 			List<ReviewImage> saveImages = imageInfos.stream()
 				.map(imageInfo -> ReviewImage.builder()
