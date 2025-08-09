@@ -44,6 +44,9 @@ public enum ErrorCode {
         ALREADY_RECOMMENDED(HttpStatus.BAD_REQUEST.value(), "이미 좋아요된 리뷰입니다."),
         NOT_RECOMMENDED_REVIEW(HttpStatus.BAD_REQUEST.value(), "좋아요 상태인 리뷰가 아닙니다."),
 
+        // 415 Unsupported Mediatype
+        MEDIA_TYPE_NOT_SUPPORTED(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), "지원하지 않는 미디어 타입(Content-type) 입니다."),
+
         // 500 Internal Server Error
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부 오류가 발생했습니다."),
         
