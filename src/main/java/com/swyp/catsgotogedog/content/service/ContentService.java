@@ -8,6 +8,7 @@ import com.swyp.catsgotogedog.content.domain.response.ContentImageResponse;
 import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.repository.*;
+import com.swyp.catsgotogedog.mypage.domain.entity.LastViewHistory;
 import com.swyp.catsgotogedog.pet.domain.entity.PetGuide;
 import com.swyp.catsgotogedog.pet.repository.PetGuideRepository;
 import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
@@ -40,6 +41,7 @@ public class ContentService {
     private final ViewLogRepository viewLogRepository;
     private final VisitHistoryRepository visitHistoryRepository;
     private final PetGuideRepository petGuideRepository;
+    private final LastViewHistoryRepository lastViewHistoryRepository;
 
     private final ContentSearchService contentSearchService;
 
@@ -218,9 +220,35 @@ public class ContentService {
         return contentWishRepository.existsByUserIdAndContent_ContentId(Integer.parseInt(userId), contentId);
     }
 
+    @Transactional
+    public void saveLastViewedContent(String strUserId, int contentId) {
+        int userId = strUserId.equals("anonymousUser") ? 0 : Integer.parseInt(strUserId);
+        User user = validateUser(userId);
+        Content content = validateContent(contentId);
+
+        LastViewHistory lastViewHistory = lastViewHistoryRepository.findByContentAndUser(content, user)
+            .orElse(LastViewHistory.builder()
+                .content(content)
+                .user(user)
+                .build());
+
+        lastViewHistory.setLastViewedAt(now());
+        lastViewHistoryRepository.save(lastViewHistory);
+    }
+
     private User validateUser(String userId) {
         return userRepository.findById(Integer.parseInt(userId))
-                .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private User validateUser(int userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private Content validateContent(int contentId) {
+        return contentRepository.findById(contentId)
+            .orElseThrow(() -> new CatsgotogedogException(ErrorCode.CONTENT_NOT_FOUND));
     }
 
 }
