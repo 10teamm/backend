@@ -77,6 +77,7 @@ public class MyPageHistoryService {
 		return new ContentWishPageResponse(
 			wishPage.stream()
 				.map(wish -> new ContentWishResponse(
+					wish.getContent().getContentId(),
 					wish.getContent().getImage(),
 					wish.getContent().getThumbImage(),
 					Boolean.TRUE
