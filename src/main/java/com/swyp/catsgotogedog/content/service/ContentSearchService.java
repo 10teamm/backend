@@ -1,8 +1,7 @@
 package com.swyp.catsgotogedog.content.service;
 
 import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
 import com.swyp.catsgotogedog.content.domain.entity.Content;
@@ -22,6 +21,8 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -99,8 +100,26 @@ public class ContentSearchService {
             }
         }
 
-        Query esQuery = new Query.Builder()
+        Query baseQuery = new Query.Builder()
                 .bool(boolBuilder.build())
+                .build();
+
+        long seed = dailySeed(contentTypeId);
+
+        Query esQuery = new Query.Builder()
+                .functionScore(fs -> fs
+                        .query(baseQuery)
+                        .functions(
+                                FunctionScore.of(fn -> fn
+                                        .randomScore(rs -> rs
+                                                .seed(String.valueOf(seed))
+                                                .field("content_id")
+                                        )
+                                )
+                        )
+                        .boostMode(FunctionBoostMode.Replace)
+                        .scoreMode(FunctionScoreMode.Sum)
+                )
                 .build();
 
         NativeQuery nativeQuery = NativeQuery.builder()
@@ -139,7 +158,6 @@ public class ContentSearchService {
                     );
                 })
                 .toList();
-
     }
 
     public double getAverageScore(int contentId) {
@@ -180,5 +198,9 @@ public class ContentSearchService {
         return restDate;
     }
 
-
+    private long dailySeed(Integer contentTypeId) {
+        long base = LocalDate.now(ZoneId.of("Asia/Seoul")).toEpochDay();
+        long cat  = (contentTypeId != null && contentTypeId > 0) ? contentTypeId : 0;
+        return base * 1_000_000 + cat;
+    }
 }
