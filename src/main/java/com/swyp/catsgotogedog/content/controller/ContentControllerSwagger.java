@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -133,6 +134,25 @@ public interface ContentControllerSwagger {
     ResponseEntity<CatsgotogedogApiResponse<List<AiRecommendsResponse>>> recommendContents(
             @Parameter(hidden = true)
             @AuthenticationPrincipal String userId
+    );
+
+
+    @Operation(
+        summary = "최근 본 장소 저장",
+        description = "사용자 인증을 통해 최근 본 장소를 저장합니다.")
+    @SecurityRequirement(name = "bearer-key")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "최근 본 장소 저장 성공"
+            , content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
+            , content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+        @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰"
+            , content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
+    })
+    ResponseEntity<CatsgotogedogApiResponse<?>> lastViewedHistory(
+        @Parameter(hidden = true)
+        @AuthenticationPrincipal String userId,
+        @PathVariable int contentId
     );
 
 }

@@ -105,4 +105,15 @@ public class ContentController implements ContentControllerSwagger{
                 CatsgotogedogApiResponse.success("AI 추천 장소 조회 성공", recommendations));
     }
 
+    @Override
+    @PostMapping("/recent/{contentId}")
+    public ResponseEntity<CatsgotogedogApiResponse<?>> lastViewedHistory(
+        @AuthenticationPrincipal String userId,
+        @PathVariable int contentId
+    ) {
+        contentService.saveLastViewedContent(userId, contentId);
+        return ResponseEntity.ok(
+            CatsgotogedogApiResponse.success("최근 본 장소 저장 성공", null)
+        );
+    }
 }
