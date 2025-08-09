@@ -30,7 +30,8 @@ public record PlaceDetailResponse(
         int totalView,
         String overview,
         List<ContentImageResponse> detailImage,
-        PetGuide petGuide) {
+        PetGuide petGuide,
+        String restDate) {
 
     public static PlaceDetailResponse from(
             Content c,
@@ -40,7 +41,8 @@ public record PlaceDetailResponse(
             boolean visited,
             int totalView,
             List<ContentImageResponse> detailImage,
-            PetGuide petGuide){
+            PetGuide petGuide,
+            String restDate){
 
         return PlaceDetailResponse.builder()
                 .contentId(c.getContentId())
@@ -65,6 +67,7 @@ public record PlaceDetailResponse(
                 .overview(c.getOverview())
                 .detailImage(detailImage)
                 .petGuide(petGuide)
+                .restDate(restDate)
                 .build();
     }
 }

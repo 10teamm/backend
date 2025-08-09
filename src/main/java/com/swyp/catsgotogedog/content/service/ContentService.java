@@ -89,7 +89,9 @@ public class ContentService {
         PetGuide petGuide = getPetGuide(contentId)
                 .orElse(null);
 
-        return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage,petGuide);
+        String restDate = contentSearchService.getRestDate(contentId);
+
+        return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage,petGuide,restDate);
     }
 
     public boolean checkWish(String userId, int contentId){
