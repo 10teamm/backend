@@ -79,7 +79,7 @@ public class ReviewController implements ReviewControllerSwagger {
 
 	// 리뷰 삭제
 	@Override
-	@DeleteMapping(value = "/{reviewId}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	@DeleteMapping(value = "/{reviewId}")
 	public ResponseEntity<CatsgotogedogApiResponse<?>> deleteReview(
 		@PathVariable int reviewId,
 		@AuthenticationPrincipal String userId) {
@@ -93,7 +93,7 @@ public class ReviewController implements ReviewControllerSwagger {
 
 	// 리뷰 이미지 삭제
 	@Override
-	@DeleteMapping(value = "/{reviewId}/image/{imageId}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	@DeleteMapping(value = "/{reviewId}/image/{imageId}")
 	public ResponseEntity<CatsgotogedogApiResponse<?>> deleteReviewImage(
 		@PathVariable(name = "reviewId") int reviewId,
 		@PathVariable(name = "imageId") int imageId,

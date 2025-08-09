@@ -7,11 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
@@ -133,6 +135,14 @@ public class GlobalExceptionHandler {
 		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(HttpStatus.BAD_REQUEST.value() , e.getMessage());
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
+			.body(response);
+	}
+
+	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+	protected ResponseEntity<CatsgotogedogApiResponse<Object>> handleHttpMediaTypeNotSupportedException(MalformedJwtException e) {
+		CatsgotogedogApiResponse<Object> response = CatsgotogedogApiResponse.fail(ErrorCode.MEDIA_TYPE_NOT_SUPPORTED , ErrorCode.MEDIA_TYPE_NOT_SUPPORTED.getMessage());
+		return ResponseEntity
+			.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
 			.body(response);
 	}
 
