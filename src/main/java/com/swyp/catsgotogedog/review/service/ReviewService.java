@@ -81,8 +81,12 @@ public class ReviewService {
 	@Transactional
 	public void updateReview(int reviewId, String userId, CreateReviewRequest request, List<MultipartFile> images) {
 		User user = validateUser(userId);
-		Review review = reviewRepository.findByIdAndUserId(reviewId, userId)
+		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.REVIEW_NOT_FOUND));
+
+		if(user.getUserId() != review.getUserId()) {
+			throw new CatsgotogedogException(ErrorCode.REVIEW_FORBIDDEN_ACCESS);
+		}
 
 		review.setScore(request.getScore());
 		review.setContent(request.getContent());
@@ -112,8 +116,12 @@ public class ReviewService {
 	public void deleteReview(int reviewId, String userId) {
 		User user = validateUser(userId);
 		validateReview(reviewId);
-		Review review = reviewRepository.findByIdAndUserId(reviewId, userId)
-			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.FORBIDDEN_ACCESS));
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new CatsgotogedogException(ErrorCode.REVIEW_NOT_FOUND));
+
+		if(user.getUserId() != review.getUserId()) {
+			throw new CatsgotogedogException(ErrorCode.REVIEW_FORBIDDEN_ACCESS);
+		}
 
 		List<ReviewImage> images = reviewImageRepository.findByReview(review);
 
@@ -126,11 +134,15 @@ public class ReviewService {
 	// 리뷰 이미지 삭제
 	@Transactional
 	public void deleteReviewImage(int reviewId, int imageId, String userId) {
-		validateUser(userId);
+		User user = validateUser(userId);
 		validateReview(reviewId);
 
-		reviewRepository.findByIdAndUserId(reviewId, userId)
-				.orElseThrow(() -> new CatsgotogedogException(ErrorCode.FORBIDDEN_ACCESS));
+		Review review = reviewRepository.findById(reviewId)
+				.orElseThrow(() -> new CatsgotogedogException(ErrorCode.REVIEW_NOT_FOUND));
+
+		if(user.getUserId() != review.getUserId()) {
+			throw new CatsgotogedogException(ErrorCode.REVIEW_FORBIDDEN_ACCESS);
+		}
 
 		ReviewImage image = reviewImageRepository.findById(imageId)
 				.orElseThrow(() -> new CatsgotogedogException(ErrorCode.REVIEW_IMAGE_NOT_FOUND));
