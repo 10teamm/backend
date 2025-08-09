@@ -54,7 +54,7 @@ public class JwtTokenFilter implements Filter {
                 return;
             } catch (Exception e) {
                 log.error("인증 처리 중 오류 발생: {}", e.getMessage(), e);
-                sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "인증 처리 중 오류가 발생했습니다.");
+                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "인증 처리 중 오류가 발생했습니다.");
                 return;
             }
         }
