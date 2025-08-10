@@ -33,7 +33,7 @@ public class PetService {
     private final UserRepository userRepository;
     private final ImageStorageService imageStorageService;
 
-    private final String DEFAULT_IMAGE_URL = "https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/default_user_image.png";
+    private final String DEFAULT_IMAGE_URL = "https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/default_pet_image.png";
 
     public List<Pet> getAllPets(String userId) {
         return petRepository.findAllByUser_UserIdOrderByPetId(Integer.parseInt(userId));
