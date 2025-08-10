@@ -38,7 +38,7 @@ public interface PetControllerSwagger {
         summary = "반려동물 프로필 등록",
         description = """
                 사용자의 새로운 반려동물 프로필을 등록합니다. 반려동물의 정보와 이미지를 함께 업로드할 수 있습니다. 최대 10마리까지 등록 가능합니다.<br />
-                사진을 포함한 모든 정보는 필수로 입력해야 합니다.<br />
+                사진을 제외한 모든 정보는 필수로 입력해야 합니다.<br />
                 반려동물 크기는 소형, 중형, 대형 중 하나를 선택해야 합니다."""
     )
     @SecurityRequirement(name = "bearer-key")
