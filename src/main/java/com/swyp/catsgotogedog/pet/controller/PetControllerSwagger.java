@@ -36,7 +36,10 @@ public interface PetControllerSwagger {
 
     @Operation(
         summary = "반려동물 프로필 등록",
-        description = "사용자의 새로운 반려동물 프로필을 등록합니다. 반려동물의 정보와 이미지를 함께 업로드할 수 있습니다. 최대 10마리까지 등록 가능합니다."
+        description = """
+                사용자의 새로운 반려동물 프로필을 등록합니다. 반려동물의 정보와 이미지를 함께 업로드할 수 있습니다. 최대 10마리까지 등록 가능합니다.<br />
+                사진을 제외한 모든 정보는 필수로 입력해야 합니다.<br />
+                반려동물 크기는 소형, 중형, 대형 중 하나를 선택해야 합니다."""
     )
     @SecurityRequirement(name = "bearer-key")
     @ApiResponses({
@@ -58,7 +61,10 @@ public interface PetControllerSwagger {
 
     @Operation(
         summary = "반려동물 프로필 수정",
-        description = "등록된 반려동물의 프로필 정보를 수정합니다. 본인의 반려동물만 수정할 수 있습니다."
+        description = """
+                등록된 반려동물의 프로필 정보를 수정합니다. 본인의 반려동물만 수정할 수 있습니다.<br />
+                사진을 제외한 모든 정보는 필수로 입력해야 합니다.<br />
+                반려동물 크기는 소형, 중형, 대형 중 하나를 선택해야 합니다."""
     )
     @SecurityRequirement(name = "bearer-key")
     @ApiResponses({
