@@ -9,6 +9,7 @@ import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
 import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
 import com.swyp.catsgotogedog.content.repository.*;
 import com.swyp.catsgotogedog.mypage.domain.entity.LastViewHistory;
+import com.swyp.catsgotogedog.mypage.domain.entity.LastViewHistoryId;
 import com.swyp.catsgotogedog.pet.domain.entity.PetGuide;
 import com.swyp.catsgotogedog.pet.repository.PetGuideRepository;
 import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
@@ -220,19 +221,22 @@ public class ContentService {
         return contentWishRepository.existsByUserIdAndContent_ContentId(Integer.parseInt(userId), contentId);
     }
 
+    // 최근 본 장소 데이터 저장
     @Transactional
     public void saveLastViewedContent(String strUserId, int contentId) {
         int userId = strUserId.equals("anonymousUser") ? 0 : Integer.parseInt(strUserId);
         User user = validateUser(userId);
         Content content = validateContent(contentId);
 
-        LastViewHistory lastViewHistory = lastViewHistoryRepository.findByContentAndUser(content, user)
+        LastViewHistoryId id = new LastViewHistoryId(userId, contentId);
+        LastViewHistory lastViewHistory = lastViewHistoryRepository.findById(id)
             .orElse(LastViewHistory.builder()
-                .content(content)
                 .user(user)
+                .content(content)
                 .build());
 
         lastViewHistory.setLastViewedAt(now());
+
         lastViewHistoryRepository.save(lastViewHistory);
     }
 
