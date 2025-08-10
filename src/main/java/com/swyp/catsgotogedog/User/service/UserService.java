@@ -115,7 +115,7 @@ public class UserService {
 			imageStorageService.delete(user.getImageFilename());
 			user.setImageFilename(null);
 		}
-		user.setImageUrl("https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/no_image.png");
+		user.setImageUrl("https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/default_user_image.png");
 		userRepository.save(user);
 	}
 

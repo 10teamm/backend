@@ -33,6 +33,8 @@ public class PetService {
     private final UserRepository userRepository;
     private final ImageStorageService imageStorageService;
 
+    private final String DEFAULT_IMAGE_URL = "https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/default_user_image.png";
+
     public List<Pet> getAllPets(String userId) {
         return petRepository.findAllByUser_UserIdOrderByPetId(Integer.parseInt(userId));
     }
@@ -43,7 +45,7 @@ public class PetService {
 
         PetSize petSize = findPetSizeBySize(petProfileRequest.getSize());
 
-        String imageUrl = "https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/no_image.png";
+        String imageUrl = DEFAULT_IMAGE_URL;
         String imageFilename = null;
 
         // 이미지 업로드 처리 (이미지가 있는 경우)
@@ -146,6 +148,6 @@ public class PetService {
             imageStorageService.delete(pet.getImageFilename());
             pet.setImageFilename(null);
         }
-        pet.setImageUrl("https://kr.object.ncloudstorage.com/catsgotogedogbucket/profile/no_image.png");
+        pet.setImageUrl(DEFAULT_IMAGE_URL);
     }
 }
