@@ -27,6 +27,7 @@ public enum ErrorCode {
         REVIEW_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 리뷰 이미지입니다."),
         SIGUNGU_CODE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "해당 지역을 찾을 수 없습니다."),
         SIDO_CODE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "해당 시/도를 찾을 수 없습니다."),
+        ENDPOINT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "요청한 API 엔드포인트를 찾을 수 없습니다."),
 
         // 405 Method not allowed
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED.value(), "허용되지 않은 HTTP 메소드입니다."),
@@ -43,12 +44,35 @@ public enum ErrorCode {
         CLOVA_HASHTAG_SERVER_ERROR(HttpStatus.BAD_REQUEST.value(), "클로바 서버 연결 오류"),
         ALREADY_RECOMMENDED(HttpStatus.BAD_REQUEST.value(), "이미 좋아요된 리뷰입니다."),
         NOT_RECOMMENDED_REVIEW(HttpStatus.BAD_REQUEST.value(), "좋아요 상태인 리뷰가 아닙니다."),
+        MISSING_REQUEST_HEADER(HttpStatus.BAD_REQUEST.value(), "필수 요청 헤더가 누락되었습니다."),
+        CONSTRAINT_VIOLATION(HttpStatus.BAD_REQUEST.value(), "입력값이 제약 조건을 위반했습니다."),
+
+        // 408 - 요청 타임아웃
+        REQUEST_TIMEOUT(HttpStatus.REQUEST_TIMEOUT.value(), "요청 처리 시간이 초과되었습니다."),
 
         // 415 Unsupported Mediatype
         MEDIA_TYPE_NOT_SUPPORTED(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), "지원하지 않는 미디어 타입(Content-type) 입니다."),
 
+        // 413 - 페이로드 너무 큼
+        PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE.value(), "요청 데이터 크기가 허용 범위를 초과했습니다."),
+
+        // 429 - 요청 제한 초과
+        TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS.value(), "요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요."),
+
+        // 503 - 서비스 이용 불가
+        SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE.value(), "일시적으로 서비스를 이용할 수 없습니다."),
+
+        // 502 - 외부 API 호출 실패
+        EXTERNAL_API_ERROR(HttpStatus.BAD_GATEWAY.value(), "외부 서비스 호출에 실패했습니다."),
+
+        // 504 - 게이트웨이 타임아웃
+        GATEWAY_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT.value(), "외부 서비스 응답 시간이 초과되었습니다."),
+
         // 500 Internal Server Error
-        INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부 오류가 발생했습니다."),
+        INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "현재 서버가 원할하지 않습니다. 잠시 후 다시 시도 또는 개발자에게 문의 해주세요"),
+        DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터베이스 처리 중 오류가 발생했습니다."),
+        TRANSACTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "트랜잭션 처리 중 오류가 발생했습니다."),
+        FILE_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "파일 처리 중 오류가 발생했습니다."),
         
         // User 관련
         DUPLICATE_DISPLAY_NAME(HttpStatus.BAD_REQUEST.value(), "이미 사용 중인 닉네임입니다."),

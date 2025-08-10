@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
 import com.swyp.catsgotogedog.review.domain.request.CreateReviewRequest;
+import com.swyp.catsgotogedog.review.domain.response.ContentReviewPageResponse;
+import com.swyp.catsgotogedog.review.domain.response.MyReviewPageResponse;
 import com.swyp.catsgotogedog.review.domain.response.MyReviewResponse;
 import com.swyp.catsgotogedog.review.domain.response.ReviewResponse;
 
@@ -69,6 +71,8 @@ public interface ReviewControllerSwagger {
 		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
 			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
 		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰"
+			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
+		@ApiResponse(responseCode = "403", description = "접근 권한이 없음, 다른 사람의 리뷰 수정시"
 			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
 		@ApiResponse(responseCode = "404", description = "ContentId가 존재하지 않음"
 			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class)))
@@ -148,7 +152,7 @@ public interface ReviewControllerSwagger {
 	@SecurityRequirement(name = "bearer-key")
 	@ApiResponses({
 		@ApiResponse(responseCode = "200", description = "리뷰 목록 조회 성공"
-			, content = @Content(schema = @Schema(implementation = ReviewResponse.class))),
+			, content = @Content(schema = @Schema(implementation = ContentReviewPageResponse.class))),
 		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
 			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
 		@ApiResponse(responseCode = "404", description = "컨텐츠가 존재하지 않음"
@@ -174,7 +178,7 @@ public interface ReviewControllerSwagger {
 	@SecurityRequirement(name = "bearer-key")
 	@ApiResponses({
 		@ApiResponse(responseCode = "200", description = "리뷰 목록 조회 성공"
-			, content = @Content(schema = @Schema(implementation = ReviewResponse.class))),
+			, content = @Content(schema = @Schema(implementation = MyReviewPageResponse.class))),
 		@ApiResponse(responseCode = "400", description = "요청 값이 누락되거나 유효하지 않음"
 			, content = @Content(schema = @Schema(implementation = CatsgotogedogApiResponse.class))),
 		@ApiResponse(responseCode = "404", description = "리뷰가 존재하지 않음"
