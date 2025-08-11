@@ -1,11 +1,13 @@
 package com.swyp.catsgotogedog.content.repository;
 
 import com.swyp.catsgotogedog.content.domain.entity.ViewTotal;
+import com.swyp.catsgotogedog.content.repository.projection.ViewTotalProjection;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ViewTotalRepository extends JpaRepository<ViewTotal, Integer> {
@@ -26,4 +28,12 @@ public interface ViewTotalRepository extends JpaRepository<ViewTotal, Integer> {
          WHERE vt.contentId = :contentId
     """)
     Optional<Integer> findTotalViewByContentId(int contentId);
+    @Query("""
+        SELECT vt.contentId AS contentId,
+               vt.totalView AS totalView
+        FROM ViewTotal vt
+        WHERE vt.contentId IN :contentIds
+    """)
+    List<ViewTotalProjection> findTotalViewByContentIdIn(List<Integer> contentIds);
+
 }
