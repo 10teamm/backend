@@ -4,6 +4,7 @@ import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.content.domain.entity.Content;
 import com.swyp.catsgotogedog.content.domain.entity.ContentWish;
 
+import com.swyp.catsgotogedog.content.repository.projection.WishCountProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,4 +38,13 @@ public interface ContentWishRepository extends JpaRepository<ContentWish, Intege
 	List<Integer> findContentIdsByUserId(@Param("userId") int userId);
 
 	long countByUserId(int userId);
+
+	@Query("""
+           SELECT cw.content.contentId AS contentId,
+                  COUNT(cw)            AS wishCount
+           FROM ContentWish cw
+           WHERE cw.content.contentId IN :contentIds
+           GROUP BY cw.content.contentId
+           """)
+	List<WishCountProjection> countByContentIdIn(List<Integer> contentIds);
 }

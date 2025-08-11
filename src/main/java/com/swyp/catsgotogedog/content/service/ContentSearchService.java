@@ -4,14 +4,15 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import com.swyp.catsgotogedog.User.domain.entity.User;
 import com.swyp.catsgotogedog.User.repository.UserRepository;
-import com.swyp.catsgotogedog.content.domain.entity.Content;
-import com.swyp.catsgotogedog.content.domain.entity.ContentDocument;
-import com.swyp.catsgotogedog.content.domain.entity.ContentImage;
-import com.swyp.catsgotogedog.content.domain.entity.RegionCode;
+import com.swyp.catsgotogedog.content.domain.entity.*;
 import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
 import com.swyp.catsgotogedog.content.domain.response.RegionCodeResponse;
 import com.swyp.catsgotogedog.content.repository.*;
+import com.swyp.catsgotogedog.content.repository.projection.RestDateProjection;
+import com.swyp.catsgotogedog.content.repository.projection.ViewTotalProjection;
+import com.swyp.catsgotogedog.content.repository.projection.WishCountProjection;
 import com.swyp.catsgotogedog.review.repository.ContentReviewRepository;
+import com.swyp.catsgotogedog.review.repository.projection.AvgScoreProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,10 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -138,24 +136,80 @@ public class ContentSearchService {
         Map<Integer, Content> contentMap = contentRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Content::getContentId, c -> c));
 
+        Map<Integer, Double> avgScoreMap = new HashMap<>();
+        List<AvgScoreProjection> avgRows = contentReviewRepository.findAvgScoreByContentIdIn(ids);
+        for (AvgScoreProjection row : avgRows) {
+            Double v = row.getAvgScore();
+            avgScoreMap.put(row.getContentId(),v);
+        }
+
+        Set<Integer> wishedSet;
+        if (userId != null && !userId.isBlank()) {
+            wishedSet = contentWishRepository
+                    .findWishedContentIdsByUserIdAndContentIds(Integer.parseInt(userId), ids);
+        } else {
+            wishedSet = Collections.emptySet();
+        }
+
+        Map<Integer, List<String>> hashtagMap = new HashMap<>();
+        List<Hashtag> hashtags = hashtagRepository.findByContentIdIn(ids);
+        for (Hashtag h : hashtags) {
+            int cid = h.getContentId();
+            List<String> list = hashtagMap.get(cid);
+            if (list == null) {
+                list = new ArrayList<>();
+                hashtagMap.put(cid, list);
+            }
+            list.add(h.getContent());
+        }
+
+        Map<Integer, String> restDateMap = new HashMap<>();
+        List<RestDateProjection> sightRows = sightsInformationRepository.findRestDateByContentIdIn(ids);
+        for (RestDateProjection r : sightRows) {
+            String rd = r.getRestDate();
+            if (rd != null) {
+                restDateMap.put(r.getContentId(), rd);
+            }
+        }
+        List<RestDateProjection> restRows = restaurantInformationRepository.findRestDateByContentIdIn(ids);
+        for (RestDateProjection r : restRows) {
+            String rd = r.getRestDate();
+            if (rd != null) {
+                restDateMap.putIfAbsent(r.getContentId(), rd);
+            }
+        }
+
+        Map<Integer, Integer> totalViewMap = new HashMap<>();
+        List<ViewTotalProjection> viewRows = viewTotalRepository.findTotalViewByContentIdIn(ids);
+        for (ViewTotalProjection v : viewRows) {
+            int tv = v.getTotalView();
+            totalViewMap.put(v.getContentId(), tv);
+        }
+
+        Map<Integer, Integer> wishCntMap = new HashMap<>();
+        List<WishCountProjection> wishCntRows = contentWishRepository.countByContentIdIn(ids);
+        for (WishCountProjection w : wishCntRows) {
+            int cnt = w.getWishCount();
+            wishCntMap.put(w.getContentId(), cnt);
+        }
+
         return ids.stream()
                 .map(contentMap::get)
                 .filter(Objects::nonNull)
                 .filter(c -> c.getSidoCode() != 0 && c.getSigunguCode() != 0)
                 .map(content -> {
-
                     int id = content.getContentId();
-                    double avg = getAverageScore(id);
-                    boolean wishData = (userId != null) ? getWishData(userId, id) : false;
-                    RegionCodeResponse regionName = getRegionName(content.getSidoCode(), content.getSigunguCode());
-                    List<String> hashtag = hashtagRepository.findContentsByContentId(id);
-                    String restDate = getRestDate(id);
-                    int totalView = viewTotalRepository.findTotalViewByContentId(id).orElse(0);
-                    int wishCnt = contentWishRepository.countByContent_ContentId(id);
 
-                    return ContentResponse.from(
-                            content, avg, wishData, regionName, hashtag, restDate, totalView, wishCnt
-                    );
+                    double avg = avgScoreMap.getOrDefault(id, 0.0);
+                    boolean wishData = wishedSet.contains(id);
+                    List<String> hashtag = hashtagMap.getOrDefault(id, List.of());
+                    String restDate = restDateMap.get(id);
+                    int totalView = totalViewMap.getOrDefault(id, 0);
+                    int wishCnt = wishCntMap.getOrDefault(id, 0);
+
+                    RegionCodeResponse regionName = getRegionName(content.getSidoCode(), content.getSigunguCode());
+
+                    return ContentResponse.from(content, avg, wishData, regionName, hashtag, restDate, totalView, wishCnt);
                 })
                 .toList();
     }
