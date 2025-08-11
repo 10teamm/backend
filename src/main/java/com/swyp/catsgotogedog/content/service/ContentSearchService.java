@@ -177,6 +177,8 @@ public class ContentSearchService {
                         w -> w.getWishCount()
                 ));
 
+        Map<String, RegionCodeResponse> regionCache = new HashMap<>();
+
         return ids.stream()
                 .map(contentMap::get)
                 .filter(Objects::nonNull)
@@ -191,7 +193,10 @@ public class ContentSearchService {
                     int totalView = Optional.ofNullable(totalViewMap.get(id)).orElse(0);
                     int wishCnt = Optional.ofNullable(wishCntMap.get(id)).orElse(0);
 
-                    RegionCodeResponse regionName = getRegionName(content.getSidoCode(), content.getSigunguCode());
+                    String key = content.getSidoCode() + "-" + content.getSigunguCode();
+                    RegionCodeResponse regionName = regionCache.computeIfAbsent(key, k ->
+                            getRegionName(content.getSidoCode(), content.getSigunguCode())
+                    );
 
                     return ContentResponse.from(content, avg, wishData, regionName, hashtags, restDate, totalView, wishCnt);
                 })
