@@ -136,62 +136,48 @@ public class ContentSearchService {
         Map<Integer, Content> contentMap = contentRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Content::getContentId, c -> c));
 
-        Map<Integer, Double> avgScoreMap = new HashMap<>();
-        List<AvgScoreProjection> avgRows = contentReviewRepository.findAvgScoreByContentIdIn(ids);
-        for (AvgScoreProjection row : avgRows) {
-            Double v = row.getAvgScore();
-            avgScoreMap.put(row.getContentId(),v);
-        }
+        Map<Integer, Double> avgScoreMap = contentReviewRepository
+                .findAvgScoreByContentIdIn(ids).stream()
+                .collect(Collectors.toMap(
+                        AvgScoreProjection::getContentId,
+                        p -> Optional.ofNullable(p.getAvgScore()).orElse(0.0)
+                ));
 
-        Set<Integer> wishedSet;
-        if (userId != null && !userId.isBlank()) {
-            wishedSet = contentWishRepository
-                    .findWishedContentIdsByUserIdAndContentIds(Integer.parseInt(userId), ids);
-        } else {
-            wishedSet = Collections.emptySet();
-        }
+        Set<Integer> wishedSet = (userId != null && !userId.isBlank())
+                ? contentWishRepository.findWishedContentIdsByUserIdAndContentIds(Integer.parseInt(userId), ids)
+                : Set.of();
 
-        Map<Integer, List<String>> hashtagMap = new HashMap<>();
-        List<Hashtag> hashtags = hashtagRepository.findByContentIdIn(ids);
-        for (Hashtag h : hashtags) {
-            int cid = h.getContentId();
-            List<String> list = hashtagMap.get(cid);
-            if (list == null) {
-                list = new ArrayList<>();
-                hashtagMap.put(cid, list);
-            }
-            list.add(h.getContent());
-        }
+        Map<Integer, List<String>> hashtagMap = hashtagRepository.findByContentIdIn(ids).stream()
+                .collect(Collectors.groupingBy(
+                        Hashtag::getContentId,
+                        Collectors.mapping(Hashtag::getContent, Collectors.toList())
+                ));
 
-        Map<Integer, String> restDateMap = new HashMap<>();
-        List<RestDateProjection> sightRows = sightsInformationRepository.findRestDateByContentIdIn(ids);
-        for (RestDateProjection r : sightRows) {
-            String rd = r.getRestDate();
-            if (rd != null) {
-                restDateMap.put(r.getContentId(), rd);
-            }
-        }
-        List<RestDateProjection> restRows = restaurantInformationRepository.findRestDateByContentIdIn(ids);
-        for (RestDateProjection r : restRows) {
-            String rd = r.getRestDate();
-            if (rd != null) {
-                restDateMap.putIfAbsent(r.getContentId(), rd);
-            }
-        }
+        Map<Integer, String> restDateMap = sightsInformationRepository
+                .findRestDateByContentIdIn(ids).stream()
+                .collect(Collectors.toMap(
+                        RestDateProjection::getContentId,
+                        RestDateProjection::getRestDate,
+                        (a, b) -> a
+                ));
+        restaurantInformationRepository.findRestDateByContentIdIn(ids)
+                .forEach(r -> restDateMap.putIfAbsent(r.getContentId(), r.getRestDate()));
 
-        Map<Integer, Integer> totalViewMap = new HashMap<>();
-        List<ViewTotalProjection> viewRows = viewTotalRepository.findTotalViewByContentIdIn(ids);
-        for (ViewTotalProjection v : viewRows) {
-            int tv = v.getTotalView();
-            totalViewMap.put(v.getContentId(), tv);
-        }
+        Map<Integer, Integer> totalViewMap = viewTotalRepository
+                .findTotalViewByContentIdIn(ids).stream()
+                .collect(Collectors.toMap(
+                        ViewTotalProjection::getContentId,
+                        v -> Optional.ofNullable(v.getTotalView()).orElse(0)
+                ));
 
-        Map<Integer, Integer> wishCntMap = new HashMap<>();
-        List<WishCountProjection> wishCntRows = contentWishRepository.countByContentIdIn(ids);
-        for (WishCountProjection w : wishCntRows) {
-            int cnt = w.getWishCount();
-            wishCntMap.put(w.getContentId(), cnt);
-        }
+        Map<Integer, Integer> wishCntMap = contentWishRepository
+                .countByContentIdIn(ids).stream()
+                .collect(Collectors.toMap(
+                        WishCountProjection::getContentId,
+                        w -> w.getWishCount()
+                ));
+
+        Map<String, RegionCodeResponse> regionCache = new HashMap<>();
 
         return ids.stream()
                 .map(contentMap::get)
@@ -200,16 +186,19 @@ public class ContentSearchService {
                 .map(content -> {
                     int id = content.getContentId();
 
-                    double avg = avgScoreMap.getOrDefault(id, 0.0);
+                    double avg = Optional.ofNullable(avgScoreMap.get(id)).orElse(0.0);
                     boolean wishData = wishedSet.contains(id);
-                    List<String> hashtag = hashtagMap.getOrDefault(id, List.of());
+                    List<String> hashtags = hashtagMap.getOrDefault(id, List.of());
                     String restDate = restDateMap.get(id);
-                    int totalView = totalViewMap.getOrDefault(id, 0);
-                    int wishCnt = wishCntMap.getOrDefault(id, 0);
+                    int totalView = Optional.ofNullable(totalViewMap.get(id)).orElse(0);
+                    int wishCnt = Optional.ofNullable(wishCntMap.get(id)).orElse(0);
 
-                    RegionCodeResponse regionName = getRegionName(content.getSidoCode(), content.getSigunguCode());
+                    String key = content.getSidoCode() + "-" + content.getSigunguCode();
+                    RegionCodeResponse regionName = regionCache.computeIfAbsent(key, k ->
+                            getRegionName(content.getSidoCode(), content.getSigunguCode())
+                    );
 
-                    return ContentResponse.from(content, avg, wishData, regionName, hashtag, restDate, totalView, wishCnt);
+                    return ContentResponse.from(content, avg, wishData, regionName, hashtags, restDate, totalView, wishCnt);
                 })
                 .toList();
     }
