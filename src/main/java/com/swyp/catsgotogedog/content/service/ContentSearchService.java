@@ -136,11 +136,12 @@ public class ContentSearchService {
         Map<Integer, Content> contentMap = contentRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Content::getContentId, c -> c));
 
+
         Map<Integer, Double> avgScoreMap = new HashMap<>();
         List<AvgScoreProjection> avgRows = contentReviewRepository.findAvgScoreByContentIdIn(ids);
         for (AvgScoreProjection row : avgRows) {
             Double v = row.getAvgScore();
-            avgScoreMap.put(row.getContentId(),v);
+            avgScoreMap.put(row.getContentId(), (v != null ? v : 0.0));
         }
 
         Set<Integer> wishedSet;
