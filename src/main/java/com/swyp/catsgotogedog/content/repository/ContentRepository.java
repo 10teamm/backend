@@ -47,4 +47,6 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
         @Param("hashtags") List<String> hashtags,
         @Param("excludeContentIds") List<Integer> excludeContentIds
     );
+
+    List<Content> findByImageIsNullOrImage(String image);
 }

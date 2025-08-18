@@ -1,11 +1,9 @@
 package com.swyp.catsgotogedog.content.controller;
 
 import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
-import com.swyp.catsgotogedog.content.domain.response.AiRecommendsResponse;
-import com.swyp.catsgotogedog.content.domain.response.ContentResponse;
-import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
-import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
+import com.swyp.catsgotogedog.content.domain.response.*;
 import com.swyp.catsgotogedog.content.service.AiRecommendsService;
+import com.swyp.catsgotogedog.content.service.ContentMissingDataService;
 import com.swyp.catsgotogedog.content.service.ContentSearchService;
 import com.swyp.catsgotogedog.content.service.ContentService;
 import com.swyp.catsgotogedog.global.CatsgotogedogApiResponse;
@@ -27,6 +25,7 @@ public class ContentController implements ContentControllerSwagger{
     private final ContentService contentService;
     private final ContentSearchService contentSearchService;
     private final AiRecommendsService aiRecommandService;
+    private final ContentMissingDataService contentMissingDataService;
 
     @GetMapping("/search")
     public ResponseEntity<List<ContentResponse>> search(
@@ -114,6 +113,14 @@ public class ContentController implements ContentControllerSwagger{
         contentService.saveLastViewedContent(userId, contentId);
         return ResponseEntity.ok(
             CatsgotogedogApiResponse.success("최근 본 장소 저장 성공", null)
+        );
+    }
+
+    @GetMapping("/missing/image")
+    public ResponseEntity<CatsgotogedogApiResponse<?>> getMissingImage() {
+        List<MissingImageResponse> missingImages = contentMissingDataService.getMissingImage();
+        return ResponseEntity.ok(
+            CatsgotogedogApiResponse.success("이미지 누락 장소 조회 성공", missingImages)
         );
     }
 }
