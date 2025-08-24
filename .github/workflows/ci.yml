@@ -26,7 +26,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-<<<<<<< develop
       - name: Start Elasticsearch & Kibana
         run: |
             docker compose up -d
@@ -42,9 +41,6 @@ jobs:
         run: docker compose logs --tail=50 elasticsearch || true
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
-=======
-      # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
->>>>>>> main
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -57,8 +53,6 @@ jobs:
       - name: Give execute permission to gradlew
         run: chmod +x ./gradlew
 
-<<<<<<< develop
-
       - name: Build with Gradle Wrapper
         run: ./gradlew clean build
 
@@ -68,7 +62,3 @@ jobs:
         with:
           name: test-report
           path: build/reports/tests/test
-=======
-      - name: Build with Gradle Wrapper
-        run: ./gradlew clean build
->>>>>>> main
