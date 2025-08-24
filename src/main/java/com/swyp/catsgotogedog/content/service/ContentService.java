@@ -1,0 +1,258 @@
+package com.swyp.catsgotogedog.content.service;
+
+import com.swyp.catsgotogedog.User.domain.entity.User;
+import com.swyp.catsgotogedog.User.repository.UserRepository;
+import com.swyp.catsgotogedog.content.domain.entity.*;
+import com.swyp.catsgotogedog.content.domain.request.ContentRequest;
+import com.swyp.catsgotogedog.content.domain.response.ContentImageResponse;
+import com.swyp.catsgotogedog.content.domain.response.LastViewHistoryResponse;
+import com.swyp.catsgotogedog.content.domain.response.PlaceDetailResponse;
+import com.swyp.catsgotogedog.content.repository.*;
+import com.swyp.catsgotogedog.mypage.domain.entity.LastViewHistory;
+import com.swyp.catsgotogedog.mypage.domain.entity.LastViewHistoryId;
+import com.swyp.catsgotogedog.pet.domain.entity.PetGuide;
+import com.swyp.catsgotogedog.pet.repository.PetGuideRepository;
+import com.swyp.catsgotogedog.global.exception.CatsgotogedogException;
+import com.swyp.catsgotogedog.global.exception.ErrorCode;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.Optional;
+
+import static java.time.LocalDateTime.now;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+@Transactional
+public class ContentService {
+    private final ContentRepository contentRepository;
+    private final ContentElasticRepository contentElasticRepository;
+    private final ContentImageRepository contentImageRepository;
+    private final ContentWishRepository contentWishRepository;
+    private final ViewTotalRepository viewTotalRepository;
+    private final UserRepository userRepository;
+    private final ViewLogRepository viewLogRepository;
+    private final VisitHistoryRepository visitHistoryRepository;
+    private final PetGuideRepository petGuideRepository;
+    private final LastViewHistoryRepository lastViewHistoryRepository;
+
+    private final ContentSearchService contentSearchService;
+
+    public void saveContent(ContentRequest request){
+        Content content = Content.builder()
+                .categoryId(request.getCategoryId())
+                .addr1(request.getAddr1())
+                .addr2(request.getAddr2())
+                .image(request.getImage())
+                .thumbImage(request.getThumbImage())
+                .copyright(request.getCopyright())
+                .mapx(request.getMapx())
+                .mapy(request.getMapy())
+                .mLevel(request.getMlevel())
+                .tel(request.getTel())
+                .title(request.getTitle())
+                .zipCode(request.getZipcode())
+                .contentTypeId(request.getContentTypeId())
+                .build();
+        contentRepository.save(content);
+        contentElasticRepository.save(ContentDocument.from(content));
+    }
+
+    public PlaceDetailResponse getPlaceDetail(int contentId, String userId){
+
+        viewTotalRepository.upsertAndIncrease(contentId);
+
+        if(userId != null){
+            recordView(userId, contentId);
+        }
+
+        Content content = contentRepository.findByContentId(contentId);
+
+        double avg = contentSearchService.getAverageScore(contentId);
+
+        boolean wishData = (userId != null) ? contentSearchService.getWishData(userId, contentId) : false;
+
+        int wishCnt = contentWishRepository.countByContent_ContentId(contentId);
+
+        boolean visited = hasVisited(userId, contentId);
+
+        int totalView = viewTotalRepository.findTotalViewByContentId(contentId)
+                .orElse(0);
+
+        List<ContentImageResponse> detailImage = getDetailImage(contentId);
+
+        PetGuide petGuide = getPetGuide(contentId)
+                .orElse(null);
+
+        String restDate = contentSearchService.getRestDate(contentId);
+
+        return PlaceDetailResponse.from(content,avg,wishData,wishCnt,visited,totalView,detailImage,petGuide,restDate);
+    }
+
+    public boolean checkWish(String userId, int contentId){
+        if (userId == null || userId.isBlank()|| userId.equals("anonymousUser")) {
+            return false;
+        }
+
+        validateUser(userId);
+
+        Content content = contentRepository.findByContentId(contentId);
+
+        boolean isWished = isWished(userId, contentId);
+
+        if(isWished){
+            contentWishRepository.deleteByUserIdAndContent(Integer.parseInt(userId),content);
+            return false;
+        }else{
+            ContentWish cw = ContentWish.builder()
+                    .userId(Integer.parseInt(userId))
+                    .content(content)
+                    .build();
+            contentWishRepository.save(cw);
+            return true;
+        }
+    }
+
+    public void recordView(String userId, int contentId){
+
+//        if (userId != null) {
+//            Optional<User> user = userRepository.findById(Integer.parseInt(userId));
+//        }
+
+        Content content = contentRepository.findByContentId(contentId);
+        if (content == null) {
+            throw new EntityNotFoundException("contentId=" + contentId);
+        }
+
+        User user = null;
+        if (userId != null && !userId.isBlank()) {
+            user = userRepository.findById(Integer.parseInt(userId))
+                    .orElseThrow(() -> new EntityNotFoundException("userId=" + userId));
+        }
+
+        viewLogRepository.save(
+                ViewLog.builder()
+                        .user(user)
+                        .content(content)
+                        .viewedAt(now())
+                        .build()
+        );
+    }
+
+    public boolean checkVisited(String userId, int contentId){
+        if (userId == null || userId.isBlank()|| userId.equals("anonymousUser")) {
+            return false;
+        }
+
+        User user = userRepository.findById(Integer.parseInt(userId))
+                .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Content content = contentRepository.findByContentId(contentId);
+
+        boolean visited = hasVisited(userId, contentId);
+
+        if(visited){
+            visitHistoryRepository.deleteByUserAndContent(user,content);
+            return false;
+        }else{
+            VisitHistory vh = VisitHistory.builder()
+                    .user(user)
+                    .content(content)
+                    .build();
+            visitHistoryRepository.save(vh);
+            return true;
+        }
+    }
+
+
+    public List<LastViewHistoryResponse> getRecentViews(String userId) {
+
+        if (userId == null || userId.isBlank()) {
+            return null;
+        }
+
+        Pageable top = PageRequest.of(0, 20);
+        List<Content> contents = viewLogRepository.findRecentContentByUser(Integer.parseInt(userId), top);
+
+        return contents.stream()
+                .map(LastViewHistoryResponse::from)
+                .toList();
+    }
+
+    public boolean hasVisited(String userId, int contentId) {
+        if (userId == null || userId.isBlank()) {
+            return false;
+        }
+        return visitHistoryRepository.existsByUser_UserIdAndContent_ContentId(Integer.parseInt(userId), contentId);
+    }
+
+    public List<ContentImageResponse> getDetailImage(int contentId){
+        Content content = contentRepository.findByContentId(contentId);
+        List<ContentImage> images = contentImageRepository.findAllByContent(content);
+
+        return images.stream()
+                .map(ci -> new ContentImageResponse(
+                        ci.getImageUrl(),
+                        ci.getImageFilename()
+                ))
+                .toList();
+    }
+
+
+    public Optional<PetGuide> getPetGuide(int contentId) {
+        if (petGuideRepository.existsByContent_ContentId(contentId)) {
+            return petGuideRepository.findByContent_ContentId(contentId);
+        }
+        return Optional.empty();
+    }
+
+    public boolean isWished(String userId, int contentId) {
+        if (userId == null || userId.isBlank()) {
+            return false;
+        }
+        return contentWishRepository.existsByUserIdAndContent_ContentId(Integer.parseInt(userId), contentId);
+    }
+
+    // 최근 본 장소 데이터 저장
+    @Transactional
+    public void saveLastViewedContent(String strUserId, int contentId) {
+        int userId = strUserId.equals("anonymousUser") ? 0 : Integer.parseInt(strUserId);
+        User user = validateUser(userId);
+        Content content = validateContent(contentId);
+
+        LastViewHistoryId id = new LastViewHistoryId(userId, contentId);
+        LastViewHistory lastViewHistory = lastViewHistoryRepository.findById(id)
+            .orElse(LastViewHistory.builder()
+                .user(user)
+                .content(content)
+                .build());
+
+        lastViewHistory.setLastViewedAt(now());
+
+        lastViewHistoryRepository.save(lastViewHistory);
+    }
+
+    private User validateUser(String userId) {
+        return userRepository.findById(Integer.parseInt(userId))
+            .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private User validateUser(int userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new CatsgotogedogException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private Content validateContent(int contentId) {
+        return contentRepository.findById(contentId)
+            .orElseThrow(() -> new CatsgotogedogException(ErrorCode.CONTENT_NOT_FOUND));
+    }
+
+}
