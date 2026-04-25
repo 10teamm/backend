@@ -69,6 +69,8 @@ jobs:
           key: ${{ secrets.NCP_SSH_PRIVATE_KEY }}
           source: "*-SNAPSHOT.jar"
           target: ${{ secrets.NCP_SERVER_PATH }}
+          script: |
+            whoami
 
       - name: Deploy application
         uses: appleboy/ssh-action@v1.2.2
