@@ -61,6 +61,15 @@ jobs:
         with:
           name: app-build
 
+      - name: Check deploy user
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.NCP_SERVER_IP }}
+          username: ${{ secrets.NCP_SERVER_USER }}
+          key: ${{ secrets.NCP_SSH_PRIVATE_KEY }}
+          script: |
+            whoami
+
       - name: Copy JAR to Server
         uses: appleboy/scp-action@v1
         with:
@@ -69,8 +78,7 @@ jobs:
           key: ${{ secrets.NCP_SSH_PRIVATE_KEY }}
           source: "*-SNAPSHOT.jar"
           target: ${{ secrets.NCP_SERVER_PATH }}
-          script: |
-            whoami
+          debug: true
 
       - name: Deploy application
         uses: appleboy/ssh-action@v1.2.2
