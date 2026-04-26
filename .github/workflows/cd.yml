@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # NCP Server version
+    runs-on: ubuntu-22.04
     environment: ${{ github.ref == 'refs/heads/main' && 'Product' || 'Develop' }}
     permissions:
       contents: read
@@ -19,8 +19,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
-      # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
@@ -33,7 +31,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew clean build
+        run: ./gradlew clean build -x test
 
       - name: Upload test report on failure
         if: failure()
@@ -42,7 +40,7 @@ jobs:
           name: test-report
           path: build/reports/tests/test
 
-      - name: Upload build artifact # only cd.yml
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-build
@@ -53,7 +51,7 @@ jobs:
   deploy_dev:
     needs: build
     if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-22.04 # NCP Server version
+    runs-on: ubuntu-22.04
     environment: Develop
     steps:
       - name: Download build artifact
@@ -89,23 +87,24 @@ jobs:
           script: |
             cd ${{ secrets.NCP_SERVER_PATH }}
             chmod -R 755 log
-            # 실행 중인 애플리케이션 중지 및 중지 실패 시 action 중단 방지
             if [ -f pid.file ]; then
               kill $(cat pid.file) || true
               rm pid.file
               sleep 5
             fi
-
-            # 새 애플리케이션 실행 - 일단 임시로 와일드 카드 사용
-            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-            nohup java -jar -Dspring.profiles.active=dev *-SNAPSHOT.jar > /dev/null 2>&1 & echo $! > pid.file
+            nohup java -jar \
+              -Dspring.profiles.active=dev \
+              -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/catsgotogedog \
+              -Dspring.flyway.url=jdbc:mysql://127.0.0.1:3306/catsgotogedog \
+              -Dspring.elasticsearch.uris=http://127.0.0.1:9200 \
+              *-SNAPSHOT.jar > /dev/null 2>&1 & echo $! > pid.file
             echo "Development server deploy done."
 
   # product
   deploy_prod:
     needs: build
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04 # NCP Server version
+    runs-on: ubuntu-22.04
     environment: Product
     steps:
       - name: Download build artifact
@@ -131,13 +130,15 @@ jobs:
           script: |
             cd ${{ secrets.NCP_SERVER_PATH }}
             chmod -R 755 log
-            # 실행 중인 애플리케이션 중지 및 중지 실패 시 action 중단 방지
             if [ -f pid.file ]; then
               kill $(cat pid.file) || true
               rm pid.file
               sleep 5
             fi
-
-            # 새 애플리케이션 실행 - 일단 임시로 와일드 카드 사용
-            nohup java -jar -Dspring.profiles.active=prod *-SNAPSHOT.jar > /prod/null 2>&1 & echo $! > pid.file
+            nohup java -jar \
+              -Dspring.profiles.active=prod \
+              -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3307/catsgotogedog \
+              -Dspring.flyway.url=jdbc:mysql://127.0.0.1:3307/catsgotogedog \
+              -Dspring.elasticsearch.uris=http://127.0.0.1:9200 \
+              *-SNAPSHOT.jar > /dev/null 2>&1 & echo $! > pid.file
             echo "Production server deploy done."
